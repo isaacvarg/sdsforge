@@ -1,0 +1,572 @@
+# Precautionary statement assignments, from 29 CFR 1910.1200 Appendix C.
+#
+# REVIEW REQUIRED: reference data for a document with legal and safety weight.
+#
+# Keyed by hazard statement code rather than by (class, category), because each
+# H-code corresponds to exactly one class/category pair. Equivalent, and it makes
+# both authoring and cross-referencing unambiguous.
+#
+# Every H-code in hazard_statements.yaml must appear here, and every P-code named
+# here must exist in precautionary.yaml. Both are enforced by tests.
+assignments:
+- hazard: H200
+  precautionary:
+  - P210
+  - P230
+  - P234
+  - P240
+  - P250
+  - P280
+  - P370+P380+P375
+  - P401
+  - P501
+- hazard: H201
+  precautionary:
+  - P210
+  - P230
+  - P234
+  - P240
+  - P250
+  - P280
+  - P370+P380+P375
+  - P401
+  - P501
+- hazard: H202
+  precautionary:
+  - P210
+  - P230
+  - P234
+  - P240
+  - P250
+  - P280
+  - P370+P380+P375
+  - P401
+  - P501
+- hazard: H203
+  precautionary:
+  - P210
+  - P230
+  - P234
+  - P240
+  - P250
+  - P280
+  - P370+P380+P375
+  - P401
+  - P501
+- hazard: H204
+  precautionary:
+  - P210
+  - P234
+  - P240
+  - P250
+  - P280
+  - P370+P380+P375
+  - P401
+  - P501
+- hazard: H205
+  precautionary:
+  - P210
+  - P230
+  - P234
+  - P240
+  - P250
+  - P280
+  - P370+P380+P375
+  - P401
+  - P501
+- hazard: H220
+  precautionary:
+  - P210
+  - P377
+  - P381
+  - P403
+- hazard: H221
+  precautionary:
+  - P210
+  - P377
+  - P381
+  - P403
+- hazard: H222
+  precautionary:
+  - P210
+  - P211
+  - P251
+  - P410+P412
+- hazard: H223
+  precautionary:
+  - P210
+  - P211
+  - P251
+  - P410+P412
+- hazard: H224
+  precautionary:
+  - P210
+  - P233
+  - P240
+  - P241
+  - P242
+  - P243
+  - P280
+  - P303+P361+P353
+  - P370+P378
+  - P403+P235
+  - P501
+- hazard: H225
+  precautionary:
+  - P210
+  - P233
+  - P240
+  - P241
+  - P242
+  - P243
+  - P280
+  - P303+P361+P353
+  - P370+P378
+  - P403+P235
+  - P501
+- hazard: H226
+  precautionary:
+  - P210
+  - P233
+  - P240
+  - P241
+  - P242
+  - P243
+  - P280
+  - P303+P361+P353
+  - P370+P378
+  - P403+P235
+  - P501
+- hazard: H227
+  precautionary:
+  - P210
+  - P280
+  - P370+P378
+  - P403+P235
+  - P501
+- hazard: H228
+  precautionary:
+  - P210
+  - P240
+  - P241
+  - P280
+  - P370+P378
+- hazard: H229
+  precautionary:
+  - P210
+  - P251
+  - P410+P412
+- hazard: H230
+  precautionary:
+  - P202
+  - P210
+  - P381
+  - P403
+- hazard: H231
+  precautionary:
+  - P202
+  - P210
+  - P381
+  - P403
+- hazard: H240
+  precautionary:
+  - P210
+  - P234
+  - P235
+  - P240
+  - P280
+  - P370+P380+P375
+  - P403
+  - P411
+  - P420
+  - P501
+- hazard: H241
+  precautionary:
+  - P210
+  - P234
+  - P235
+  - P240
+  - P280
+  - P370+P380+P375
+  - P403
+  - P411
+  - P420
+  - P501
+- hazard: H242
+  precautionary:
+  - P210
+  - P234
+  - P235
+  - P240
+  - P280
+  - P370+P378
+  - P403
+  - P411
+  - P420
+  - P501
+- hazard: H250
+  precautionary:
+  - P210
+  - P222
+  - P231+P232
+  - P233
+  - P280
+  - P302+P334
+  - P370+P378
+  - P422
+- hazard: H251
+  precautionary:
+  - P235
+  - P280
+  - P407
+  - P413
+  - P420
+- hazard: H252
+  precautionary:
+  - P235
+  - P280
+  - P407
+  - P413
+  - P420
+- hazard: H260
+  precautionary:
+  - P223
+  - P231+P232
+  - P280
+  - P302+P335+P334
+  - P370+P378
+  - P402+P404
+  - P501
+- hazard: H261
+  precautionary:
+  - P223
+  - P231+P232
+  - P280
+  - P302+P335+P334
+  - P370+P378
+  - P402+P404
+  - P501
+- hazard: H270
+  precautionary:
+  - P220
+  - P244
+  - P270
+  - P280
+  - P370+P376
+  - P403
+- hazard: H271
+  precautionary:
+  - P210
+  - P220
+  - P280
+  - P283
+  - P306+P360
+  - P371+P380+P375
+  - P370+P378
+  - P420
+  - P501
+- hazard: H272
+  precautionary:
+  - P210
+  - P220
+  - P280
+  - P370+P378
+  - P501
+- hazard: H280
+  precautionary:
+  - P410+P403
+- hazard: H281
+  precautionary:
+  - P282
+  - P336+P315
+  - P403
+- hazard: H290
+  precautionary:
+  - P234
+  - P390
+  - P406
+- hazard: H300
+  precautionary:
+  - P264
+  - P270
+  - P301+P310
+  - P321
+  - P330
+  - P405
+  - P501
+- hazard: H301
+  precautionary:
+  - P264
+  - P270
+  - P301+P310
+  - P321
+  - P330
+  - P405
+  - P501
+- hazard: H302
+  precautionary:
+  - P264
+  - P270
+  - P301+P312
+  - P330
+  - P501
+- hazard: H304
+  precautionary:
+  - P301+P310
+  - P331
+  - P405
+  - P501
+- hazard: H310
+  precautionary:
+  - P262
+  - P264
+  - P270
+  - P280
+  - P302+P352
+  - P310
+  - P321
+  - P361+P364
+  - P405
+  - P501
+- hazard: H311
+  precautionary:
+  - P280
+  - P302+P352
+  - P312
+  - P321
+  - P361+P364
+  - P405
+  - P501
+- hazard: H312
+  precautionary:
+  - P280
+  - P302+P352
+  - P312
+  - P321
+  - P362+P364
+  - P501
+- hazard: H314
+  precautionary:
+  - P260
+  - P264
+  - P280
+  - P301+P330+P331
+  - P303+P361+P353
+  - P304+P340
+  - P310
+  - P321
+  - P363
+  - P405
+  - P501
+- hazard: H315
+  precautionary:
+  - P264
+  - P280
+  - P302+P352
+  - P321
+  - P332+P313
+  - P362+P364
+- hazard: H316
+  precautionary:
+  - P332+P313
+- hazard: H317
+  precautionary:
+  - P261
+  - P272
+  - P280
+  - P302+P352
+  - P333+P313
+  - P321
+  - P362+P364
+  - P501
+- hazard: H318
+  precautionary:
+  - P280
+  - P305+P351+P338
+  - P310
+- hazard: H319
+  precautionary:
+  - P264
+  - P280
+  - P305+P351+P338
+  - P337+P313
+- hazard: H320
+  precautionary:
+  - P264
+  - P305+P351+P338
+  - P337+P313
+- hazard: H330
+  precautionary:
+  - P260
+  - P271
+  - P284
+  - P304+P340
+  - P310
+  - P320
+  - P403+P233
+  - P405
+  - P501
+- hazard: H331
+  precautionary:
+  - P261
+  - P271
+  - P304+P340
+  - P311
+  - P321
+  - P403+P233
+  - P405
+  - P501
+- hazard: H332
+  precautionary:
+  - P261
+  - P271
+  - P304+P340
+  - P312
+- hazard: H334
+  precautionary:
+  - P261
+  - P284
+  - P304+P340
+  - P342+P311
+  - P501
+- hazard: H335
+  precautionary:
+  - P261
+  - P271
+  - P304+P340
+  - P312
+  - P403+P233
+  - P405
+  - P501
+- hazard: H336
+  precautionary:
+  - P261
+  - P271
+  - P304+P340
+  - P312
+  - P403+P233
+  - P405
+  - P501
+- hazard: H340
+  precautionary:
+  - P201
+  - P202
+  - P280
+  - P308+P313
+  - P405
+  - P501
+- hazard: H341
+  precautionary:
+  - P201
+  - P202
+  - P280
+  - P308+P313
+  - P405
+  - P501
+- hazard: H350
+  precautionary:
+  - P201
+  - P202
+  - P280
+  - P308+P313
+  - P405
+  - P501
+- hazard: H351
+  precautionary:
+  - P201
+  - P202
+  - P280
+  - P308+P313
+  - P405
+  - P501
+- hazard: H360
+  precautionary:
+  - P201
+  - P202
+  - P280
+  - P308+P313
+  - P405
+  - P501
+- hazard: H361
+  precautionary:
+  - P201
+  - P202
+  - P280
+  - P308+P313
+  - P405
+  - P501
+- hazard: H362
+  precautionary:
+  - P201
+  - P260
+  - P263
+  - P264
+  - P270
+  - P308+P313
+- hazard: H370
+  precautionary:
+  - P260
+  - P264
+  - P270
+  - P308+P311
+  - P321
+  - P405
+  - P501
+- hazard: H371
+  precautionary:
+  - P260
+  - P264
+  - P270
+  - P308+P311
+  - P321
+  - P405
+  - P501
+- hazard: H372
+  precautionary:
+  - P260
+  - P264
+  - P270
+  - P314
+  - P501
+- hazard: H373
+  precautionary:
+  - P260
+  - P264
+  - P270
+  - P314
+  - P501
+- hazard: H400
+  precautionary:
+  - P273
+  - P391
+  - P501
+- hazard: H401
+  precautionary:
+  - P273
+  - P391
+  - P501
+- hazard: H402
+  precautionary:
+  - P273
+  - P501
+- hazard: H410
+  precautionary:
+  - P273
+  - P391
+  - P501
+- hazard: H411
+  precautionary:
+  - P273
+  - P391
+  - P501
+- hazard: H412
+  precautionary:
+  - P273
+  - P501
+- hazard: H413
+  precautionary:
+  - P273
+  - P501
+- hazard: H420
+  precautionary:
+  - P502

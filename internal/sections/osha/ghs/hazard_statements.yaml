@@ -1,0 +1,448 @@
+# GHS hazard statements, transcribed from 29 CFR 1910.1200 Appendix B/C.
+#
+# REVIEW REQUIRED: this is reference data for a document with legal and safety
+# weight. Have a qualified person verify it before production use.
+#
+# A statement with no signal_word or pictogram is classified but carries neither
+# under the standard; that is not an omission.
+pictograms:
+- code: GHS01
+  name: exploding bomb
+  image: pictograms/GHS01.svg
+- code: GHS02
+  name: flame
+  image: pictograms/GHS02.svg
+- code: GHS03
+  name: flame over circle
+  image: pictograms/GHS03.svg
+- code: GHS04
+  name: gas cylinder
+  image: pictograms/GHS04.svg
+- code: GHS05
+  name: corrosion
+  image: pictograms/GHS05.svg
+- code: GHS06
+  name: skull and crossbones
+  image: pictograms/GHS06.svg
+- code: GHS07
+  name: exclamation mark
+  image: pictograms/GHS07.svg
+- code: GHS08
+  name: health hazard
+  image: pictograms/GHS08.svg
+- code: GHS09
+  name: environment
+  image: pictograms/GHS09.svg
+statements:
+- code: H200
+  class: Explosives
+  category: Unstable explosive
+  statement: Unstable explosive
+  signal_word: Danger
+  pictogram: GHS01
+- code: H201
+  class: Explosives
+  category: Div 1.1
+  statement: Explosive; mass explosion hazard
+  signal_word: Danger
+  pictogram: GHS01
+- code: H202
+  class: Explosives
+  category: Div 1.2
+  statement: Explosive; severe projection hazard
+  signal_word: Danger
+  pictogram: GHS01
+- code: H203
+  class: Explosives
+  category: Div 1.3
+  statement: Explosive; fire, blast or projection hazard
+  signal_word: Danger
+  pictogram: GHS01
+- code: H204
+  class: Explosives
+  category: Div 1.4
+  statement: Fire or projection hazard
+  signal_word: Warning
+  pictogram: GHS01
+- code: H205
+  class: Explosives
+  category: Div 1.5
+  statement: May mass explode in fire
+  signal_word: Danger
+  pictogram: GHS01
+- code: H220
+  class: Flammable gases
+  category: '1'
+  statement: Extremely flammable gas
+  signal_word: Danger
+  pictogram: GHS02
+- code: H221
+  class: Flammable gases
+  category: '2'
+  statement: Flammable gas
+  signal_word: Warning
+  pictogram: GHS02
+- code: H222
+  class: Flammable aerosols
+  category: '1'
+  statement: Extremely flammable aerosol
+  signal_word: Danger
+  pictogram: GHS02
+- code: H223
+  class: Flammable aerosols
+  category: '2'
+  statement: Flammable aerosol
+  signal_word: Warning
+  pictogram: GHS02
+- code: H224
+  class: Flammable liquids
+  category: '1'
+  statement: Extremely flammable liquid and vapour
+  signal_word: Danger
+  pictogram: GHS02
+- code: H225
+  class: Flammable liquids
+  category: '2'
+  statement: Highly flammable liquid and vapour
+  signal_word: Danger
+  pictogram: GHS02
+- code: H226
+  class: Flammable liquids
+  category: '3'
+  statement: Flammable liquid and vapour
+  signal_word: Warning
+  pictogram: GHS02
+- code: H227
+  class: Flammable liquids
+  category: '4'
+  statement: Combustible liquid
+  signal_word: Warning
+- code: H228
+  class: Flammable solids
+  category: '1'
+  statement: Flammable solid
+  signal_word: Danger
+  pictogram: GHS02
+- code: H229
+  class: Aerosols
+  category: '1'
+  statement: 'Pressurized container: may burst if heated'
+  signal_word: Danger
+  pictogram: GHS02
+- code: H230
+  class: Flammable gases
+  category: Chemically unstable A
+  statement: May react explosively even in the absence of air
+  signal_word: Danger
+  pictogram: GHS02
+- code: H231
+  class: Flammable gases
+  category: Chemically unstable B
+  statement: May react explosively even in the absence of air at elevated pressure and/or temperature
+  signal_word: Danger
+  pictogram: GHS02
+- code: H240
+  class: Self-reactive substances and mixtures
+  category: Type A
+  statement: Heating may cause an explosion
+  signal_word: Danger
+  pictogram: GHS01
+- code: H241
+  class: Self-reactive substances and mixtures
+  category: Type B
+  statement: Heating may cause a fire or explosion
+  signal_word: Danger
+  pictogram: GHS01
+- code: H242
+  class: Self-reactive substances and mixtures
+  category: Type C
+  statement: Heating may cause a fire
+  signal_word: Danger
+  pictogram: GHS02
+- code: H250
+  class: Pyrophoric liquids
+  category: '1'
+  statement: Catches fire spontaneously if exposed to air
+  signal_word: Danger
+  pictogram: GHS02
+- code: H251
+  class: Self-heating substances and mixtures
+  category: '1'
+  statement: Self-heating; may catch fire
+  signal_word: Danger
+  pictogram: GHS02
+- code: H252
+  class: Self-heating substances and mixtures
+  category: '2'
+  statement: Self-heating in large quantities; may catch fire
+  signal_word: Warning
+  pictogram: GHS02
+- code: H260
+  class: Substances which in contact with water emit flammable gases
+  category: '1'
+  statement: In contact with water releases flammable gases which may ignite spontaneously
+  signal_word: Danger
+  pictogram: GHS02
+- code: H261
+  class: Substances which in contact with water emit flammable gases
+  category: '2'
+  statement: In contact with water releases flammable gas
+  signal_word: Danger
+  pictogram: GHS02
+- code: H270
+  class: Oxidizing gases
+  category: '1'
+  statement: May cause or intensify fire; oxidizer
+  signal_word: Danger
+  pictogram: GHS03
+- code: H271
+  class: Oxidizing liquids
+  category: '1'
+  statement: May cause fire or explosion; strong oxidizer
+  signal_word: Danger
+  pictogram: GHS03
+- code: H272
+  class: Oxidizing liquids
+  category: '2'
+  statement: May intensify fire; oxidizer
+  signal_word: Danger
+  pictogram: GHS03
+- code: H280
+  class: Gases under pressure
+  category: Compressed gas
+  statement: Contains gas under pressure; may explode if heated
+  signal_word: Warning
+  pictogram: GHS04
+- code: H281
+  class: Gases under pressure
+  category: Refrigerated liquefied gas
+  statement: Contains refrigerated gas; may cause cryogenic burns or injury
+  signal_word: Warning
+  pictogram: GHS04
+- code: H290
+  class: Corrosive to metals
+  category: '1'
+  statement: May be corrosive to metals
+  signal_word: Warning
+  pictogram: GHS05
+- code: H300
+  class: Acute toxicity, oral
+  category: '1'
+  statement: Fatal if swallowed
+  signal_word: Danger
+  pictogram: GHS06
+- code: H301
+  class: Acute toxicity, oral
+  category: '3'
+  statement: Toxic if swallowed
+  signal_word: Danger
+  pictogram: GHS06
+- code: H302
+  class: Acute toxicity, oral
+  category: '4'
+  statement: Harmful if swallowed
+  signal_word: Warning
+  pictogram: GHS07
+- code: H304
+  class: Aspiration hazard
+  category: '1'
+  statement: May be fatal if swallowed and enters airways
+  signal_word: Danger
+  pictogram: GHS08
+- code: H310
+  class: Acute toxicity, dermal
+  category: '1'
+  statement: Fatal in contact with skin
+  signal_word: Danger
+  pictogram: GHS06
+- code: H311
+  class: Acute toxicity, dermal
+  category: '3'
+  statement: Toxic in contact with skin
+  signal_word: Danger
+  pictogram: GHS06
+- code: H312
+  class: Acute toxicity, dermal
+  category: '4'
+  statement: Harmful in contact with skin
+  signal_word: Warning
+  pictogram: GHS07
+- code: H314
+  class: Skin corrosion/irritation
+  category: '1'
+  statement: Causes severe skin burns and eye damage
+  signal_word: Danger
+  pictogram: GHS05
+- code: H315
+  class: Skin corrosion/irritation
+  category: '2'
+  statement: Causes skin irritation
+  signal_word: Warning
+  pictogram: GHS07
+- code: H316
+  class: Skin corrosion/irritation
+  category: '3'
+  statement: Causes mild skin irritation
+  signal_word: Warning
+- code: H317
+  class: Skin sensitization
+  category: '1'
+  statement: May cause an allergic skin reaction
+  signal_word: Warning
+  pictogram: GHS07
+- code: H318
+  class: Serious eye damage/eye irritation
+  category: '1'
+  statement: Causes serious eye damage
+  signal_word: Danger
+  pictogram: GHS05
+- code: H319
+  class: Serious eye damage/eye irritation
+  category: 2A
+  statement: Causes serious eye irritation
+  signal_word: Warning
+  pictogram: GHS07
+- code: H320
+  class: Serious eye damage/eye irritation
+  category: 2B
+  statement: Causes eye irritation
+  signal_word: Warning
+- code: H330
+  class: Acute toxicity, inhalation
+  category: '1'
+  statement: Fatal if inhaled
+  signal_word: Danger
+  pictogram: GHS06
+- code: H331
+  class: Acute toxicity, inhalation
+  category: '3'
+  statement: Toxic if inhaled
+  signal_word: Danger
+  pictogram: GHS06
+- code: H332
+  class: Acute toxicity, inhalation
+  category: '4'
+  statement: Harmful if inhaled
+  signal_word: Warning
+  pictogram: GHS07
+- code: H334
+  class: Respiratory sensitization
+  category: '1'
+  statement: May cause allergy or asthma symptoms or breathing difficulties if inhaled
+  signal_word: Danger
+  pictogram: GHS08
+- code: H335
+  class: Specific target organ toxicity, single exposure
+  category: '3'
+  statement: May cause respiratory irritation
+  signal_word: Warning
+  pictogram: GHS07
+- code: H336
+  class: Specific target organ toxicity, single exposure
+  category: '3'
+  statement: May cause drowsiness or dizziness
+  signal_word: Warning
+  pictogram: GHS07
+- code: H340
+  class: Germ cell mutagenicity
+  category: 1A/1B
+  statement: May cause genetic defects
+  signal_word: Danger
+  pictogram: GHS08
+- code: H341
+  class: Germ cell mutagenicity
+  category: '2'
+  statement: Suspected of causing genetic defects
+  signal_word: Warning
+  pictogram: GHS08
+- code: H350
+  class: Carcinogenicity
+  category: 1A/1B
+  statement: May cause cancer
+  signal_word: Danger
+  pictogram: GHS08
+- code: H351
+  class: Carcinogenicity
+  category: '2'
+  statement: Suspected of causing cancer
+  signal_word: Warning
+  pictogram: GHS08
+- code: H360
+  class: Reproductive toxicity
+  category: 1A/1B
+  statement: May damage fertility or the unborn child
+  signal_word: Danger
+  pictogram: GHS08
+- code: H361
+  class: Reproductive toxicity
+  category: '2'
+  statement: Suspected of damaging fertility or the unborn child
+  signal_word: Warning
+  pictogram: GHS08
+- code: H362
+  class: Reproductive toxicity
+  category: Lactation
+  statement: May cause harm to breast-fed children
+- code: H370
+  class: Specific target organ toxicity, single exposure
+  category: '1'
+  statement: Causes damage to organs
+  signal_word: Danger
+  pictogram: GHS08
+- code: H371
+  class: Specific target organ toxicity, single exposure
+  category: '2'
+  statement: May cause damage to organs
+  signal_word: Warning
+  pictogram: GHS08
+- code: H372
+  class: Specific target organ toxicity, repeated exposure
+  category: '1'
+  statement: Causes damage to organs through prolonged or repeated exposure
+  signal_word: Danger
+  pictogram: GHS08
+- code: H373
+  class: Specific target organ toxicity, repeated exposure
+  category: '2'
+  statement: May cause damage to organs through prolonged or repeated exposure
+  signal_word: Warning
+  pictogram: GHS08
+- code: H400
+  class: Hazardous to the aquatic environment, acute
+  category: '1'
+  statement: Very toxic to aquatic life
+  signal_word: Warning
+  pictogram: GHS09
+- code: H401
+  class: Hazardous to the aquatic environment, acute
+  category: '2'
+  statement: Toxic to aquatic life
+- code: H402
+  class: Hazardous to the aquatic environment, acute
+  category: '3'
+  statement: Harmful to aquatic life
+- code: H410
+  class: Hazardous to the aquatic environment, chronic
+  category: '1'
+  statement: Very toxic to aquatic life with long lasting effects
+  signal_word: Warning
+  pictogram: GHS09
+- code: H411
+  class: Hazardous to the aquatic environment, chronic
+  category: '2'
+  statement: Toxic to aquatic life with long lasting effects
+  pictogram: GHS09
+- code: H412
+  class: Hazardous to the aquatic environment, chronic
+  category: '3'
+  statement: Harmful to aquatic life with long lasting effects
+- code: H413
+  class: Hazardous to the aquatic environment, chronic
+  category: '4'
+  statement: May cause long lasting harmful effects to aquatic life
+- code: H420
+  class: Hazardous to the ozone layer
+  category: '1'
+  statement: Harms public health and the environment by destroying ozone in the upper atmosphere
+  signal_word: Warning
+  pictogram: GHS07

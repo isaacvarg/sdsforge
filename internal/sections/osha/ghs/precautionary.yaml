@@ -1,0 +1,310 @@
+# GHS precautionary statements, transcribed from 29 CFR 1910.1200 Appendix C.
+#
+# REVIEW REQUIRED: reference data for a document with legal and safety weight.
+#
+# supplier_specified: true marks a statement whose regulatory text contains
+# manufacturer-chosen wording (a slash-list to trim, or bracketed text). The
+# generic text below is emitted verbatim unless the document overrides it via
+# precautionary_text, and `document classify` reports every unfilled one.
+#
+# Combination statements (P305+P351+P338) are single entries and are never split.
+statements:
+- code: P201
+  type: prevention
+  statement: Obtain special instructions before use.
+- code: P202
+  type: prevention
+  statement: Do not handle until all safety precautions have been read and understood.
+- code: P210
+  type: prevention
+  statement: Keep away from heat, hot surfaces, sparks, open flames and other ignition sources. No smoking.
+- code: P211
+  type: prevention
+  statement: Do not spray on an open flame or other ignition source.
+- code: P220
+  type: prevention
+  statement: Keep away from clothing and other combustible materials.
+  supplier_specified: true
+- code: P221
+  type: prevention
+  statement: Take any precaution to avoid mixing with combustibles.
+  supplier_specified: true
+- code: P222
+  type: prevention
+  statement: Do not allow contact with air.
+- code: P223
+  type: prevention
+  statement: Do not allow contact with water.
+- code: P230
+  type: prevention
+  statement: Keep wetted with suitable material specified by the manufacturer.
+  supplier_specified: true
+- code: P231
+  type: prevention
+  statement: Handle under inert gas.
+  supplier_specified: true
+- code: P231+P232
+  type: prevention
+  statement: Handle and store contents under inert gas. Protect from moisture.
+  supplier_specified: true
+- code: P232
+  type: prevention
+  statement: Protect from moisture.
+- code: P233
+  type: prevention
+  statement: Keep container tightly closed.
+- code: P234
+  type: prevention
+  statement: Keep only in original container.
+- code: P235
+  type: prevention
+  statement: Keep cool.
+- code: P240
+  type: prevention
+  statement: Ground and bond container and receiving equipment.
+- code: P241
+  type: prevention
+  statement: Use explosion-proof electrical, ventilating and lighting equipment.
+  supplier_specified: true
+- code: P242
+  type: prevention
+  statement: Use non-sparking tools.
+- code: P243
+  type: prevention
+  statement: Take action to prevent static discharges.
+- code: P244
+  type: prevention
+  statement: Keep valves and fittings free from oil and grease.
+- code: P250
+  type: prevention
+  statement: Do not subject to grinding, shock or friction.
+  supplier_specified: true
+- code: P251
+  type: prevention
+  statement: Do not pierce or burn, even after use.
+- code: P260
+  type: prevention
+  statement: Do not breathe dust, fume, gas, mist, vapours or spray.
+  supplier_specified: true
+- code: P261
+  type: prevention
+  statement: Avoid breathing dust, fume, gas, mist, vapours or spray.
+  supplier_specified: true
+- code: P262
+  type: prevention
+  statement: Do not get in eyes, on skin, or on clothing.
+- code: P263
+  type: prevention
+  statement: Avoid contact during pregnancy and while nursing.
+- code: P264
+  type: prevention
+  statement: Wash thoroughly after handling.
+  supplier_specified: true
+- code: P270
+  type: prevention
+  statement: Do not eat, drink or smoke when using this product.
+- code: P271
+  type: prevention
+  statement: Use only outdoors or in a well-ventilated area.
+- code: P272
+  type: prevention
+  statement: Contaminated work clothing should not be allowed out of the workplace.
+- code: P273
+  type: prevention
+  statement: Avoid release to the environment.
+- code: P280
+  type: prevention
+  statement: Wear protective gloves, protective clothing, eye protection and face protection.
+  supplier_specified: true
+- code: P282
+  type: prevention
+  statement: Wear cold insulating gloves and either face shield or eye protection.
+- code: P283
+  type: prevention
+  statement: Wear fire resistant or flame retardant clothing.
+- code: P284
+  type: prevention
+  statement: In case of inadequate ventilation wear respiratory protection.
+  supplier_specified: true
+- code: P285
+  type: prevention
+  statement: In case of inadequate ventilation wear respiratory protection.
+  supplier_specified: true
+- code: P301+P310
+  type: response
+  statement: 'IF SWALLOWED: Immediately call a POISON CENTER or doctor.'
+- code: P301+P312
+  type: response
+  statement: 'IF SWALLOWED: Call a POISON CENTER or doctor if you feel unwell.'
+- code: P301+P330+P331
+  type: response
+  statement: 'IF SWALLOWED: Rinse mouth. Do NOT induce vomiting.'
+- code: P302+P334
+  type: response
+  statement: 'IF ON SKIN: Immerse in cool water or wrap in wet bandages.'
+- code: P302+P335+P334
+  type: response
+  statement: 'IF ON SKIN: Brush off loose particles from skin. Immerse in cool water or wrap in wet bandages.'
+- code: P302+P352
+  type: response
+  statement: 'IF ON SKIN: Wash with plenty of water.'
+  supplier_specified: true
+- code: P303+P361+P353
+  type: response
+  statement: 'IF ON SKIN (or hair): Take off immediately all contaminated clothing. Rinse skin with water.'
+- code: P304+P340
+  type: response
+  statement: 'IF INHALED: Remove person to fresh air and keep comfortable for breathing.'
+- code: P305+P351+P338
+  type: response
+  statement: 'IF IN EYES: Rinse cautiously with water for several minutes. Remove contact lenses, if present
+    and easy to do. Continue rinsing.'
+- code: P306+P360
+  type: response
+  statement: 'IF ON CLOTHING: Rinse immediately contaminated clothing and skin with plenty of water before
+    removing clothes.'
+- code: P308+P311
+  type: response
+  statement: 'IF exposed or concerned: Call a POISON CENTER or doctor.'
+- code: P308+P313
+  type: response
+  statement: 'IF exposed or concerned: Get medical advice/attention.'
+- code: P310
+  type: response
+  statement: Immediately call a POISON CENTER or doctor.
+- code: P311
+  type: response
+  statement: Call a POISON CENTER or doctor.
+- code: P312
+  type: response
+  statement: Call a POISON CENTER or doctor if you feel unwell.
+- code: P313
+  type: response
+  statement: Get medical advice/attention.
+- code: P314
+  type: response
+  statement: Get medical advice/attention if you feel unwell.
+- code: P315
+  type: response
+  statement: Get immediate medical advice/attention.
+- code: P320
+  type: response
+  statement: Specific treatment is urgent (see first aid instructions on this label).
+  supplier_specified: true
+- code: P321
+  type: response
+  statement: Specific treatment (see first aid instructions on this label).
+  supplier_specified: true
+- code: P330
+  type: response
+  statement: Rinse mouth.
+- code: P331
+  type: response
+  statement: Do NOT induce vomiting.
+- code: P332+P313
+  type: response
+  statement: 'If skin irritation occurs: Get medical advice/attention.'
+- code: P333+P313
+  type: response
+  statement: 'If skin irritation or rash occurs: Get medical advice/attention.'
+- code: P336+P315
+  type: response
+  statement: Thaw frosted parts with lukewarm water. Do not rub affected area. Get immediate medical advice/attention.
+- code: P337+P313
+  type: response
+  statement: 'If eye irritation persists: Get medical advice/attention.'
+- code: P342+P311
+  type: response
+  statement: 'If experiencing respiratory symptoms: Call a POISON CENTER or doctor.'
+- code: P361+P364
+  type: response
+  statement: Take off immediately all contaminated clothing and wash it before reuse.
+- code: P362+P364
+  type: response
+  statement: Take off contaminated clothing and wash it before reuse.
+- code: P363
+  type: response
+  statement: Wash contaminated clothing before reuse.
+- code: P370+P376
+  type: response
+  statement: 'In case of fire: Stop leak if safe to do so.'
+- code: P370+P378
+  type: response
+  statement: 'In case of fire: Use appropriate media to extinguish.'
+  supplier_specified: true
+- code: P370+P380+P375
+  type: response
+  statement: 'In case of fire: Evacuate area. Fight fire remotely due to the risk of explosion.'
+- code: P371+P380+P375
+  type: response
+  statement: 'In case of major fire and large quantities: Evacuate area. Fight fire remotely due to the
+    risk of explosion.'
+- code: P377
+  type: response
+  statement: 'Leaking gas fire: Do not extinguish, unless leak can be stopped safely.'
+- code: P381
+  type: response
+  statement: In case of leakage, eliminate all ignition sources.
+- code: P390
+  type: response
+  statement: Absorb spillage to prevent material damage.
+- code: P391
+  type: response
+  statement: Collect spillage.
+- code: P401
+  type: storage
+  statement: Store in accordance with local, regional, national and international regulations.
+  supplier_specified: true
+- code: P402+P404
+  type: storage
+  statement: Store in a dry place. Store in a closed container.
+- code: P403
+  type: storage
+  statement: Store in a well-ventilated place.
+- code: P403+P233
+  type: storage
+  statement: Store in a well-ventilated place. Keep container tightly closed.
+- code: P403+P235
+  type: storage
+  statement: Store in a well-ventilated place. Keep cool.
+- code: P405
+  type: storage
+  statement: Store locked up.
+- code: P406
+  type: storage
+  statement: Store in corrosive resistant container with a resistant inner liner.
+  supplier_specified: true
+- code: P407
+  type: storage
+  statement: Maintain air gap between stacks or pallets.
+- code: P410+P403
+  type: storage
+  statement: Protect from sunlight. Store in a well-ventilated place.
+- code: P410+P412
+  type: storage
+  statement: Protect from sunlight. Do not expose to temperatures exceeding 50 degrees C / 122 degrees
+    F.
+- code: P411
+  type: storage
+  statement: Store at temperatures not exceeding the manufacturer-specified maximum.
+  supplier_specified: true
+- code: P413
+  type: storage
+  statement: Store bulk masses greater than the manufacturer-specified quantity at temperatures not exceeding
+    the specified maximum.
+  supplier_specified: true
+- code: P420
+  type: storage
+  statement: Store separately.
+- code: P422
+  type: storage
+  statement: Store contents under inert gas.
+  supplier_specified: true
+- code: P501
+  type: disposal
+  statement: Dispose of contents and container in accordance with local, regional, national and international
+    regulations.
+  supplier_specified: true
+- code: P502
+  type: disposal
+  statement: Refer to manufacturer or supplier for information on recovery or recycling.
