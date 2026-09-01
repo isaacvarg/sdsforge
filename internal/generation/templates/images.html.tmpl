@@ -1,0 +1,12 @@
+{{- define "images" -}}
+<div class="pictograms">
+  {{- range .Images }}
+  {{- if and .Src .Alt }}
+  <figure>
+    <img src="{{ imageURI .Src }}" alt="{{ .Alt }}">
+    {{- with .Caption }}<figcaption>{{ . }}</figcaption>{{ end }}
+  </figure>
+  {{- end }}
+  {{- end }}
+</div>
+{{- end -}}

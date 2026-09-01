@@ -1,0 +1,22 @@
+{{/*
+  Dispatch on a resolved subsection's content kind.
+
+  Adding a content kind means adding one branch here and one partial file --
+  the same one-file-per-kind cost as the Go side. The empty case comes first so
+  a blank subsection always states the absence of data rather than rendering
+  nothing, which in a safety document reads as an omission rather than a
+  deliberate "none".
+*/}}
+{{- define "block" -}}
+{{- if .Empty -}}
+  <p class="empty">{{ .EmptyText }}</p>
+{{- else if eq .Kind "prose" -}}
+  {{- template "prose" .Body -}}
+{{- else if eq .Kind "table" -}}
+  {{- template "table" .Body -}}
+{{- else if eq .Kind "images" -}}
+  {{- template "images" .Body -}}
+{{- else -}}
+  <p class="empty">No renderer for content kind "{{ .Kind }}".</p>
+{{- end -}}
+{{- end -}}
