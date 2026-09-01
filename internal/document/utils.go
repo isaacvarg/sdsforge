@@ -45,6 +45,8 @@ func Slugify(name string) string {
 		}
 	}
 
-	result := builder.String()
+	// A name ending in punctuation ("Caustic Soda 50%") leaves a trailing
+	// separator, which shows up in generated filenames.
+	result := strings.Trim(builder.String(), "-")
 	return result
 }
