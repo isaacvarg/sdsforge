@@ -1,4 +1,4 @@
-// Package cmd 
+// Package cmd
 // cli command form cobra
 package cmd
 
@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "sdsforge",
@@ -18,6 +16,9 @@ var rootCmd = &cobra.Command{
 	
 Let's get started!
 	`,
+	// Usage text belongs on an argument mistake, not on a runtime failure.
+	// Without this, a resolve error is buried under a wall of flag help.
+	SilenceUsage: true,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -43,5 +44,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-

@@ -5,6 +5,7 @@ import (
 
 	document "github.com/isaacvarg/sdsforge/internal/document"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 // createCmd represents the create command
@@ -42,11 +43,36 @@ to quickly create a Cobra application.`,
 			providedName = name
 		}
 
-		doc := document.Data{
-			ProductName: providedName,
+		minimal, err := cmd.Flags().GetBool("minimal")
+		if err != nil {
+			fmt.Println("error getting flags")
+			return
 		}
 
-		result, err := document.Save(doc)
+		var content []byte
+		if minimal {
+			doc := document.Data{ProductName: providedName}
+			content, err = yaml.Marshal(doc)
+			if err != nil {
+				fmt.Println("error creating document yaml:", err)
+				return
+			}
+		} else {
+			// The scaffold is generated from the live content library, so the
+			// sections it advertises are always the ones actually available.
+			lib, err := openLibrary()
+			if err != nil {
+				fmt.Println("error opening content library:", err)
+				return
+			}
+			content, err = document.Scaffold(lib, providedName)
+			if err != nil {
+				fmt.Println("error building document scaffold:", err)
+				return
+			}
+		}
+
+		result, err := document.Create(providedName, content)
 		if err != nil {
 			fmt.Println("error saving document yaml")
 			fmt.Println(err)
@@ -61,4 +87,5 @@ func init() {
 	documentCmd.AddCommand(createCmd)
 
 	createCmd.Flags().StringP("name", "n", "", "Name of the product or material the document is for")
+	createCmd.Flags().Bool("minimal", false, "Write a bare document.yaml instead of the annotated template")
 }

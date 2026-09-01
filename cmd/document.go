@@ -5,8 +5,10 @@ import (
 )
 
 var documentCmd = &cobra.Command{
-	Use:   "document",
-	Short: "A document is grouped data that gets generated into a PDF.",
+	Use: "document",
+	// "documents" is what people type.
+	Aliases: []string{"documents", "doc", "docs"},
+	Short:   "A document is grouped data that gets generated into a PDF.",
 	Long: `A document is grouped data that gets generated into a PDF.
 
 `,
