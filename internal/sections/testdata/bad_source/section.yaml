@@ -1,0 +1,5 @@
+id: bad_source
+number: 99
+title: Bad source
+subsections:
+  - { id: ingredients, title: Ingredients, kind: table, source: materialz }

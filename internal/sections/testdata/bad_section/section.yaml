@@ -1,0 +1,7 @@
+id: ""
+title: ""
+subsections:
+  - { id: dup, title: One, kind: prose }
+  - { id: dup, title: Two, kind: prose }
+  - { id: typo, title: Three, kind: proze }
+  - { id: "", title: "", kind: prose }

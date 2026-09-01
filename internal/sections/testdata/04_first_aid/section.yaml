@@ -1,0 +1,8 @@
+id: first_aid
+number: 4
+title: First-aid measures
+empty_text: "No data available."
+subsections:
+  - { id: general,    title: General advice, kind: prose }
+  - { id: inhalation, title: Inhalation,     kind: prose }
+  - { id: skin,       title: Skin contact,   kind: prose }
