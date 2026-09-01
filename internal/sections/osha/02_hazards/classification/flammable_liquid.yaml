@@ -1,0 +1,14 @@
+variant: "flammable_liquid"
+applies_when:
+  any_of:
+    - "H225"
+    - "H226"
+priority: 25
+content:
+  kind: "table"
+  headers:
+    - "Hazard class"
+    - "Category"
+    - "Hazard statement"
+  rows:
+    - ["Flammable liquid", "2", "H225: Highly flammable liquid and vapour."]

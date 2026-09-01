@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "No specific symptoms are known."
+    - "See Section 11 for toxicological information."

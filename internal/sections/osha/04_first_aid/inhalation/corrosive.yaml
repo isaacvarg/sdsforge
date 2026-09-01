@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Move the person to fresh air immediately and keep them at rest in a position comfortable for breathing."
+    - "Inhalation of vapour or mist may cause burns to the respiratory tract."
+    - "If breathing is difficult, give oxygen. Immediately call a POISON CENTER or doctor."

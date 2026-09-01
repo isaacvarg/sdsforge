@@ -1,0 +1,10 @@
+id: "handling_storage"
+number: 7
+title: "Handling and storage"
+subsections:
+  - id: "handling"
+    title: "Precautions for safe handling"
+    kind: "prose"
+  - id: "storage"
+    title: "Conditions for safe storage"
+    kind: "prose"

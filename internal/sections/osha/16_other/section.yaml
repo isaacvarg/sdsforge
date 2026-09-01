@@ -1,0 +1,11 @@
+id: "other"
+number: 16
+title: "Other information"
+subsections:
+  - id: "revision"
+    title: "Revision history"
+    kind: "table"
+    source: "revisions"
+  - id: "disclaimer"
+    title: "Disclaimer"
+    kind: "prose"

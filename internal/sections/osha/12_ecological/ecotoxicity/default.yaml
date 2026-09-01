@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "No ecotoxicity data is available for this product."

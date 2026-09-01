@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Immediately remove all contaminated clothing, shoes, and leather goods."
+    - "Rinse the affected skin with plenty of water for at least 30 minutes."
+    - "Do not attempt to neutralise. Immediately call a POISON CENTER or doctor."

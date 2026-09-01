@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Immediate: pain, redness, and severe burns at the point of contact."
+    - "Delayed: tissue destruction, scarring, and permanent eye damage."
+    - "See Section 11 for toxicological information."

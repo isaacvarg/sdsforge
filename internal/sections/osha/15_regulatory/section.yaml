@@ -1,0 +1,13 @@
+id: "regulatory"
+number: 15
+title: "Regulatory information"
+subsections:
+  - id: "us_federal"
+    title: "US federal regulations"
+    kind: "prose"
+  - id: "state"
+    title: "State regulations"
+    kind: "prose"
+  - id: "inventories"
+    title: "International inventories"
+    kind: "prose"

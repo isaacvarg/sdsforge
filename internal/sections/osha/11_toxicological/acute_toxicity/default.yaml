@@ -1,0 +1,10 @@
+variant: "default"
+priority: 0
+content:
+  kind: "table"
+  headers:
+    - "Route"
+    - "Species"
+    - "Value"
+  rows:
+    - ["No data available", "-", "-"]

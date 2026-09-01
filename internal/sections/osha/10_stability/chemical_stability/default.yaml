@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Stable under recommended storage and handling conditions."

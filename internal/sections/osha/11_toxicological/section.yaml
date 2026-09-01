@@ -1,0 +1,16 @@
+id: "toxicological"
+number: 11
+title: "Toxicological information"
+subsections:
+  - id: "routes"
+    title: "Likely routes of exposure"
+    kind: "prose"
+  - id: "acute_toxicity"
+    title: "Acute toxicity"
+    kind: "table"
+  - id: "effects"
+    title: "Symptoms and delayed effects"
+    kind: "prose"
+  - id: "carcinogenicity"
+    title: "Carcinogenicity"
+    kind: "prose"

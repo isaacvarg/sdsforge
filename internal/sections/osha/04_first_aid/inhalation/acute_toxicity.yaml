@@ -1,0 +1,14 @@
+variant: "acute_toxicity"
+applies_when:
+  any_of:
+    - "H330"
+    - "H331"
+    - "H332"
+priority: 20
+content:
+  kind: "prose"
+  text:
+    - "Move the person to fresh air immediately and keep them at rest in a position comfortable for breathing."
+    - "If breathing is difficult, give oxygen. If breathing has stopped, give artificial respiration."
+    - "Do not use mouth-to-mouth resuscitation if the victim inhaled the substance."
+    - "Immediately call a POISON CENTER or doctor."

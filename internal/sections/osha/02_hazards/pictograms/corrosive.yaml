@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "images"
+  images:
+    - src: "ghs/pictograms/GHS05.svg"
+      alt: "GHS05 pictogram: corrosion"
+      caption: "GHS05 (corrosion)"

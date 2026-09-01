@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "No supplier details have been recorded for this document."

@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Wear chemically resistant gloves. Inspect gloves before each use and replace them when degraded."

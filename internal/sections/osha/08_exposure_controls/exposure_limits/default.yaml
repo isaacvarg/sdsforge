@@ -1,0 +1,11 @@
+variant: "default"
+priority: 0
+content:
+  kind: "table"
+  headers:
+    - "Chemical name"
+    - "CAS No."
+    - "OSHA PEL (TWA)"
+    - "ACGIH TLV (TWA)"
+  rows:
+    - ["No exposure limits established", "-", "N/E", "N/E"]

@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Move the person to fresh air and keep them comfortable for breathing."
+    - "If symptoms occur, seek medical attention."

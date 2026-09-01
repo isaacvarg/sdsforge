@@ -1,0 +1,11 @@
+id: "composition"
+number: 3
+title: "Composition/information on ingredients"
+subsections:
+  - id: "ingredients"
+    title: "Hazardous ingredients"
+    kind: "table"
+    source: "materials"
+  - id: "trade_secret"
+    title: "Trade secret claims"
+    kind: "prose"

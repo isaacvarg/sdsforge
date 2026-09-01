@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Contain the spill with inert absorbent material such as sand, earth, or vermiculite."
+    - "Collect into a labelled, sealable container for disposal in accordance with Section 13."

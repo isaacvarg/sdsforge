@@ -1,0 +1,6 @@
+variant: "warning"
+priority: 10
+content:
+  kind: "prose"
+  text:
+    - "WARNING"

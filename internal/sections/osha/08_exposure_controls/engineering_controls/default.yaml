@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Provide general dilution ventilation adequate to keep airborne concentrations below the exposure limits above."
+    - "Ensure eyewash stations and safety showers are close to the workstation."

@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Store in a cool, dry, well-ventilated place in the original, tightly closed container."
+    - "Keep away from incompatible materials listed in Section 10."

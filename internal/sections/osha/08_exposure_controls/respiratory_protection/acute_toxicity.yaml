@@ -1,0 +1,13 @@
+variant: "acute_toxicity"
+applies_when:
+  any_of:
+    - "H330"
+    - "H331"
+    - "H332"
+priority: 20
+content:
+  kind: "prose"
+  text:
+    - "Use a NIOSH-approved air-purifying respirator with an appropriate cartridge where exposure limits may be exceeded."
+    - "Use supplied-air respiratory protection in confined spaces or emergency response."
+    - "A written respiratory protection programme meeting 29 CFR 1910.134 is required."

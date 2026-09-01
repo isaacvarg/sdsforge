@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Move the affected person out of the hazard area. Show this safety data sheet to the attending physician."
+    - "If symptoms persist, seek medical attention."

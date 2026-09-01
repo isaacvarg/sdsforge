@@ -1,0 +1,10 @@
+variant: "default"
+priority: 0
+content:
+  kind: "table"
+  headers:
+    - "Hazard class"
+    - "Category"
+    - "Hazard statement"
+  rows:
+    - ["Not classified", "-", "This mixture is not classified as hazardous under 29 CFR 1910.1200."]

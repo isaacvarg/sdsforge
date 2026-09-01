@@ -1,0 +1,12 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+    - "H318"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Immediately rinse with plenty of water for at least 30 minutes, holding the eyelids open."
+    - "Remove contact lenses if present and easy to do; continue rinsing."
+    - "Immediately call a POISON CENTER or ophthalmologist. Continue rinsing during transport."

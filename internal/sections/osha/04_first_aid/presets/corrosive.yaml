@@ -1,0 +1,9 @@
+preset: "corrosive"
+picks:
+  general: "corrosive"
+  inhalation: "corrosive"
+  skin: "corrosive"
+  eye: "corrosive"
+  ingestion: "corrosive"
+  symptoms: "corrosive"
+  medical_attention: "corrosive"

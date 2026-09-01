@@ -1,0 +1,5 @@
+preset: "corrosive"
+picks:
+  engineering_controls: "corrosive"
+  eye_protection: "corrosive"
+  skin_protection: "corrosive"

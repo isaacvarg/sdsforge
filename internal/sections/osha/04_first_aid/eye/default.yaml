@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Rinse cautiously with water for several minutes. Remove contact lenses if present and easy to do, then continue rinsing."
+    - "If eye irritation persists, get medical advice."

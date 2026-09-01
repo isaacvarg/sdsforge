@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Wear chemically resistant gloves with a breakthrough time exceeding the expected task duration."
+    - "Wear a chemically resistant apron or full suit and boots."
+    - "Inspect all protective equipment before each use and replace any degraded item."

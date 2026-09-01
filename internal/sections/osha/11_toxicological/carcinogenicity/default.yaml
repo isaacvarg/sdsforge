@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "No component of this product is listed as a carcinogen by IARC, NTP, or OSHA."

@@ -1,0 +1,12 @@
+variant: "acute_inhalation"
+applies_when:
+  any_of:
+    - "H330"
+    - "H331"
+priority: 20
+content:
+  kind: "images"
+  images:
+    - src: "ghs/pictograms/GHS06.svg"
+      alt: "GHS06 pictogram: skull and crossbones"
+      caption: "GHS06 (skull and crossbones)"

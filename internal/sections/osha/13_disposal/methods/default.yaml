@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Dispose of contents and container in accordance with local, regional, national, and international regulations."
+    - "Do not discharge into drains or the environment. Empty containers may retain product residue."

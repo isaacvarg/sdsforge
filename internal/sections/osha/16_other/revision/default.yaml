@@ -1,0 +1,10 @@
+variant: "default"
+priority: 0
+content:
+  kind: "table"
+  headers:
+    - "Version"
+    - "Date"
+    - "Description"
+  rows:
+    - ["No revision history recorded", "-", "-"]

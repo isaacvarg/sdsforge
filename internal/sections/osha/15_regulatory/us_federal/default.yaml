@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "This product has been classified in accordance with the OSHA Hazard Communication Standard, 29 CFR 1910.1200."
+    - "SARA 313: no components are subject to reporting requirements."

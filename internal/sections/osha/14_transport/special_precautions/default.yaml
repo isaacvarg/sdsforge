@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Transport within the user's premises: always transport in closed containers that are upright and secure."

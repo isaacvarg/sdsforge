@@ -1,0 +1,13 @@
+id: "accidental_release"
+number: 6
+title: "Accidental release measures"
+subsections:
+  - id: "personal_precautions"
+    title: "Personal precautions and protective equipment"
+    kind: "prose"
+  - id: "environmental_precautions"
+    title: "Environmental precautions"
+    kind: "prose"
+  - id: "containment"
+    title: "Methods and materials for containment and cleaning up"
+    kind: "prose"

@@ -1,0 +1,12 @@
+variant: "default"
+priority: 0
+content:
+  kind: "table"
+  headers:
+    - "Field"
+    - "Value"
+  rows:
+    - ["UN number", "Not regulated"]
+    - ["Proper shipping name", "Not regulated"]
+    - ["Transport hazard class", "Not regulated"]
+    - ["Packing group", "Not regulated"]

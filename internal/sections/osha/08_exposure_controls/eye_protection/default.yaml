@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Wear safety glasses with side shields conforming to ANSI Z87.1."

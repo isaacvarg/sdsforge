@@ -1,0 +1,14 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "table"
+  headers:
+    - "Hazard class"
+    - "Category"
+    - "Hazard statement"
+  rows:
+    - ["Skin corrosion/irritation", "1B", "H314: Causes severe skin burns and eye damage."]
+    - ["Serious eye damage/irritation", "1", "H318: Causes serious eye damage."]

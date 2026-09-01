@@ -1,0 +1,15 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "P260: Do not breathe dust, fume, gas, mist, vapours, or spray."
+    - "P264: Wash thoroughly after handling."
+    - "P280: Wear protective gloves, protective clothing, eye protection, and face protection."
+    - "P301+P330+P331: IF SWALLOWED: rinse mouth. Do NOT induce vomiting."
+    - "P303+P361+P353: IF ON SKIN (or hair): take off immediately all contaminated clothing. Rinse skin with water."
+    - "P305+P351+P338: IF IN EYES: rinse cautiously with water for several minutes. Remove contact lenses if present and easy to do. Continue rinsing."
+    - "P310: Immediately call a POISON CENTER or doctor."

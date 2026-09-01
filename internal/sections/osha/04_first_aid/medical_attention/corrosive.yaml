@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Treat symptomatically. No specific antidote is known."
+    - "Do not attempt chemical neutralisation of burns."
+    - "Endoscopy may be indicated following ingestion."

@@ -1,0 +1,7 @@
+id: "disposal"
+number: 13
+title: "Disposal considerations"
+subsections:
+  - id: "methods"
+    title: "Waste treatment methods"
+    kind: "prose"

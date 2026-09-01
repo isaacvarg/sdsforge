@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Evacuate unnecessary personnel. Ensure adequate ventilation."
+    - "Wear the personal protective equipment described in Section 8."

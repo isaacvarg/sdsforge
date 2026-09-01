@@ -1,0 +1,13 @@
+id: "firefighting"
+number: 5
+title: "Fire-fighting measures"
+subsections:
+  - id: "extinguishing_media"
+    title: "Suitable extinguishing media"
+    kind: "prose"
+  - id: "special_hazards"
+    title: "Special hazards arising from the substance"
+    kind: "prose"
+  - id: "firefighter_precautions"
+    title: "Advice for firefighters"
+    kind: "prose"

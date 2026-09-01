@@ -1,0 +1,10 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+    - "H318"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Wear chemical splash goggles AND a face shield conforming to ANSI Z87.1."

@@ -1,0 +1,10 @@
+variant: "default"
+priority: 0
+content:
+  kind: "table"
+  headers:
+    - "Chemical name"
+    - "CAS No."
+    - "Concentration (% w/w)"
+  rows:
+    - ["No hazardous ingredients recorded", "-", "-"]

@@ -1,0 +1,6 @@
+preset: "corrosive"
+picks:
+  classification: "corrosive"
+  signal_word: "corrosive"
+  pictograms: "corrosive"
+  precautionary: "corrosive"

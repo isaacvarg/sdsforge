@@ -1,0 +1,7 @@
+id: "properties"
+number: 9
+title: "Physical and chemical properties"
+subsections:
+  - id: "properties"
+    title: "Physical and chemical properties"
+    kind: "table"

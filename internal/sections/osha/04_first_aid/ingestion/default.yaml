@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Rinse mouth with water. Do not induce vomiting."
+    - "Never give anything by mouth to an unconscious person. Get medical advice."

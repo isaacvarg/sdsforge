@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Rinse mouth thoroughly with water. Do NOT induce vomiting -- this risks a second corrosive injury to the oesophagus."
+    - "Never give anything by mouth to an unconscious person."
+    - "Immediately call a POISON CENTER or doctor."

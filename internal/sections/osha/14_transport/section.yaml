@@ -1,0 +1,10 @@
+id: "transport"
+number: 14
+title: "Transport information"
+subsections:
+  - id: "dot"
+    title: "US DOT"
+    kind: "table"
+  - id: "special_precautions"
+    title: "Special precautions for user"
+    kind: "prose"

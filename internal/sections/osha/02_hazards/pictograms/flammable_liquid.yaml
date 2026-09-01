@@ -1,0 +1,11 @@
+variant: "flammable_liquid"
+applies_when:
+  any_of:
+    - "H225"
+priority: 25
+content:
+  kind: "images"
+  images:
+    - src: "ghs/pictograms/GHS02.svg"
+      alt: "GHS02 pictogram: flame"
+      caption: "GHS02 (flame)"

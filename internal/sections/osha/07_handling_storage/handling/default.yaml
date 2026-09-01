@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Use only in a well-ventilated area. Avoid contact with skin, eyes, and clothing."
+    - "Do not eat, drink, or smoke when using this product. Wash thoroughly after handling."

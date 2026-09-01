@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Prevent entry into drains, sewers, watercourses, and soil. Notify authorities if the product enters the environment."

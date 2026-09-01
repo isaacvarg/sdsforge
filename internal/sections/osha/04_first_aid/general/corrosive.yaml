@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Move the affected person out of the hazard area immediately. Show this safety data sheet to the attending physician."
+    - "Rescuers must wear appropriate protective equipment before assisting."
+    - "Seek immediate medical attention in all cases of exposure."

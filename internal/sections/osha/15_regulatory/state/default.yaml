@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "California Proposition 65: no components are known to the State of California to cause cancer or reproductive harm."

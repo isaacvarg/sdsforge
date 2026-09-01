@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Evacuate the area immediately. Ensure adequate ventilation."
+    - "Only trained personnel wearing full chemical-resistant protective equipment, including face protection, should respond."
+    - "Avoid all contact with skin, eyes, and clothing."

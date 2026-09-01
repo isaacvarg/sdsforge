@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Wash with plenty of soap and water. Remove contaminated clothing and wash it before reuse."
+    - "If skin irritation occurs, get medical advice."

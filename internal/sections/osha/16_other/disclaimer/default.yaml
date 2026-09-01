@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "The information in this safety data sheet is provided in good faith and believed to be correct as of the date of issue."
+    - "It is the responsibility of the user to determine the suitability of this information for their particular purpose and to comply with all applicable regulations."

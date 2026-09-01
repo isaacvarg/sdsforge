@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Use extinguishing media appropriate to the surrounding fire: water spray, dry chemical, carbon dioxide, or alcohol-resistant foam."
+    - "Unsuitable media: do not use a direct water jet, which may spread the fire."

@@ -1,0 +1,3 @@
+preset: "acute_inhalation"
+picks:
+  respiratory_protection: "acute_toxicity"

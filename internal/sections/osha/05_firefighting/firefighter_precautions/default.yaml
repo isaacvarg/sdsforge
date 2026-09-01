@@ -1,0 +1,7 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "Wear self-contained breathing apparatus and full protective gear."
+    - "Cool closed containers exposed to fire with water spray. Prevent run-off from entering drains or watercourses."

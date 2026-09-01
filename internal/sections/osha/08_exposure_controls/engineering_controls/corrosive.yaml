@@ -1,0 +1,11 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Use local exhaust ventilation at the point of generation. General dilution ventilation alone is not sufficient."
+    - "Eyewash stations and safety showers are required within 10 seconds' travel of the workstation."
+    - "Handle in a closed system wherever practicable."

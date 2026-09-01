@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "CHEMTREC (24 hr): 1-800-424-9300 (USA) / +1-703-527-3887 (International)"

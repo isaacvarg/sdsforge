@@ -1,0 +1,5 @@
+preset: "acute_inhalation"
+picks:
+  classification: "acute_inhalation"
+  signal_word: "warning"
+  pictograms: "acute_inhalation"

@@ -1,0 +1,10 @@
+variant: "corrosive"
+applies_when:
+  any_of:
+    - "H314"
+priority: 30
+content:
+  kind: "prose"
+  text:
+    - "Causes severe skin burns and eye damage on contact."
+    - "Delayed effects may include scarring and permanent corneal damage."

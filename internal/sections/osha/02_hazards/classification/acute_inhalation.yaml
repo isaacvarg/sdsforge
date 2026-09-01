@@ -1,0 +1,15 @@
+variant: "acute_inhalation"
+applies_when:
+  any_of:
+    - "H330"
+    - "H331"
+    - "H332"
+priority: 20
+content:
+  kind: "table"
+  headers:
+    - "Hazard class"
+    - "Category"
+    - "Hazard statement"
+  rows:
+    - ["Acute toxicity, inhalation", "3", "H331: Toxic if inhaled."]
