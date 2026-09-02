@@ -82,6 +82,18 @@ preset or overrides individual subsections.`,
 			return fmt.Errorf("resolving document %d:\n%w", id, err)
 		}
 
+		// Prepared before the output file is created, so a bad logo path fails
+		// without leaving a half-built sheet behind.
+		logo, err := generation.PrepareLogo(cfg.Logo, cfg.Company.Name)
+		if err != nil {
+			return err
+		}
+		if logo.Oversized() {
+			fmt.Fprintf(cmd.ErrOrStderr(),
+				"warning: the logo adds %s to every sheet; a smaller file would travel better\n",
+				formatBytes(logo.Bytes))
+		}
+
 		outPath, err := cmd.Flags().GetString("out")
 		if err != nil {
 			return err
@@ -100,7 +112,7 @@ preset or overrides individual subsections.`,
 		}
 		defer f.Close()
 
-		if err := generation.RenderHTML(f, doc, resolved, cfg.Company); err != nil {
+		if err := generation.RenderHTML(f, doc, resolved, cfg.Company, logo); err != nil {
 			return err
 		}
 
@@ -114,4 +126,18 @@ func init() {
 
 	generateCmd.Flags().StringP("out", "o", "",
 		"Output path (default: the document's directory)")
+}
+
+// formatBytes renders a byte count for a warning message.
+func formatBytes(n int) string {
+	const unit = 1024
+	if n < unit {
+		return fmt.Sprintf("%d B", n)
+	}
+	div, exp := int64(unit), 0
+	for size := int64(n) / unit; size >= unit; size /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(n)/float64(div), "KMGT"[exp])
 }

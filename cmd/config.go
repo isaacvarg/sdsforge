@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/isaacvarg/sdsforge/internal/config"
+	"github.com/isaacvarg/sdsforge/internal/generation"
 	"github.com/spf13/cobra"
 )
 
@@ -127,8 +128,43 @@ recorded" -- if the company block below is empty, the file is not being read.`,
 		fmt.Fprintln(out, "\n[emergency]")
 		printLines(out, cfg.Emergency.Lines(), "no contacts -- section 1 will show the library's default number")
 
+		fmt.Fprintln(out, "\n[logo]")
+		printLogo(out, cfg.Logo, cfg.Company.Name)
+
 		return nil
 	},
+}
+
+// printLogo reports what the logo will look like on the page.
+//
+// This is where "why does my logo come out tiny" gets answered, and the one
+// place a bad path surfaces without generating a document.
+func printLogo(out io.Writer, cfg config.Logo, companyName string) {
+	if cfg.IsZero() {
+		fmt.Fprintln(out, "  (no logo configured)")
+		return
+	}
+
+	fmt.Fprintf(out, "  path:  %s\n", cfg.Path)
+
+	logo, err := generation.PrepareLogo(cfg, companyName)
+	if err != nil {
+		fmt.Fprintf(out, "  ERROR: %v\n", err)
+		return
+	}
+
+	if logo.Measured {
+		fmt.Fprintf(out, "  image: %d x %d px, %s encoded\n",
+			logo.PixelWidth, logo.PixelHeight, formatBytes(logo.Bytes))
+		fmt.Fprintf(out, "  print: %s wide x %s tall\n",
+			config.FormatLength(logo.WidthMM), config.FormatLength(logo.HeightMM))
+	} else {
+		fmt.Fprintf(out, "  image: %s encoded; dimensions could not be read\n",
+			formatBytes(logo.Bytes))
+		fmt.Fprintln(out, "  print: bounded by max_width/max_height, ratio left to the renderer")
+	}
+	fmt.Fprintf(out, "  css:   %s\n", logo.Style)
+	fmt.Fprintf(out, "  alt:   %s\n", logo.Alt)
 }
 
 // printLines writes a rendered block, or a note explaining an empty one.

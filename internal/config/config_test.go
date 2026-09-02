@@ -198,3 +198,91 @@ func TestEmergencyLines(t *testing.T) {
 		t.Error("no contacts must produce no lines, so the library default survives")
 	}
 }
+
+func TestLoadLogo(t *testing.T) {
+	dir := write(t, "config.toml", `
+[logo]
+path       = "acme-logo.svg"
+max_height = "20mm"
+alt        = "Acme mark"
+`)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+
+	// A relative path means "beside the config file", so the user need only
+	// write the name of a logo they saved next to it.
+	if want := filepath.Join(dir, "acme-logo.svg"); cfg.Logo.Path != want {
+		t.Errorf("Logo.Path = %q, want %q", cfg.Logo.Path, want)
+	}
+	if cfg.Logo.MaxHeight != "20mm" || cfg.Logo.Alt != "Acme mark" {
+		t.Errorf("logo = %+v", cfg.Logo)
+	}
+	if cfg.Logo.IsZero() {
+		t.Error("IsZero() = true for a configured logo")
+	}
+}
+
+func TestLoadLogoAbsolutePath(t *testing.T) {
+	write(t, "config.toml", "[logo]\npath = \"/srv/brand/logo.png\"\n")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.Logo.Path != "/srv/brand/logo.png" {
+		t.Errorf("Logo.Path = %q, want the absolute path untouched", cfg.Logo.Path)
+	}
+}
+
+func TestLoadLogoTildePath(t *testing.T) {
+	write(t, "config.toml", "[logo]\npath = \"~/brand/logo.png\"\n")
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		t.Skip("no home directory in this environment")
+	}
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if want := filepath.Join(home, "brand", "logo.png"); cfg.Logo.Path != want {
+		t.Errorf("Logo.Path = %q, want %q", cfg.Logo.Path, want)
+	}
+}
+
+// A bare number is ambiguous on something that gets printed, so it is refused
+// rather than guessed at.
+func TestLoadLogoRejectsBadLength(t *testing.T) {
+	write(t, "config.toml", "[logo]\npath = \"a.png\"\nmax_height = \"16\"\n")
+
+	_, err := Load()
+	if err == nil {
+		t.Fatal("Load() error = nil for a unitless max_height")
+	}
+	if !strings.Contains(err.Error(), "logo.max_height") {
+		t.Errorf("error does not name the key: %v", err)
+	}
+}
+
+// Load runs for every command, so a logo that is missing from disk must not
+// stop 'sections list' from working. Only rendering cares.
+func TestLoadDoesNotCheckLogoExists(t *testing.T) {
+	write(t, "config.toml", "[logo]\npath = \"never-created.png\"\n")
+
+	if _, err := Load(); err != nil {
+		t.Errorf("Load() error = %v, want nil for a logo file that does not exist yet", err)
+	}
+}
+
+func TestLogoIsZero(t *testing.T) {
+	if !(Logo{}).IsZero() {
+		t.Error("an absent [logo] table must read as unconfigured")
+	}
+	if !(Logo{MaxHeight: "16mm"}).IsZero() {
+		t.Error("sizing with no path is still no logo")
+	}
+}

@@ -51,3 +51,21 @@ email   = ""
 # phone = ""                        # <- your own number goes here
 # note  = "Mon-Fri 08:00-17:00"
 
+# Your company logo, printed in the sheet header beside the product name.
+#
+# The size is worked out for you: the artwork is measured and fitted into a
+# 50mm x 16mm box with its aspect ratio preserved, and a logo already smaller
+# than that box is left alone rather than blown up. The two bounds below only
+# adjust that box -- run 'sdsforge config show' to see the size it lands on.
+#
+# "path" may be absolute, start with ~, or be relative to this file, so a logo
+# saved next to config.toml needs only its name. SVG, PNG and JPEG are measured
+# exactly; other formats are bounded by the box and left to the renderer.
+#
+# "alt" is what a screen reader announces; it defaults to your company name.
+
+# [logo]
+# path       = "acme-logo.svg"
+# max_height = "16mm"
+# max_width  = "50mm"
+# alt        = ""

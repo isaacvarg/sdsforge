@@ -231,6 +231,7 @@ Files: `internal/generation/render.go`, `templates/`
 | `internal/sections/validate.go` | Whole-library validation |
 | `internal/config/config.go` | `~/.config/sdsforge/config.toml`: `[library]` (jurisdiction, `custom_variants` toggle, custom library path), `[company]`, `[emergency]` |
 | `internal/generation/render.go` | `html/template` rendering, one partial per content kind |
+| `internal/generation/logo.go` | Measures, fits and embeds the company logo |
 | `cmd/generate.go` | `document generate <id>` |
 | `cmd/sections.go` | `sections list`, `sections validate` |
 | `cmd/config.go` | `config path`, `config init`, `config show` |
@@ -387,3 +388,26 @@ note  = "USA"
 An empty `[company]` or `[emergency]` still resolves to the library's authored
 placeholder, exactly as an empty `supplier:` block used to.
 
+### Company logo (added 2026-09-02)
+
+`[logo]` in the config file puts the issuer's mark in the sheet header, beside
+the product name. Sizing is automatic — the artwork is measured and fitted —
+with two bounds to adjust the result:
+
+```toml
+[logo]
+path = "acme-logo.svg"    # absolute, ~-relative, or beside config.toml
+# max_height = "16mm"
+# max_width  = "50mm"
+```
+
+| # | Decision |
+|---|---|
+| 1 | Measure and fit, rather than a CSS box alone. The artwork's own dimensions are read (`image.DecodeConfig` for PNG/JPEG, the root element's `width`/`height` or `viewBox` for SVG) and an exact print size computed, so what lands on paper is knowable before printing. |
+| 2 | `max_height`/`max_width` bound a BOX the image is fitted inside, never a size it is forced to. The aspect ratio cannot be broken by a config file. |
+| 3 | Never upscaled. Scale is capped at 1, because an enlarged raster mark prints blurred; a user who wants it bigger raises `max_height`. |
+| 4 | Unmeasurable artwork (WebP, an SVG with no dimensions) degrades to a bounded box rather than failing. Nothing about a company mark is regulated content, so a working logo beats a refused build. A missing FILE is still an error, matching how library artwork is treated. |
+| 5 | The style attribute is built in Go from measured numbers and typed `template.CSS`. `html/template` blanks a style it cannot verify, and going through validated floats means no user string reaches a CSS context. The `imageURI` helper does the same for `src`. |
+| 6 | Embedded as a `data:` URI like the pictograms, so the sheet stands alone; over 1 MB encoded, `generate` warns on stderr rather than refusing. |
+| 7 | Lengths are parsed to millimetres and require a unit (`internal/config/length.go`) — a bare number on a printed document is ambiguous. |
+| 8 | Existence of the logo file is not checked at load: `Load` runs for every command, and `sections list` has no business failing over a logo. |

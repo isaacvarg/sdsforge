@@ -41,7 +41,7 @@ func TestRenderHTML(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs, config.Company{}); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -76,7 +76,7 @@ func TestRenderEscapesContent(t *testing.T) {
 	doc.ProductName = `<script>alert("xss")</script>`
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs, config.Company{}); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -115,7 +115,7 @@ func TestRenderEmptySubsection(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}, config.Company{}); err != nil {
+	if err := RenderHTML(&buf, document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}, config.Company{}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	if !strings.Contains(buf.String(), `<p class="empty">No data available.</p>`) {
@@ -129,7 +129,7 @@ func TestRenderCompanyHeaderAndFooter(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs, config.Company{Name: "Acme Chemical Co."}); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{Name: "Acme Chemical Co."}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -148,7 +148,7 @@ func TestRenderWithoutCompany(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs, config.Company{}); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -158,5 +158,52 @@ func TestRenderWithoutCompany(t *testing.T) {
 	}
 	if strings.Contains(out, "<span></span>") {
 		t.Error("header has an empty company cell")
+	}
+}
+
+// The logo goes in the header beside the title, embedded so the sheet stands
+// alone when emailed or printed.
+func TestRenderLogo(t *testing.T) {
+	doc, secs := fixture(t)
+
+	logo, err := PrepareLogo(config.Logo{Path: writePNG(t, 1600, 400)}, "Acme Chemical Co.")
+	if err != nil {
+		t.Fatalf("PrepareLogo() error = %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{Name: "Acme Chemical Co."}, logo); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	for _, want := range []string{
+		`class="logo"`,
+		`src="data:image/png;base64,`,
+		`alt="Acme Chemical Co. logo"`,
+		`style="width:50mm;height:12.5mm"`,
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("rendered header missing %q", want)
+		}
+	}
+
+	// html/template blanks a style attribute it cannot verify. Catching that
+	// here is the point of building the value from measured numbers.
+	if strings.Contains(out, "ZgotmplZ") {
+		t.Error("html/template rejected the computed style")
+	}
+}
+
+// With no logo the header is exactly what it was before the setting existed.
+func TestRenderWithoutLogo(t *testing.T) {
+	doc, secs := fixture(t)
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	if out := buf.String(); strings.Contains(out, `class="logo"`) {
+		t.Error("header carries a logo element with no logo configured")
 	}
 }

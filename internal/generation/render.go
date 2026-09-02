@@ -28,7 +28,9 @@ type View struct {
 	Sections []sections.ResolvedSection
 	// Company is the issuer, named in the header and footer. It comes from the
 	// user's config rather than the document, so it is passed in separately.
-	Company     config.Company
+	Company config.Company
+	// Logo is the issuer's mark, nil when none is configured.
+	Logo        *Logo
 	GeneratedAt string
 }
 
@@ -85,11 +87,12 @@ var parsed = template.Must(
 )
 
 // RenderHTML writes the finished safety data sheet to w.
-func RenderHTML(w io.Writer, doc document.Data, secs []sections.ResolvedSection, company config.Company) error {
+func RenderHTML(w io.Writer, doc document.Data, secs []sections.ResolvedSection, company config.Company, logo *Logo) error {
 	view := View{
 		Doc:         doc,
 		Sections:    secs,
 		Company:     company,
+		Logo:        logo,
 		GeneratedAt: time.Now().Format("2006-01-02"),
 	}
 
