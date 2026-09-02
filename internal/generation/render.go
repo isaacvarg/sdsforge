@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/document"
 	"github.com/isaacvarg/sdsforge/internal/sections"
 )
@@ -23,8 +24,11 @@ var templateFS embed.FS
 // markup never reaches into internals and every value it needs is already
 // computed.
 type View struct {
-	Doc         document.Data
-	Sections    []sections.ResolvedSection
+	Doc      document.Data
+	Sections []sections.ResolvedSection
+	// Company is the issuer, named in the header and footer. It comes from the
+	// user's config rather than the document, so it is passed in separately.
+	Company     config.Company
 	GeneratedAt string
 }
 
@@ -81,10 +85,11 @@ var parsed = template.Must(
 )
 
 // RenderHTML writes the finished safety data sheet to w.
-func RenderHTML(w io.Writer, doc document.Data, secs []sections.ResolvedSection) error {
+func RenderHTML(w io.Writer, doc document.Data, secs []sections.ResolvedSection, company config.Company) error {
 	view := View{
 		Doc:         doc,
 		Sections:    secs,
+		Company:     company,
 		GeneratedAt: time.Now().Format("2006-01-02"),
 	}
 

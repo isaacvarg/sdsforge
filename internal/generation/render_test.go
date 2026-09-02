@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/document"
 	"github.com/isaacvarg/sdsforge/internal/sections"
 )
@@ -40,7 +41,7 @@ func TestRenderHTML(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{}); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -75,7 +76,7 @@ func TestRenderEscapesContent(t *testing.T) {
 	doc.ProductName = `<script>alert("xss")</script>`
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{}); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -114,10 +115,48 @@ func TestRenderEmptySubsection(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}); err != nil {
+	if err := RenderHTML(&buf, document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}, config.Company{}); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	if !strings.Contains(buf.String(), `<p class="empty">No data available.</p>`) {
 		t.Error("empty subsection did not render its empty text")
+	}
+}
+
+// The issuing company comes from configuration, and must reach both the
+// header and the footer of the finished sheet.
+func TestRenderCompanyHeaderAndFooter(t *testing.T) {
+	doc, secs := fixture(t)
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{Name: "Acme Chemical Co."}); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	if !strings.Contains(out, "<span>Acme Chemical Co.</span>") {
+		t.Error("company name missing from the header")
+	}
+	if !strings.Contains(out, "Prepared by Acme Chemical Co.") {
+		t.Error("company name missing from the footer")
+	}
+}
+
+// With no company configured, the sheet reads exactly as it did before the
+// setting existed -- no stray "Prepared by" and no empty header cell.
+func TestRenderWithoutCompany(t *testing.T) {
+	doc, secs := fixture(t)
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{}); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	if strings.Contains(out, "Prepared by") {
+		t.Error("footer credits a company that was never configured")
+	}
+	if strings.Contains(out, "<span></span>") {
+		t.Error("header has an empty company cell")
 	}
 }

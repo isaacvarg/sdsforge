@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/ghs"
 	"github.com/isaacvarg/sdsforge/internal/sections"
 )
@@ -18,7 +19,11 @@ type Data struct {
 	Materials       []Material `yaml:"materials,omitempty"`
 
 	Identification Identification `yaml:"identification,omitempty"`
-	Supplier       Supplier       `yaml:"supplier,omitempty"`
+
+	// Deprecated: unread. Supplier details now come from the user's config
+	// file, since they are the same on every sheet a company issues. The field
+	// is kept so documents written before that change still load.
+	Supplier Supplier `yaml:"supplier,omitempty"`
 
 	// HazardCodes are the GHS codes for the product as a whole, e.g.
 	// [H315, H350]. They drive section 2 entirely and select the wording in
@@ -116,8 +121,11 @@ type Identification struct {
 	Restrictions   string `yaml:"restrictions,omitempty"`
 }
 
-// Supplier identifies who is responsible for the sheet. Section 1 requires a
-// name, address, and telephone number, plus an emergency contact.
+// Supplier identified who is responsible for the sheet.
+//
+// Deprecated: superseded by the [company] and [emergency] tables in the config
+// file. Nothing reads this; HasLegacySupplier reports one so 'document
+// generate' can say it is being ignored.
 type Supplier struct {
 	Name           string `yaml:"name,omitempty"`
 	Address        string `yaml:"address,omitempty"`
@@ -133,7 +141,7 @@ type Supplier struct {
 // library's authored placeholder survives. That is the difference between a
 // sheet that says "No supplier details have been recorded" and one that shows
 // an empty heading.
-func (d Data) SourceData(cls *ghs.Classification) sections.SourceData {
+func (d Data) SourceData(cls *ghs.Classification, cfg config.Config) sections.SourceData {
 	out := sections.SourceData{}
 
 	// Section 2 is computed, not authored. A nil or unclassified result leaves
@@ -157,13 +165,15 @@ func (d Data) SourceData(cls *ghs.Classification) sections.SourceData {
 	if lines := d.recommendedUseLines(); len(lines) > 0 {
 		out[sections.SourceRecommendedUse] = &sections.Prose{Text: lines}
 	}
-	if lines := d.supplierLines(); len(lines) > 0 {
+	// Who issues the sheet and who to call about it are the same for every
+	// document, so both come from configuration rather than from this file.
+	if lines := cfg.Company.Lines(); len(lines) > 0 {
 		out[sections.SourceSupplier] = &sections.Prose{Text: lines}
 	}
-	// The emergency number has its own subsection in section 1; listing it
-	// under Supplier details as well would print it twice.
-	if d.Supplier.EmergencyPhone != "" {
-		out[sections.SourceEmergencyPhone] = &sections.Prose{Text: []string{d.Supplier.EmergencyPhone}}
+	// The emergency numbers have their own subsection in section 1; listing
+	// them under Supplier details as well would print them twice.
+	if lines := cfg.Emergency.Lines(); len(lines) > 0 {
+		out[sections.SourceEmergencyPhone] = &sections.Prose{Text: lines}
 	}
 	if len(d.Materials) > 0 {
 		rows := make([][]string, 0, len(d.Materials))
@@ -217,21 +227,11 @@ func (d Data) recommendedUseLines() []string {
 	return lines
 }
 
-func (d Data) supplierLines() []string {
-	var lines []string
-	if d.Supplier.Name != "" {
-		lines = append(lines, d.Supplier.Name)
-	}
-	if d.Supplier.Address != "" {
-		lines = append(lines, d.Supplier.Address)
-	}
-	if d.Supplier.Phone != "" {
-		lines = append(lines, "Telephone: "+d.Supplier.Phone)
-	}
-	if d.Supplier.Email != "" {
-		lines = append(lines, "Email: "+d.Supplier.Email)
-	}
-	return lines
+// HasLegacySupplier reports whether this document still carries supplier
+// details of its own. They are no longer read, so a caller should say so
+// rather than let a user wonder why what they typed does not appear.
+func (d Data) HasLegacySupplier() bool {
+	return d.Supplier != Supplier{}
 }
 
 type Index struct {

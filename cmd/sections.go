@@ -16,10 +16,17 @@ func openLibrary() (*sections.Library, error) {
 	if err != nil {
 		return nil, err
 	}
+	return openLibraryWith(cfg)
+}
+
+// openLibraryWith is openLibrary for a caller that has already loaded the
+// config -- 'generate' needs the company details from it too, and reading the
+// file twice for one command is waste.
+func openLibraryWith(cfg config.Config) (*sections.Library, error) {
 	return sections.NewLibrary(sections.LibraryOptions{
-		Jurisdiction:   cfg.Jurisdiction,
-		CustomVariants: cfg.CustomVariants,
-		CustomDir:      cfg.CustomDir,
+		Jurisdiction:   cfg.Library.Jurisdiction,
+		CustomVariants: cfg.Library.CustomVariants,
+		CustomDir:      cfg.Library.CustomDir,
 	})
 }
 

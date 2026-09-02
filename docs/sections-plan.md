@@ -229,10 +229,11 @@ Files: `internal/generation/render.go`, `templates/`
 | `internal/sections/variant.go` | Variant files, presets, `Predicate` (parsed, not yet evaluated) |
 | `internal/sections/resolve.go` | The resolution algorithm; selection types |
 | `internal/sections/validate.go` | Whole-library validation |
-| `internal/config/config.go` | `custom_variants` toggle and custom library path |
+| `internal/config/config.go` | `~/.config/sdsforge/config.toml`: `[library]` (jurisdiction, `custom_variants` toggle, custom library path), `[company]`, `[emergency]` |
 | `internal/generation/render.go` | `html/template` rendering, one partial per content kind |
 | `cmd/generate.go` | `document generate <id>` |
 | `cmd/sections.go` | `sections list`, `sections validate` |
+| `cmd/config.go` | `config path`, `config init`, `config show` |
 
 Content library: `internal/sections/osha/` — 16 sections, 77 variant files, 8 presets.
 
@@ -352,3 +353,37 @@ screen reader, images-off, and a text-only print.
   `source:` mechanism above; the old hardcoded `withMaterialsTable` is gone.
 - The seeded content is generic OSHA-format boilerplate. It is placeholder text
   for a real SDS and must be reviewed by a qualified person before use.
+
+### Company details in configuration (added 2026-09-02)
+
+Who issues a sheet and who to call about an incident are the same on every
+document a company produces, so they moved out of `document.yaml` and into the
+user's config file, which became TOML in the process:
+
+```toml
+[library]
+jurisdiction = "osha"
+
+[company]
+name  = "Acme Chemical Co."
+phone = "+1-555-0100"
+
+[[emergency.contacts]]
+name  = "CHEMTREC (24 hr)"
+phone = "1-800-424-9300"
+note  = "USA"
+```
+
+| # | Decision |
+|---|---|
+| 1 | TOML, not YAML. The file is a small set of named tables edited by hand; `[company]` says what it is without indentation rules. Documents stay YAML. |
+| 2 | `[emergency]` holds a LIST of contacts. A sheet routinely carries several numbers -- a 24-hour service, its international line, the site's own officer -- and a single string could hold only one. |
+| 3 | Config always wins. A document's `supplier:` block is no longer read; the struct is kept so old documents still load, and `generate` warns on stderr rather than ignoring it silently. |
+| 4 | `config.Company.Lines()` / `Emergency.Lines()` own the formatting, so section 1 and the sheet header cannot disagree about it. |
+| 5 | A contact with no phone is a validation error, not a dropped entry: it is a typo, and dropping it leaves a gap on a printed sheet. |
+| 6 | A lone `config.yaml` is an error naming both paths. Falling back to defaults would silently discard a working `custom_dir`. |
+| 7 | XDG throughout: config under `$XDG_CONFIG_HOME` (via `os.UserConfigDir`), documents under `$XDG_DATA_HOME`. |
+
+An empty `[company]` or `[emergency]` still resolves to the library's authored
+placeholder, exactly as an empty `supplier:` block used to.
+

@@ -8,6 +8,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/document"
 	"github.com/isaacvarg/sdsforge/internal/ghs"
 	"github.com/isaacvarg/sdsforge/internal/sections"
@@ -39,7 +40,11 @@ Nothing is written; this only reports.`,
 		if err != nil {
 			return err
 		}
-		lib, err := openLibrary()
+		cfg, err := config.Load()
+		if err != nil {
+			return err
+		}
+		lib, err := openLibraryWith(cfg)
 		if err != nil {
 			return err
 		}
@@ -61,7 +66,7 @@ Nothing is written; this only reports.`,
 		printClassification(out, doc, classification)
 
 		resolved, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
-			Sources:     doc.SourceData(classification),
+			Sources:     doc.SourceData(classification, cfg),
 			HazardCodes: doc.HazardCodeSet(),
 		})
 		if err != nil {

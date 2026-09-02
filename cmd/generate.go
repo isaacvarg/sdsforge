@@ -42,13 +42,22 @@ preset or overrides individual subsections.`,
 			return err
 		}
 
-		lib, err := sections.NewLibrary(sections.LibraryOptions{
-			Jurisdiction:   cfg.Jurisdiction,
-			CustomVariants: cfg.CustomVariants,
-			CustomDir:      cfg.CustomDir,
-		})
+		lib, err := openLibraryWith(cfg)
 		if err != nil {
 			return err
+		}
+
+		// Supplier details used to live in the document. They are read from
+		// the config now, so say the old block is being skipped rather than
+		// leave the user wondering why what they typed is not on the sheet.
+		if doc.HasLegacySupplier() {
+			path, err := config.Path()
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(cmd.ErrOrStderr(),
+				"document %d: the 'supplier:' block is no longer read; company and emergency details come from %s\n",
+				id, path)
 		}
 
 		// Section 2 is computed from the document's hazard codes, and those
@@ -66,7 +75,7 @@ preset or overrides individual subsections.`,
 		}
 
 		resolved, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
-			Sources:     doc.SourceData(classification),
+			Sources:     doc.SourceData(classification, cfg),
 			HazardCodes: doc.HazardCodeSet(),
 		})
 		if err != nil {
@@ -91,7 +100,7 @@ preset or overrides individual subsections.`,
 		}
 		defer f.Close()
 
-		if err := generation.RenderHTML(f, doc, resolved); err != nil {
+		if err := generation.RenderHTML(f, doc, resolved, cfg.Company); err != nil {
 			return err
 		}
 

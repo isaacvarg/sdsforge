@@ -3,6 +3,7 @@ package document
 import (
 	"testing"
 
+	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/sections"
 )
 
@@ -10,7 +11,7 @@ import (
 // so the library's authored placeholder survives.
 func TestSourceDataOmitsEmpty(t *testing.T) {
 	var empty Data
-	if got := empty.SourceData(nil); len(got) != 0 {
+	if got := empty.SourceData(nil, config.Config{}); len(got) != 0 {
 		t.Errorf("SourceData() on a zero Data = %v, want empty", got)
 	}
 }
@@ -22,11 +23,6 @@ func TestSourceDataPopulates(t *testing.T) {
 			ProductCodes: []string{"CS-50", "CS-50D"},
 			CASNumber:    "1310-73-2",
 		},
-		Supplier: Supplier{
-			Name:           "Acme Chemical Co.",
-			Phone:          "555-0100",
-			EmergencyPhone: "1-800-424-9300",
-		},
 		Materials: []Material{
 			{Name: "Sodium hydroxide", CASNumber: "1310-73-2", Percentage: "50"},
 			{Name: "Water", CASNumber: "7732-18-5", Percentage: "50"},
@@ -36,11 +32,20 @@ func TestSourceDataPopulates(t *testing.T) {
 		},
 	}
 
-	got := d.SourceData(nil)
+	// Supplier and emergency details come from configuration, not from the
+	// document.
+	cfg := config.Config{
+		Company: config.Company{Name: "Acme Chemical Co.", Phone: "555-0100"},
+		Emergency: config.Emergency{Contacts: []config.Contact{
+			{Name: "CHEMTREC (24 hr)", Phone: "1-800-424-9300", Note: "USA"},
+		}},
+	}
+	got := d.SourceData(nil, cfg)
 
 	for _, name := range []string{
 		sections.SourceIdentification,
 		sections.SourceSupplier,
+		sections.SourceEmergencyPhone,
 		sections.SourceMaterials,
 		sections.SourceRevisions,
 	} {
@@ -62,9 +67,10 @@ func TestSourceDataPopulates(t *testing.T) {
 
 // Partial data yields partial content, not blanks.
 func TestSourceDataPartial(t *testing.T) {
-	d := Data{Supplier: Supplier{Name: "Acme Chemical Co."}}
+	var d Data
+	cfg := config.Config{Company: config.Company{Name: "Acme Chemical Co."}}
 
-	got := d.SourceData(nil)
+	got := d.SourceData(nil, cfg)
 	if _, ok := got.Block(sections.SourceSupplier); !ok {
 		t.Fatal("supplier block missing")
 	}
@@ -76,5 +82,27 @@ func TestSourceDataPartial(t *testing.T) {
 	}
 	if _, ok := got.Block(sections.SourceEmergencyPhone); ok {
 		t.Error("emergency phone block present despite none given")
+	}
+}
+
+// A document written before company details moved into configuration still
+// loads, but nothing on the sheet comes from its supplier block.
+func TestLegacySupplierIsIgnored(t *testing.T) {
+	d := Data{Supplier: Supplier{Name: "Old Co.", EmergencyPhone: "555-0199"}}
+
+	if !d.HasLegacySupplier() {
+		t.Error("HasLegacySupplier() = false, want true so generate can warn")
+	}
+
+	got := d.SourceData(nil, config.Config{})
+	if _, ok := got.Block(sections.SourceSupplier); ok {
+		t.Error("supplier block built from the document's own supplier: details")
+	}
+	if _, ok := got.Block(sections.SourceEmergencyPhone); ok {
+		t.Error("emergency block built from the document's own supplier: details")
+	}
+
+	if (Data{}).HasLegacySupplier() {
+		t.Error("HasLegacySupplier() = true on a document with no supplier block")
 	}
 }
