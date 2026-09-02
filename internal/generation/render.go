@@ -93,6 +93,26 @@ var funcs = template.FuncMap{
 	},
 	"hasRows": func(t *sections.Table) bool { return t != nil && len(t.Rows) > 0 },
 
+	// fontFaceCSS returns the document's embedded @font-face rules. It is a
+	// func rather than a field on View so both layout.html.tmpl and the
+	// isolated footer.html.tmpl -- which does not inherit the page's own
+	// stylesheet -- can pull in the same trusted CSS.
+	"fontFaceCSS": func() template.CSS { return fontFaceCSS },
+
+	// boldLabel bolds a rendered line's leading "Label:" so it doesn't blend
+	// into the value that follows -- e.g. "Product name: Acme Solvent" or a
+	// GHS code line like "P264: Wash thoroughly after handling.". A line with
+	// no colon renders unchanged. Returns template.HTML because the <strong>
+	// tag must survive; both halves are escaped here first, so nothing about
+	// the source string skips html/template's protection.
+	"boldLabel": func(line string) template.HTML {
+		if i := strings.IndexByte(line, ':'); i >= 0 {
+			return template.HTML("<strong>" + template.HTMLEscapeString(line[:i+1]) + "</strong>" +
+				template.HTMLEscapeString(line[i+1:]))
+		}
+		return template.HTML(template.HTMLEscapeString(line))
+	},
+
 	// imageURI marks an image source as safe for html/template.
 	//
 	// html/template rejects data: URIs in src by default, replacing them with
