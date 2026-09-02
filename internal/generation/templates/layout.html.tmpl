@@ -55,7 +55,21 @@
       flex-wrap: wrap;
       gap: 0 1.6em;
     }
-    section.sds { margin: 0 0 1.5em; break-inside: avoid; }
+    section.sds { margin: 0 0 1.5em; }
+
+    /* Page breaking.
+
+       A section is not an atom. Several of them run longer than a page, and
+       several more are tall enough that refusing to split one pushes the whole
+       thing onto the next page and leaves most of this one blank. So sections
+       flow, and what gets protected is the small stuff a reader would notice
+       being torn: a heading from the content it introduces, a row from its
+       table, a pictogram from the hazard it names. */
+    section.sds > h2,
+    .subsection > h3 { break-after: avoid; }
+    /* A heading that fits but whose first line does not is the same problem in
+       miniature, so keep at least two lines on either side of a break. */
+    .subsection p, td, th { orphans: 2; widows: 2; }
     section.sds > h2 {
       font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 10.5pt;
@@ -83,6 +97,10 @@
       font-size: 9pt;
       margin: 0.2em 0 0.4em;
     }
+    /* A split table repeats its header on the next page, so a reader never
+       meets a column of values with nothing saying what they are. */
+    thead { display: table-header-group; }
+    tr { break-inside: avoid; }
     th, td {
       border: 1px solid var(--rule);
       padding: 0.3em 0.5em;

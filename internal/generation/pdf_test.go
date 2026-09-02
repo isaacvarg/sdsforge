@@ -197,3 +197,51 @@ func TestRenderPDFCancelled(t *testing.T) {
 		t.Errorf("RenderPDF() error = %v, want context.Canceled", err)
 	}
 }
+
+// A section is not an atom. Making one unbreakable pushes any section that
+// does not fit onto the next page whole, which is how a sheet ends up with
+// pages that stop halfway down.
+func TestLayoutLetsSectionsBreakAcrossPages(t *testing.T) {
+	doc, secs := fixture(t)
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Default(), nil)); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	if rule := cssRule(t, out, "section.sds"); strings.Contains(rule, "break-inside: avoid") {
+		t.Errorf("section.sds is unbreakable, which strands whole pages: %s", rule)
+	}
+
+	// What replaces it: the small things a reader would notice being torn.
+	wants := map[string]string{
+		"a section heading can be orphaned at the foot of a page": "section.sds > h2,\n    .subsection > h3 { break-after: avoid; }",
+		"a table row can be split":                                "tr { break-inside: avoid; }",
+		"a split table does not repeat its header":                "thead { display: table-header-group; }",
+		"a paragraph can leave a single line behind":              "orphans: 2; widows: 2;",
+		"a pictogram can be split from its caption":               ".pictograms figure {",
+	}
+	for problem, css := range wants {
+		if !strings.Contains(out, css) {
+			t.Errorf("%s: the stylesheet is missing %q", problem, css)
+		}
+	}
+}
+
+// cssRule returns the declaration block of the first rule whose selector list
+// starts with selector.
+func cssRule(t *testing.T, html, selector string) string {
+	t.Helper()
+
+	at := strings.Index(html, "\n    "+selector+" {")
+	if at < 0 {
+		t.Fatalf("no %q rule in the stylesheet", selector)
+	}
+	rest := html[at:]
+	end := strings.Index(rest, "}")
+	if end < 0 {
+		t.Fatalf("unterminated %q rule", selector)
+	}
+	return rest[:end+1]
+}
