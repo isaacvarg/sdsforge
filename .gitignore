@@ -1,2 +1,5 @@
 # Compiled binary from `go build ./...`
 /sdsforge
+
+# Release artifacts from `goreleaser release --snapshot`
+/dist/
