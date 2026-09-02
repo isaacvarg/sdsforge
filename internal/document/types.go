@@ -277,11 +277,12 @@ func pictogramBlock(cls *ghs.Classification) sections.Content {
 		}
 		images = append(images, sections.Image{
 			Src: p.DataURI(),
-			// Alt and Caption both carry the code and name: alt is what a
-			// screen reader announces and what survives when images are off,
-			// and neither may be reduced to decoration on this document.
-			Alt:     fmt.Sprintf("%s pictogram: %s", p.Code, p.Name),
-			Caption: fmt.Sprintf("%s (%s)", p.Code, p.Name),
+			// Alt carries the code and name: it is what a screen reader
+			// announces and what survives when images are off, so it may not
+			// be reduced to decoration on this document. No caption -- the
+			// pictogram is shown on its own, without its code/name printed
+			// underneath.
+			Alt: fmt.Sprintf("%s pictogram: %s", p.Code, p.Name),
 		})
 	}
 

@@ -3,5 +3,4 @@ priority: 0
 content:
   kind: "prose"
   text:
-    - "The information in this safety data sheet is provided in good faith and believed to be correct as of the date of issue."
-    - "It is the responsibility of the user to determine the suitability of this information for their particular purpose and to comply with all applicable regulations."
+    - "The information contained in this safety data sheet (SDS) was obtained from current and reliable sources, was carefully compiled and is believed to be accurate. The information represents the present state of our knowledge and is applicable to the product with regard to appropriate safety precautions. However, the data is provided without any warrant, expressed or implied, regarding its correctness or accuracy. Since the use, handling, storage and disposal of this product are beyond our control, it is the responsibility of the purchaser both to determine safe conditions for the use of this product and to assume liability of loss, damage, or expense arising out of the product's improper use. Various Federal, State or Provincial agencies may have specific regulations concerning the transportation, handling, storage, use, or disposal of this product, which may not be reflected in this SDS. The purchaser should review these regulations to ensure full compliance."

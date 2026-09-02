@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Safety Data Sheet — {{ .Doc.ProductName }}</title>
   <style>
+    {{ fontFaceCSS }}
     @page { size: letter; margin: 0.75in; }
     :root {
       --ink: #14161a;
@@ -14,7 +15,7 @@
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; }
     body {
-      font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+      font-family: "Fira Sans", ui-sans-serif, system-ui, sans-serif;
       font-size: 10.5pt;
       line-height: 1.45;
       color: var(--ink);
@@ -30,27 +31,26 @@
       padding-bottom: 0.6em;
       margin-bottom: 1.4em;
       display: flex;
+      flex-direction: column;
       align-items: flex-start;
-      gap: 4mm;
+      gap: 3mm;
     }
-    /* The headings take the remaining width so a long product name wraps
-       against the logo rather than pushing it off the page. */
-    header.sheet .headings { flex: 1 1 auto; min-width: 0; }
+    /* The headings take the full width once they sit below the logo. */
+    header.sheet .headings { flex: 1 1 auto; min-width: 0; width: 100%; }
     /* flex: none so the logo keeps the size it was measured and fitted to. */
     header.sheet img.logo { flex: none; }
     header.sheet .kicker {
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 8pt;
+      font-size: 11pt;
+      font-weight: 700;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--ink);
       margin: 0 0 0.3em;
     }
     header.sheet h1 { margin: 0 0 0.25em; font-size: 19pt; font-weight: 600; }
     .meta {
-      font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 8.5pt;
-      color: var(--muted);
+      color: var(--ink);
       display: flex;
       flex-wrap: wrap;
       gap: 0 1.6em;
@@ -71,7 +71,6 @@
        miniature, so keep at least two lines on either side of a break. */
     .subsection p, td, th { orphans: 2; widows: 2; }
     section.sds > h2 {
-      font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 10.5pt;
       font-weight: 700;
       margin: 0 0 0.5em;
@@ -81,11 +80,10 @@
     }
     .subsection { margin: 0 0 0.75em; padding-left: 0.5em; }
     .subsection > h3 {
-      font-family: ui-sans-serif, system-ui, sans-serif;
-      font-size: 9pt;
-      font-weight: 600;
-      color: var(--muted);
-      margin: 0 0 0.2em;
+      font-size: 12.5pt;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0 0 0.25em;
       letter-spacing: 0.01em;
     }
     .subsection p { margin: 0 0 0.35em; }
@@ -109,7 +107,6 @@
     }
     th {
       background: var(--band);
-      font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 8.5pt;
       font-weight: 600;
     }
@@ -136,7 +133,6 @@
       margin: 0 auto;
     }
     .pictograms figcaption {
-      font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 7.5pt;
       color: var(--muted);
       margin-top: 0.25em;
@@ -146,7 +142,6 @@
       margin-top: 2em;
       padding-top: 0.6em;
       border-top: 1px solid var(--rule);
-      font-family: ui-sans-serif, system-ui, sans-serif;
       font-size: 8pt;
       color: var(--muted);
     }
