@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/BurntSushi/toml"
@@ -24,6 +25,7 @@ type Config struct {
 	Company   Company   `toml:"company"`
 	Emergency Emergency `toml:"emergency"`
 	Logo      Logo      `toml:"logo"`
+	PDF       PDF       `toml:"pdf"`
 }
 
 // Library selects where section content comes from.
@@ -94,12 +96,109 @@ type Logo struct {
 // IsZero reports whether no logo has been configured.
 func (l Logo) IsZero() bool { return l.Path == "" }
 
+// PDF is how the finished sheet gets printed.
+//
+// The paper a sheet is printed on is a property of where it is issued, not of
+// the product, so it belongs here beside the company details rather than in
+// each document.
+type PDF struct {
+	// Browser is the Chrome-based browser used to print. Empty means search
+	// PATH; see FindBrowser in internal/generation. A bare name is looked up on
+	// PATH, anything with a separator is used as given.
+	Browser string `toml:"browser"`
+
+	// Paper names the sheet size: letter, legal, a4 or a5.
+	Paper string `toml:"paper"`
+
+	// Margin is the page margin on all four sides, as a CSS length ("0.75in").
+	// The running footer is drawn inside it, so it cannot be zero.
+	Margin string `toml:"margin"`
+}
+
+// paperSizes maps a paper name to its size in millimetres, portrait.
+//
+// A name rather than two lengths: nobody remembers that US Letter is 215.9mm
+// wide, and a typo in a raw measurement prints a subtly wrong page.
+var paperSizes = map[string][2]float64{
+	"letter": {215.9, 279.4},
+	"legal":  {215.9, 355.6},
+	"a4":     {210, 297},
+	"a5":     {148, 210},
+}
+
+// PaperNames lists the accepted paper values, sorted, for error messages and
+// help text.
+func PaperNames() []string {
+	names := make([]string, 0, len(paperSizes))
+	for name := range paperSizes {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
+// Geometry returns the page size and margin in INCHES, which is the unit
+// Chrome's Page.printToPDF takes. Converted here so nothing downstream has to
+// know that.
+func (p PDF) Geometry() (widthIn, heightIn, marginIn float64, err error) {
+	size, ok := paperSizes[normalisePaper(p.Paper)]
+	if !ok {
+		return 0, 0, 0, fmt.Errorf("pdf.paper: %q is not a paper size; use %s",
+			p.Paper, strings.Join(PaperNames(), ", "))
+	}
+
+	margin := p.Margin
+	if margin == "" {
+		margin = defaultMargin
+	}
+	marginMM, err := ParseLength(margin)
+	if err != nil {
+		return 0, 0, 0, fmt.Errorf("pdf.margin: %w", err)
+	}
+
+	return size[0] / mmPerInch, size[1] / mmPerInch, marginMM / mmPerInch, nil
+}
+
+// MarginCSS renders the configured margin as a CSS length, for the footer
+// template's padding -- which has to match the page margin exactly or the
+// footer sits flush to the paper edge.
+func (p PDF) MarginCSS() string {
+	margin := p.Margin
+	if margin == "" {
+		margin = defaultMargin
+	}
+	mm, err := ParseLength(margin)
+	if err != nil {
+		return defaultMargin // validate rejects this; be harmless if it slips through.
+	}
+	return FormatLength(mm)
+}
+
+// normalisePaper accepts "Letter" and "A4" as readily as "letter" and "a4".
+func normalisePaper(name string) string {
+	return strings.ToLower(strings.TrimSpace(name))
+}
+
+// The page a sheet prints on when the config file says nothing.
+//
+// US Letter because OSHA's Hazard Communication Standard is the only
+// jurisdiction that ships; 0.75in leaves the running footer room to sit inside
+// the bottom margin without crowding the content.
+const (
+	defaultPaper  = "letter"
+	defaultMargin = "0.75in"
+)
+
 // Default returns the configuration used when no config file exists.
 func Default() Config {
 	return Config{
 		Library: Library{
 			Jurisdiction:   "osha",
 			CustomVariants: false,
+		},
+		PDF: PDF{
+			Paper:  defaultPaper,
+			Margin: defaultMargin,
 		},
 	}
 }
@@ -177,6 +276,21 @@ func (c *Config) validate() error {
 	if c.Library.Jurisdiction == "" {
 		c.Library.Jurisdiction = "osha"
 	}
+	// Filled in rather than rejected: a file that omits [pdf] entirely is the
+	// normal case, and toml.Unmarshal leaves the fields empty rather than at
+	// the values Default() put there.
+	if c.PDF.Paper == "" {
+		c.PDF.Paper = defaultPaper
+	}
+	c.PDF.Paper = normalisePaper(c.PDF.Paper)
+	if c.PDF.Margin == "" {
+		c.PDF.Margin = defaultMargin
+	}
+	// Geometry checks both paper and margin, so a bad value is caught when the
+	// file is read rather than at the moment a user prints.
+	if _, _, _, err := c.PDF.Geometry(); err != nil {
+		return err
+	}
 	for key, value := range map[string]string{
 		"logo.max_height": c.Logo.MaxHeight,
 		"logo.max_width":  c.Logo.MaxWidth,
@@ -188,6 +302,10 @@ func (c *Config) validate() error {
 			return fmt.Errorf("%s: %w", key, err)
 		}
 	}
+	// Whether the BROWSER exists is not checked here for the same reason the
+	// logo file is not: Load runs for every command, and 'sections list' has no
+	// business failing over Chrome not being installed.
+	//
 	// Whether the file EXISTS is deliberately not checked here: Load runs for
 	// every command, and 'sections list' has no business failing over a logo.
 	for i, contact := range c.Emergency.Contacts {

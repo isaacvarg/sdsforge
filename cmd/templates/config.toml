@@ -69,3 +69,23 @@ email   = ""
 # max_height = "16mm"
 # max_width  = "50mm"
 # alt        = ""
+
+# How the finished sheet gets printed.
+#
+# sdsforge prints through a Chrome-based browser, which is what turns the
+# rendered markup into a PDF with a running "Page 3 of 8" footer.
+#
+# "browser" is only needed when the search fails. Left empty, PATH is searched
+# for chromium, chromium-browser, google-chrome, google-chrome-stable, brave,
+# brave-browser, microsoft-edge and microsoft-edge-stable, in that order. Set
+# it to a path or a name to pin one -- a named browser is never fallen back
+# from. Run 'sdsforge config show' to see which one was found.
+#
+# "paper" is letter, legal, a4 or a5. "margin" applies to all four sides and
+# must carry a unit (mm, cm, in, pt or px); the running footer is drawn inside
+# it, so it cannot be zero.
+
+# [pdf]
+# browser = ""
+# paper   = "letter"
+# margin  = "0.75in"

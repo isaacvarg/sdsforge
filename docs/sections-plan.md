@@ -1,9 +1,9 @@
 # SDS Sections: Variant System — Implementation Plan
 
 Status: complete, including derivation from GHS hazard codes.
-`sdsforge document generate <id>` produces a full 16-section SDS; §2 is computed
+`sdsforge document generate <id>` produces a full 16-section SDS as a PDF; §2 is computed
 and every other section's wording is derived from `hazard_codes:`.
-Module: `github.com/isaacvarg/sdsforge` · Go 1.27 · `gopkg.in/yaml.v3`
+Module: `github.com/isaacvarg/sdsforge` · Go 1.27 · `gopkg.in/yaml.v3` · `chromedp`
 
 ## The design in one page
 
@@ -30,7 +30,7 @@ Go code. Adding a content *kind* = one Go file + one template partial.
 | 4 | Content shape varies per subsection: prose (§4) vs table (§8). |
 | 5 | Hybrid typing: generic container, typed content blocks behind a `Content` interface + kind registry. |
 | 6 | Built-in library embedded via `go:embed`; optional user overlay gated by a config bool. |
-| 7 | OSHA only today, but a `osha/` path segment exists from day one so jurisdiction is never retrofitted. |
+| 13 | OSHA only today, but a `osha/` path segment exists from day one so jurisdiction is never retrofitted. |
 | 8 | A subsection resolving to nothing emits `empty_text` ("No data available."). |
 
 Also: string ids in document YAML (`first_aid`), numeric prefixes only in directory
@@ -411,3 +411,46 @@ path = "acme-logo.svg"    # absolute, ~-relative, or beside config.toml
 | 6 | Embedded as a `data:` URI like the pictograms, so the sheet stands alone; over 1 MB encoded, `generate` warns on stderr rather than refusing. |
 | 7 | Lengths are parsed to millimetres and require a unit (`internal/config/length.go`) — a bare number on a printed document is ambiguous. |
 | 8 | Existence of the logo file is not checked at load: `Load` runs for every command, and `sections list` has no business failing over a logo. |
+
+### PDF output (2026-09-02)
+
+`sdsforge document generate <id>` prints a PDF. The HTML it used to write is now
+an intermediate that goes to a headless browser and nowhere else; `--html`
+writes it out when a template change needs looking at.
+
+```
+$ sdsforge document generate 3
+/home/you/.local/share/sdsforge/documents/3/nacl.pdf
+
+$ sdsforge document generate 3 --html
+/home/you/.local/share/sdsforge/documents/3/nacl.html
+```
+
+Printing goes through an installed Chrome-based browser over the DevTools
+protocol. A new `[pdf]` table says which one and on what paper:
+
+```toml
+[pdf]
+browser = ""          # empty searches PATH
+paper   = "letter"    # letter, legal, a4 or a5
+margin  = "0.75in"
+```
+
+Every page carries a running footer -- the product name and version at the
+left, "Page 3 of 8" at the right -- which is what made the browser choice below
+the one it is.
+
+| # | Decision |
+|---|---|
+| 1 | Chrome over the DevTools protocol, not its `--print-to-pdf` CLI flag. The flag exposes no header/footer template and Chrome implements no CSS margin boxes, so "Page 3 of 8" is unreachable from the command line. A page count is not decoration on a printed sheet: it is how a reader knows none of it went missing. |
+| 2 | `chromedp` plus `cdproto`, taking direct dependencies from 3 to 5. Rejected: a pure-Go PDF writer, which would mean re-implementing in code the layout the stylesheet already expresses; and `wkhtmltopdf`, unmaintained and on a WebKit old enough to lack flexbox. The browser itself stays external -- nothing is bundled or downloaded. |
+| 3 | The markup reaches Chrome through `Page.setDocumentContent`, not a temp file and a `file://` navigation. Every image on a sheet is already a `data:` URI, so there is no base URL to resolve, nothing on disk to clean up when the browser dies mid-print, and no temp directory to get the permissions of wrong. |
+| 4 | Page geometry is driven from Go (`printToPDF`'s own parameters), not from the stylesheet's `@page` rule. Chrome draws the running footer OUTSIDE the page box, so the footer has to pad itself by exactly the page margin; one source for both is the only way they cannot drift apart. `@page` stays in the stylesheet for the `--html` output and for anyone printing that by hand. |
+| 5 | The end-of-document footer stands down when the render is bound for print, keeping only the standard it conforms to. Who prepared the sheet and when is on every page already; repeating it under the last page's own footer would just look like a mistake. |
+| 6 | Body framing (`max-width: 7in`, `padding: 0.5in 0`) moved behind `@media screen`. It exists because a browser window is not a sheet of paper; on paper it added half an inch of dead space above the header. |
+| 7 | The browser is searched for on `PATH` over a fixed list, reference implementations before forks. A configured `browser` is resolved ALONE and never falls back -- a user who named a browser meant that browser, and quietly printing with a different one would never say so. |
+| 8 | Whether the browser EXISTS is not checked when the config loads, for the same reason the logo file is not: `Load` runs for every command, and `sections list` has no business failing because Chrome is not installed. `paper` and `margin` ARE validated there, because a typo in them is caught long before a user waits on a print. |
+| 9 | Any PDF failure writes the HTML beside where the PDF would have gone and says so. A missing browser or a browser that crashed should not cost the resolve that produced the sheet, and the markup is still a usable document. |
+| 10 | An interrupt is the exception to that: `Ctrl-C` reports "interrupted" and leaves no file. `Execute` now runs the command under `signal.NotifyContext`, so the browser dies with the CLI rather than being orphaned -- and chromedp's report of whatever the browser was doing when it was killed is replaced by the cancellation it actually was. |
+| 11 | `paper` is a name, not two lengths. Nobody remembers that US Letter is 215.9mm wide, and a typo in a raw measurement prints a subtly wrong page. `margin` is a CSS length through the existing `ParseLength`, which rejects zero -- the running footer needs the room. |
+| 12 | `config show` grows a `[pdf]` block that resolves the browser exactly as `generate` does. "Why does printing fail" gets answered without producing a document, the same way the logo block answers "why is my logo tiny". |

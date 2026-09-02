@@ -32,6 +32,32 @@ type View struct {
 	// Logo is the issuer's mark, nil when none is configured.
 	Logo        *Logo
 	GeneratedAt string
+
+	// ForPDF reports that this render is on its way to Chrome, which draws a
+	// running footer on every page. The layout's own end-of-document footer
+	// stands down when that is true rather than saying the same thing twice.
+	ForPDF bool
+
+	// MarginCSS is the page margin, for the running footer's padding. Chrome
+	// renders header and footer templates outside the page box, so a footer
+	// that does not pad itself by the margin sits flush to the paper edge.
+	MarginCSS string
+}
+
+// NewView assembles what the templates render from.
+//
+// It takes the whole config rather than the pieces because two separate tables
+// now reach the page -- [company] and [pdf] -- and a growing parameter list is
+// how call sites start passing them in the wrong order.
+func NewView(doc document.Data, secs []sections.ResolvedSection, cfg config.Config, logo *Logo) View {
+	return View{
+		Doc:         doc,
+		Sections:    secs,
+		Company:     cfg.Company,
+		Logo:        logo,
+		GeneratedAt: time.Now().Format("2006-01-02"),
+		MarginCSS:   cfg.PDF.MarginCSS(),
+	}
 }
 
 // funcs are the helpers available inside the templates.
@@ -87,15 +113,7 @@ var parsed = template.Must(
 )
 
 // RenderHTML writes the finished safety data sheet to w.
-func RenderHTML(w io.Writer, doc document.Data, secs []sections.ResolvedSection, company config.Company, logo *Logo) error {
-	view := View{
-		Doc:         doc,
-		Sections:    secs,
-		Company:     company,
-		Logo:        logo,
-		GeneratedAt: time.Now().Format("2006-01-02"),
-	}
-
+func RenderHTML(w io.Writer, view View) error {
 	// Render into a buffer first so a mid-template failure cannot leave a
 	// half-written file on disk.
 	var buf bytes.Buffer
@@ -107,4 +125,16 @@ func RenderHTML(w io.Writer, doc document.Data, secs []sections.ResolvedSection,
 		return fmt.Errorf("writing document: %w", err)
 	}
 	return nil
+}
+
+// RenderFooter renders the running footer Chrome draws on every printed page.
+//
+// It goes through html/template like the page does, so a product name carrying
+// an angle bracket is escaped rather than breaking the markup Chrome is handed.
+func RenderFooter(view View) (string, error) {
+	var buf bytes.Buffer
+	if err := parsed.ExecuteTemplate(&buf, "footer.html.tmpl", view); err != nil {
+		return "", fmt.Errorf("rendering page footer: %w", err)
+	}
+	return buf.String(), nil
 }
