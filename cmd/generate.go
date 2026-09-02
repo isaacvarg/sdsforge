@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,7 +22,12 @@ var generateCmd = &cobra.Command{
 	Use:   "generate <document-id>",
 	Short: "Render a document into a safety data sheet",
 	Long: `Resolve every section of a stored document against the content library and
-render the result as HTML.
+render the result as a PDF.
+
+Printing needs a Chrome-based browser installed; sdsforge finds one on PATH, or
+uses the one named by 'browser' under [pdf] in the config file. Pass --html to
+write the intermediate markup instead, which is the way to see what a template
+change did without printing.
 
 Each section falls back to its default content unless the document selects a
 preset or overrides individual subsections.`,
@@ -94,26 +102,88 @@ preset or overrides individual subsections.`,
 				formatBytes(logo.Bytes))
 		}
 
+		htmlOnly, err := cmd.Flags().GetBool("html")
+		if err != nil {
+			return err
+		}
+
+		dir, err := document.Dir(id)
+		if err != nil {
+			return err
+		}
+		slug := document.Slugify(doc.ProductName)
+
 		outPath, err := cmd.Flags().GetString("out")
 		if err != nil {
 			return err
 		}
 		if outPath == "" {
-			dir, err := document.Dir(id)
-			if err != nil {
-				return err
-			}
-			outPath = filepath.Join(dir, document.Slugify(doc.ProductName)+".html")
+			outPath = filepath.Join(dir, slug+extension(htmlOnly))
 		}
 
-		f, err := os.Create(outPath)
-		if err != nil {
-			return fmt.Errorf("creating %s: %w", outPath, err)
-		}
-		defer f.Close()
+		view := generation.NewView(doc, resolved, cfg, logo)
+		view.ForPDF = !htmlOnly
 
-		if err := generation.RenderHTML(f, doc, resolved, cfg.Company, logo); err != nil {
+		// Rendered to memory rather than straight to the file: on the PDF path
+		// the markup is an intermediate that goes to the browser and nowhere
+		// else, and on either path a half-written sheet is worse than none.
+		var html bytes.Buffer
+		if err := generation.RenderHTML(&html, view); err != nil {
 			return err
+		}
+
+		if htmlOnly {
+			if err := os.WriteFile(outPath, html.Bytes(), 0o644); err != nil {
+				return fmt.Errorf("writing %s: %w", outPath, err)
+			}
+			fmt.Fprintln(cmd.OutOrStdout(), outPath)
+			return nil
+		}
+
+		// The HTML lands beside the PDF if any of what follows fails, so a
+		// missing browser or a browser that dies mid-print never costs the
+		// resolve that produced it.
+		keepHTML := func(cause error) error {
+			// An interrupt is not a failure to recover from: the user said
+			// stop, so stop rather than leaving a file they did not ask for.
+			if errors.Is(cause, context.Canceled) {
+				return errors.New("interrupted")
+			}
+			rescued := filepath.Join(dir, slug+".html")
+			if err := os.WriteFile(rescued, html.Bytes(), 0o644); err != nil {
+				return errors.Join(cause, fmt.Errorf("writing %s: %w", rescued, err))
+			}
+			return fmt.Errorf("%w\n\nThe HTML was still written to:\n  %s", cause, rescued)
+		}
+
+		// Located before anything is written, for the same reason the logo is
+		// prepared before the output file is created.
+		browser, err := generation.FindBrowser(cfg.PDF.Browser)
+		if err != nil {
+			return keepHTML(err)
+		}
+
+		width, height, margin, err := cfg.PDF.Geometry()
+		if err != nil {
+			return keepHTML(err)
+		}
+		footer, err := generation.RenderFooter(view)
+		if err != nil {
+			return keepHTML(err)
+		}
+
+		pdf, err := generation.RenderPDF(cmd.Context(), browser, html.Bytes(), generation.PDFOptions{
+			PaperWidth:  width,
+			PaperHeight: height,
+			Margin:      margin,
+			Footer:      footer,
+		})
+		if err != nil {
+			return keepHTML(err)
+		}
+
+		if err := os.WriteFile(outPath, pdf, 0o644); err != nil {
+			return fmt.Errorf("writing %s: %w", outPath, err)
 		}
 
 		fmt.Fprintln(cmd.OutOrStdout(), outPath)
@@ -121,11 +191,21 @@ preset or overrides individual subsections.`,
 	},
 }
 
+// extension is the default suffix for the requested output form.
+func extension(htmlOnly bool) string {
+	if htmlOnly {
+		return ".html"
+	}
+	return ".pdf"
+}
+
 func init() {
 	documentCmd.AddCommand(generateCmd)
 
 	generateCmd.Flags().StringP("out", "o", "",
 		"Output path (default: the document's directory)")
+	generateCmd.Flags().Bool("html", false,
+		"Write the intermediate HTML instead of a PDF")
 }
 
 // formatBytes renders a byte count for a warning message.

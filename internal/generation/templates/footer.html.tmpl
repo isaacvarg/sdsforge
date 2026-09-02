@@ -1,0 +1,20 @@
+{{- /*
+The running footer Chrome draws on every printed page.
+
+Chrome renders header and footer templates in an ISOLATED context: the page's
+own stylesheet does not reach here and the inherited font-size is zero, so
+every property has to be inline and absolute. Sizes are in px for the same
+reason -- pt and mm are not honoured in this context.
+
+"pageNumber" and "totalPages" are Chrome's own substitution classes; it fills
+their contents in as it lays each page out.
+
+The horizontal padding matches the page margin, because the footer is drawn
+outside the page box and would otherwise sit flush against the paper edge.
+*/ -}}
+<div style="width: 100%; box-sizing: border-box; padding: 0 {{ .MarginCSS }};
+            font-family: system-ui, -apple-system, sans-serif; font-size: 8px;
+            color: #5b6470; display: flex; justify-content: space-between;">
+  <span>{{ .Doc.ProductName }}{{ with .Doc.DocumentVersion }} &middot; Version {{ . }}{{ end }}</span>
+  <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
+</div>

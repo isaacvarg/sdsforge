@@ -131,6 +131,9 @@ recorded" -- if the company block below is empty, the file is not being read.`,
 		fmt.Fprintln(out, "\n[logo]")
 		printLogo(out, cfg.Logo, cfg.Company.Name)
 
+		fmt.Fprintln(out, "\n[pdf]")
+		printPDF(out, cfg.PDF)
+
 		return nil
 	},
 }
@@ -165,6 +168,29 @@ func printLogo(out io.Writer, cfg config.Logo, companyName string) {
 	}
 	fmt.Fprintf(out, "  css:   %s\n", logo.Style)
 	fmt.Fprintf(out, "  alt:   %s\n", logo.Alt)
+}
+
+// printPDF reports what printing will do, and whether it can happen at all.
+//
+// This is where "why does generate fail" gets answered without producing a
+// document: the browser is resolved here exactly as 'generate' resolves it.
+func printPDF(out io.Writer, cfg config.PDF) {
+	if browser, err := generation.FindBrowser(cfg.Browser); err != nil {
+		fmt.Fprintf(out, "  browser: ERROR: %v\n", err)
+	} else {
+		fmt.Fprintf(out, "  browser: %s\n", browser)
+		if cfg.Browser == "" {
+			fmt.Fprintln(out, "           (found on PATH; set 'browser' to pin one)")
+		}
+	}
+
+	width, height, margin, err := cfg.Geometry()
+	if err != nil {
+		fmt.Fprintf(out, "  page:    ERROR: %v\n", err)
+		return
+	}
+	fmt.Fprintf(out, "  paper:   %s (%.2fin x %.2fin)\n", cfg.Paper, width, height)
+	fmt.Fprintf(out, "  margin:  %s (%.2fin)\n", cfg.MarginCSS(), margin)
 }
 
 // printLines writes a rendered block, or a note explaining an empty one.
