@@ -33,6 +33,14 @@ type View struct {
 	Logo        *Logo
 	GeneratedAt string
 
+	// Version and Revised identify the issue this sheet is. Both come from the
+	// document's version history rather than the document itself -- what the
+	// sheet claims was issued is then always what was actually archived. Both
+	// are empty for a document with no versions yet, and the header simply
+	// omits them.
+	Version string
+	Revised string
+
 	// ForPDF reports that this render is on its way to Chrome, which draws a
 	// running footer on every page. The layout's own end-of-document footer
 	// stands down when that is true rather than saying the same thing twice.
@@ -49,8 +57,8 @@ type View struct {
 // It takes the whole config rather than the pieces because two separate tables
 // now reach the page -- [company] and [pdf] -- and a growing parameter list is
 // how call sites start passing them in the wrong order.
-func NewView(doc document.Data, secs []sections.ResolvedSection, cfg config.Config, logo *Logo) View {
-	return View{
+func NewView(doc document.Data, secs []sections.ResolvedSection, cfg config.Config, logo *Logo, versions document.VersionIndex) View {
+	view := View{
 		Doc:         doc,
 		Sections:    secs,
 		Company:     cfg.Company,
@@ -58,6 +66,11 @@ func NewView(doc document.Data, secs []sections.ResolvedSection, cfg config.Conf
 		GeneratedAt: time.Now().Format("2006-01-02"),
 		MarginCSS:   cfg.PDF.MarginCSS(),
 	}
+	if latest, ok := versions.Latest(); ok {
+		view.Version = latest.Label
+		view.Revised = latest.Timestamp.Format("2006-01-02")
+	}
+	return view
 }
 
 // funcs are the helpers available inside the templates.

@@ -14,7 +14,7 @@ import (
 func TestRenderFooter(t *testing.T) {
 	doc, secs := fixture(t)
 
-	out, err := RenderFooter(NewView(doc, secs, config.Default(), nil))
+	out, err := RenderFooter(NewView(doc, secs, config.Default(), nil, fixtureVersions()))
 	if err != nil {
 		t.Fatalf("RenderFooter() error = %v", err)
 	}
@@ -23,7 +23,7 @@ func TestRenderFooter(t *testing.T) {
 		`class="pageNumber"`, // Chrome's substitution classes have to survive
 		`class="totalPages"`, //   html/template untouched
 		"Acetone Technical Grade",
-		"Version 1.2",
+		"Version 1.2.0",
 		"padding: 0 19.05mm", // the default 0.75in margin, so the footer lines up
 	}
 	for _, want := range wants {
@@ -38,7 +38,7 @@ func TestRenderFooter(t *testing.T) {
 func TestRenderFooterEscapesProductName(t *testing.T) {
 	doc := document.Data{ProductName: `Acid <script>alert(1)</script> & Base`}
 
-	out, err := RenderFooter(NewView(doc, nil, config.Default(), nil))
+	out, err := RenderFooter(NewView(doc, nil, config.Default(), nil, fixtureVersions()))
 	if err != nil {
 		t.Fatalf("RenderFooter() error = %v", err)
 	}
@@ -57,7 +57,7 @@ func TestRenderFooterEscapesProductName(t *testing.T) {
 
 // A missing version must not leave a dangling separator.
 func TestRenderFooterWithoutVersion(t *testing.T) {
-	out, err := RenderFooter(NewView(document.Data{ProductName: "NaCl"}, nil, config.Default(), nil))
+	out, err := RenderFooter(NewView(document.Data{ProductName: "NaCl"}, nil, config.Default(), nil, document.VersionIndex{}))
 	if err != nil {
 		t.Fatalf("RenderFooter() error = %v", err)
 	}
@@ -77,7 +77,7 @@ func TestLayoutFooterDefersToTheRunningFooter(t *testing.T) {
 
 	render := func(forPDF bool) string {
 		t.Helper()
-		view := NewView(doc, secs, cfg, nil)
+		view := NewView(doc, secs, cfg, nil, fixtureVersions())
 		view.ForPDF = forPDF
 
 		var buf bytes.Buffer
@@ -112,7 +112,7 @@ func TestLayoutKeepsScreenFramingOffThePage(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Default(), nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Default(), nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -139,7 +139,7 @@ func TestRenderPDF(t *testing.T) {
 	}
 
 	doc, secs := fixture(t)
-	view := NewView(doc, secs, config.Default(), nil)
+	view := NewView(doc, secs, config.Default(), nil, fixtureVersions())
 	view.ForPDF = true
 
 	var html bytes.Buffer
@@ -205,7 +205,7 @@ func TestLayoutLetsSectionsBreakAcrossPages(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Default(), nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Default(), nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()

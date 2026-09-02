@@ -12,11 +12,8 @@ import (
 )
 
 type Data struct {
-	ProductName     string     `yaml:"product_name"`
-	LastRevision    string     `yaml:"last_revision,omitempty"`
-	DocumentVersion string     `yaml:"document_version,omitempty"`
-	Revisions       []Revision `yaml:"revisions,omitempty"`
-	Materials       []Material `yaml:"materials,omitempty"`
+	ProductName string     `yaml:"product_name"`
+	Materials   []Material `yaml:"materials,omitempty"`
 
 	Identification Identification `yaml:"identification,omitempty"`
 
@@ -90,12 +87,6 @@ func (d Data) HazardCodeSet() map[string]bool {
 	return set
 }
 
-type Revision struct {
-	Version      string `yaml:"version"`
-	RevisionDate string `yaml:"revision_date"`
-	Description  string `yaml:"description"`
-}
-
 type Material struct {
 	Sequence   int    `yaml:"sequence"`
 	Name       string `yaml:"name"`
@@ -141,7 +132,11 @@ type Supplier struct {
 // library's authored placeholder survives. That is the difference between a
 // sheet that says "No supplier details have been recorded" and one that shows
 // an empty heading.
-func (d Data) SourceData(cls *ghs.Classification, cfg config.Config) sections.SourceData {
+//
+// Section 16's revision history comes from versions rather than from the
+// document, so what the sheet claims was issued is what was actually archived.
+// A caller recording a new version passes an index that already includes it.
+func (d Data) SourceData(cls *ghs.Classification, cfg config.Config, versions VersionIndex) sections.SourceData {
 	out := sections.SourceData{}
 
 	// Section 2 is computed, not authored. A nil or unclassified result leaves
@@ -185,10 +180,10 @@ func (d Data) SourceData(cls *ghs.Classification, cfg config.Config) sections.So
 			Rows:    rows,
 		}
 	}
-	if len(d.Revisions) > 0 {
-		rows := make([][]string, 0, len(d.Revisions))
-		for _, r := range d.Revisions {
-			rows = append(rows, []string{r.Version, r.RevisionDate, r.Description})
+	if len(versions.Versions) > 0 {
+		rows := make([][]string, 0, len(versions.Versions))
+		for _, v := range versions.Versions {
+			rows = append(rows, []string{v.Label, v.Timestamp.Format("2006-01-02"), v.Memo})
 		}
 		out[sections.SourceRevisions] = &sections.Table{
 			Headers: []string{"Version", "Date", "Description"},
