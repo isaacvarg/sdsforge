@@ -15,6 +15,6 @@ outside the page box and would otherwise sit flush against the paper edge.
 <div style="width: 100%; box-sizing: border-box; padding: 0 {{ .MarginCSS }};
             font-family: system-ui, -apple-system, sans-serif; font-size: 8px;
             color: #5b6470; display: flex; justify-content: space-between;">
-  <span>{{ .Doc.ProductName }}{{ with .Doc.DocumentVersion }} &middot; Version {{ . }}{{ end }}</span>
+  <span>{{ .Doc.ProductName }}{{ with .Version }} &middot; Version {{ . }}{{ end }}</span>
   <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
 </div>

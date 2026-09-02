@@ -179,7 +179,7 @@ func TestScaffoldUncommentsCleanly(t *testing.T) {
 			}
 
 			// And it must resolve against the real library.
-			if _, err := sections.ResolveAll(lib, data.Sections, sections.ResolveContext{Sources: data.SourceData(nil, config.Config{})}); err != nil {
+			if _, err := sections.ResolveAll(lib, data.Sections, sections.ResolveContext{Sources: data.SourceData(nil, config.Config{}, VersionIndex{})}); err != nil {
 				t.Fatalf("enabled entry does not resolve: %v", err)
 			}
 		})

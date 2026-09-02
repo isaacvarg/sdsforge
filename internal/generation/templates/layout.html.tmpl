@@ -163,8 +163,8 @@
     <h1>{{ .Doc.ProductName }}</h1>
     <div class="meta">
       {{- with .Company.Name }}<span>{{ . }}</span>{{ end }}
-      {{- with .Doc.DocumentVersion }}<span>Version {{ . }}</span>{{ end }}
-      {{- with .Doc.LastRevision }}<span>Revised {{ . }}</span>{{ end }}
+      {{- with .Version }}<span>Version {{ . }}</span>{{ end }}
+      {{- with .Revised }}<span>Revised {{ . }}</span>{{ end }}
       <span>Generated {{ .GeneratedAt }}</span>
     </div>
   </div>

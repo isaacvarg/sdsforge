@@ -46,8 +46,13 @@ func Scaffold(lib *sections.Library, name string) ([]byte, error) {
 # 'sdsforge sections list <section-id>' to drill into one.
 
 product_name: %s
-document_version: "1.0"
-last_revision: ""
+
+# The version number, issue date and revision history are NOT set here. They are
+# recorded when you issue a version:
+#
+#     sdsforge document version create <id> --minor -m "what changed"
+#
+# Run 'sdsforge document version list <id>' to see them.
 
 # Section 1. Feeds the "Product identifier" subsection.
 identification:
@@ -87,10 +92,6 @@ precautionary_text: {}
 # hazard_codes drive nothing yet; they are the input for automatic variant
 # selection once that lands.
 materials: []
-
-# Section 16. Each entry becomes a row in the revision history table, e.g.
-# - {version: "1.0", revision_date: "2026-01-01", description: Initial issue}
-revisions: []
 
 # ---------------------------------------------------------------------------
 # Section content

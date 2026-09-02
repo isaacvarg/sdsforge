@@ -19,9 +19,7 @@ func fixture(t *testing.T) (document.Data, []sections.ResolvedSection) {
 	}
 
 	doc := document.Data{
-		ProductName:     "Acetone Technical Grade",
-		DocumentVersion: "1.2",
-		LastRevision:    "2026-08-14",
+		ProductName: "Acetone Technical Grade",
 		Materials: []document.Material{
 			{Name: "Acetone", CASNumber: "67-64-1", Percentage: ">99", HazardCodes: []string{"H225"}},
 		},
@@ -41,7 +39,7 @@ func TestRenderHTML(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -49,7 +47,7 @@ func TestRenderHTML(t *testing.T) {
 	wants := []string{
 		"<!DOCTYPE html>",
 		"Acetone Technical Grade",
-		"Version 1.2",
+		"Version 1.2.0",
 		"1. Identification",
 		"4. First-aid measures",
 		"16. Other information",
@@ -76,7 +74,7 @@ func TestRenderEscapesContent(t *testing.T) {
 	doc.ProductName = `<script>alert("xss")</script>`
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -115,7 +113,7 @@ func TestRenderEmptySubsection(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}, config.Config{}, nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}, config.Config{}, nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	if !strings.Contains(buf.String(), `<p class="empty">No data available.</p>`) {
@@ -129,7 +127,7 @@ func TestRenderCompanyHeaderAndFooter(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{Company: config.Company{Name: "Acme Chemical Co."}}, nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{Company: config.Company{Name: "Acme Chemical Co."}}, nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -148,7 +146,7 @@ func TestRenderWithoutCompany(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -172,7 +170,7 @@ func TestRenderLogo(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{Company: config.Company{Name: "Acme Chemical Co."}}, logo)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{Company: config.Company{Name: "Acme Chemical Co."}}, logo, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -200,7 +198,7 @@ func TestRenderWithoutLogo(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil)); err != nil {
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	if out := buf.String(); strings.Contains(out, `class="logo"`) {

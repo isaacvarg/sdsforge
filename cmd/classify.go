@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"sort"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -31,12 +30,12 @@ why.
 Nothing is written; this only reports.`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		id, err := strconv.Atoi(args[0])
+		id, err := documentID(args[0])
 		if err != nil {
-			return fmt.Errorf("document id must be a number, got %q", args[0])
+			return err
 		}
 
-		doc, err := document.Load(id)
+		doc, versions, err := loadForRender(id)
 		if err != nil {
 			return err
 		}
@@ -66,7 +65,7 @@ Nothing is written; this only reports.`,
 		printClassification(out, doc, classification)
 
 		resolved, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
-			Sources:     doc.SourceData(classification, cfg),
+			Sources:     doc.SourceData(classification, cfg, versions),
 			HazardCodes: doc.HazardCodeSet(),
 		})
 		if err != nil {
