@@ -22,6 +22,10 @@ Let's get started!
 	// Usage text belongs on an argument mistake, not on a runtime failure.
 	// Without this, a resolve error is buried under a wall of flag help.
 	SilenceUsage: true,
+	// Setting this gives cobra's --version flag, and only that flag: a
+	// 'version' command here would sit beside 'document version', which
+	// means something else entirely.
+	Version: resolveVersion(),
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -50,4 +54,6 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	rootCmd.SetVersionTemplate(versionLine())
 }

@@ -1,0 +1,84 @@
+# Release build for sdsforge. Run `goreleaser check` after editing.
+#
+# Everything the binary needs -- the HTML templates, the OSHA content library,
+# the GHS pictograms -- is embedded at build time, and nothing here uses cgo. So
+# a cross-compiled artifact is a single self-contained file, and the only thing
+# a user still has to supply is a Chrome-based browser to print with.
+version: 2
+
+project_name: sdsforge
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      # No Windows-on-ARM demand to justify the extra artifact.
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X github.com/isaacvarg/sdsforge/cmd.buildVersion={{ .Version }}
+      - -X github.com/isaacvarg/sdsforge/cmd.buildCommit={{ .ShortCommit }}
+      - -X github.com/isaacvarg/sdsforge/cmd.buildDate={{ .Date }}
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    files:
+      - README.md
+      - LICENSE
+
+# A fixed name, because install.sh fetches this by URL.
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: Fixes
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: Other
+      order: 999
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - '^ci:'
+      - 'Merge pull request'
+
+release:
+  footer: |
+    ## Installing
+
+    ```sh
+    curl -fsSL https://raw.githubusercontent.com/isaacvarg/sdsforge/main/install.sh | sh
+    ```
+
+    Or download an archive below and put `sdsforge` on your `PATH`.
+
+    **Printing needs a Chrome-based browser** on `PATH` -- `chromium`,
+    `google-chrome`, `brave` or `microsoft-edge`. Nothing is bundled or
+    downloaded. Everything else works without one.
+
+    Review generated sheets before production use. **USE AT YOUR OWN RISK.**

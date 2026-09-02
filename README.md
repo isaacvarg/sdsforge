@@ -18,15 +18,36 @@ This tool is provided as-is, and the developer(s) are not liable for any errors,
 
 ## Requirements
 
-- Go 1.27 or newer, to build the binary.
-- A Chrome-based browser, to print. sdsforge searches `PATH` for `chromium`,
-  `chromium-browser`, `google-chrome`, `google-chrome-stable`, `brave`,
-  `brave-browser`, `microsoft-edge` and `microsoft-edge-stable`. Nothing is
-  bundled or downloaded.
+A Chrome-based browser, to print. sdsforge searches `PATH` for `chromium`,
+`chromium-browser`, `google-chrome`, `google-chrome-stable`, `brave`,
+`brave-browser`, `microsoft-edge` and `microsoft-edge-stable`. Nothing is
+bundled or downloaded. Everything except printing works without one.
 
-## Build
+Nothing else: the binary carries its own templates and content library, and Go
+is needed only if you build it yourself.
 
-There are no packaged releases yet, so build it yourself:
+## Install
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/isaacvarg/sdsforge/main/install.sh | sh
+```
+
+That puts `sdsforge` in `~/.local/bin` (no sudo, override with
+`SDSFORGE_INSTALL_DIR`) and tells you if anything is left to do. Read it first
+if you would rather see what it does:
+[install.sh](https://github.com/isaacvarg/sdsforge/blob/main/install.sh).
+
+Or take an archive for your platform straight from the
+[releases page](https://github.com/isaacvarg/sdsforge/releases), including
+Windows, and put `sdsforge` on your `PATH` yourself.
+
+With a Go 1.27 toolchain:
+
+```sh
+go install github.com/isaacvarg/sdsforge@latest
+```
+
+## Build from source
 
 ```sh
 git clone https://github.com/isaacvarg/sdsforge.git
