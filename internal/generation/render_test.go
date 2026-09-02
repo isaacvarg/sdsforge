@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/document"
 	"github.com/isaacvarg/sdsforge/internal/sections"
 )
@@ -40,7 +41,7 @@ func TestRenderHTML(t *testing.T) {
 	doc, secs := fixture(t)
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -75,7 +76,7 @@ func TestRenderEscapesContent(t *testing.T) {
 	doc.ProductName = `<script>alert("xss")</script>`
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, doc, secs); err != nil {
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	out := buf.String()
@@ -114,10 +115,95 @@ func TestRenderEmptySubsection(t *testing.T) {
 	}
 
 	var buf bytes.Buffer
-	if err := RenderHTML(&buf, document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}); err != nil {
+	if err := RenderHTML(&buf, document.Data{ProductName: "Test"}, []sections.ResolvedSection{sec}, config.Company{}, nil); err != nil {
 		t.Fatalf("RenderHTML() error = %v", err)
 	}
 	if !strings.Contains(buf.String(), `<p class="empty">No data available.</p>`) {
 		t.Error("empty subsection did not render its empty text")
+	}
+}
+
+// The issuing company comes from configuration, and must reach both the
+// header and the footer of the finished sheet.
+func TestRenderCompanyHeaderAndFooter(t *testing.T) {
+	doc, secs := fixture(t)
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{Name: "Acme Chemical Co."}, nil); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	if !strings.Contains(out, "<span>Acme Chemical Co.</span>") {
+		t.Error("company name missing from the header")
+	}
+	if !strings.Contains(out, "Prepared by Acme Chemical Co.") {
+		t.Error("company name missing from the footer")
+	}
+}
+
+// With no company configured, the sheet reads exactly as it did before the
+// setting existed -- no stray "Prepared by" and no empty header cell.
+func TestRenderWithoutCompany(t *testing.T) {
+	doc, secs := fixture(t)
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	if strings.Contains(out, "Prepared by") {
+		t.Error("footer credits a company that was never configured")
+	}
+	if strings.Contains(out, "<span></span>") {
+		t.Error("header has an empty company cell")
+	}
+}
+
+// The logo goes in the header beside the title, embedded so the sheet stands
+// alone when emailed or printed.
+func TestRenderLogo(t *testing.T) {
+	doc, secs := fixture(t)
+
+	logo, err := PrepareLogo(config.Logo{Path: writePNG(t, 1600, 400)}, "Acme Chemical Co.")
+	if err != nil {
+		t.Fatalf("PrepareLogo() error = %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{Name: "Acme Chemical Co."}, logo); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	for _, want := range []string{
+		`class="logo"`,
+		`src="data:image/png;base64,`,
+		`alt="Acme Chemical Co. logo"`,
+		`style="width:50mm;height:12.5mm"`,
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("rendered header missing %q", want)
+		}
+	}
+
+	// html/template blanks a style attribute it cannot verify. Catching that
+	// here is the point of building the value from measured numbers.
+	if strings.Contains(out, "ZgotmplZ") {
+		t.Error("html/template rejected the computed style")
+	}
+}
+
+// With no logo the header is exactly what it was before the setting existed.
+func TestRenderWithoutLogo(t *testing.T) {
+	doc, secs := fixture(t)
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, doc, secs, config.Company{}, nil); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	if out := buf.String(); strings.Contains(out, `class="logo"`) {
+		t.Error("header carries a logo element with no logo configured")
 	}
 }

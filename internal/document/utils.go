@@ -9,13 +9,23 @@ import (
 	"unicode"
 )
 
+// DocumentsDir returns the directory holding saved documents, creating it if
+// it does not exist.
+//
+// $XDG_DATA_HOME when set, ~/.local/share otherwise -- the XDG default. Go has
+// no os.UserDataDir to lean on the way config does, so the lookup is spelled
+// out here.
 func DocumentsDir() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", fmt.Errorf("could not get home directory: %w ", err)
+	base := os.Getenv("XDG_DATA_HOME")
+	if base == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", fmt.Errorf("could not get home directory: %w ", err)
+		}
+		base = filepath.Join(home, ".local", "share")
 	}
 
-	directory := filepath.Join(home, ".local", "share", "sdsforge", "documents")
+	directory := filepath.Join(base, "sdsforge", "documents")
 
 	error := os.MkdirAll(directory, 0o700)
 	if error != nil {

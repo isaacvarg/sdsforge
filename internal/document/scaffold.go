@@ -57,13 +57,10 @@ identification:
   recommended_use: ""
   restrictions: ""
 
-# Section 1. Feeds the "Supplier details" subsection.
-supplier:
-  name: ""
-  address: ""
-  phone: ""
-  email: ""
-  emergency_phone: ""
+# Section 1's "Supplier details" and "Emergency telephone number" come from
+# your config file, not from here -- they are the same on every sheet you
+# issue. Run 'sdsforge config init', then fill in [company] and
+# [[emergency.contacts]] there once.
 
 # GHS hazard codes for the product. THIS IS THE MAIN CONTROL.
 #

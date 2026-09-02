@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/sections"
 	"gopkg.in/yaml.v3"
 )
@@ -178,7 +179,7 @@ func TestScaffoldUncommentsCleanly(t *testing.T) {
 			}
 
 			// And it must resolve against the real library.
-			if _, err := sections.ResolveAll(lib, data.Sections, sections.ResolveContext{Sources: data.SourceData(nil)}); err != nil {
+			if _, err := sections.ResolveAll(lib, data.Sections, sections.ResolveContext{Sources: data.SourceData(nil, config.Config{})}); err != nil {
 				t.Fatalf("enabled entry does not resolve: %v", err)
 			}
 		})

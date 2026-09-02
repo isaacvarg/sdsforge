@@ -1,0 +1,71 @@
+# sdsforge configuration.
+#
+# Everything here is the same on every sheet you produce, which is why it lives
+# in one file instead of in each document. Fill in [company] and
+# [[emergency.contacts]] once and section 1 is written for you from then on.
+
+[library]
+# Which built-in content library to draw section wording from.
+# Only "osha" ships today.
+jurisdiction = "osha"
+
+# Turn on your own content library, layered over the built-in one.
+# When false, custom_dir is neither read nor scanned.
+custom_variants = false
+
+# Root of that library. It holds a jurisdiction directory, e.g.
+#   /home/you/sds-content/osha/04_first_aid/inhalation/site_specific.yaml
+custom_dir = ""
+
+# The company responsible for the sheet. Feeds section 1, "Supplier details",
+# and is named in the sheet's header and footer.
+#
+# Section 1 requires a name, an address and a telephone number.
+[company]
+name    = ""
+address = ""
+phone   = ""
+email   = ""
+
+# Emergency telephone contacts. Feeds section 1, "Emergency telephone number".
+#
+# Add one block per number -- a 24-hour response service, its international
+# line, your own site's safety officer. Each renders as one line:
+#
+#     CHEMTREC (24 hr): 1-800-424-9300 (USA)
+#
+# "phone" is required; "name" and "note" are optional.
+# Delete the leading "# " from the examples below to enable them.
+
+# [[emergency.contacts]]
+# name  = "CHEMTREC (24 hr)"
+# phone = "1-800-424-9300"
+# note  = "USA"
+
+# [[emergency.contacts]]
+# name  = "CHEMTREC International"
+# phone = "+1-703-527-3887"
+
+# [[emergency.contacts]]
+# name  = "Plant safety officer"
+# phone = ""                        # <- your own number goes here
+# note  = "Mon-Fri 08:00-17:00"
+
+# Your company logo, printed in the sheet header beside the product name.
+#
+# The size is worked out for you: the artwork is measured and fitted into a
+# 50mm x 16mm box with its aspect ratio preserved, and a logo already smaller
+# than that box is left alone rather than blown up. The two bounds below only
+# adjust that box -- run 'sdsforge config show' to see the size it lands on.
+#
+# "path" may be absolute, start with ~, or be relative to this file, so a logo
+# saved next to config.toml needs only its name. SVG, PNG and JPEG are measured
+# exactly; other formats are bounded by the box and left to the renderer.
+#
+# "alt" is what a screen reader announces; it defaults to your company name.
+
+# [logo]
+# path       = "acme-logo.svg"
+# max_height = "16mm"
+# max_width  = "50mm"
+# alt        = ""
