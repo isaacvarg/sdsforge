@@ -123,6 +123,11 @@ You get the hazard statements, signal word, pictograms and precautionary
 statements headed for section 2, plus which variant every other section derived
 and why.
 
+For every other field — materials, Section 15 disclosures (Prop 65, SARA
+311/312, state Right-to-Know), and overriding a section's tables such as
+Section 8's exposure limits — see the
+[document.yaml reference](docs/document-yaml.md).
+
 Print the sheet:
 
 ```sh
@@ -278,6 +283,12 @@ Files there shadow the built-in ones of the same path, for example
 `/home/you/sds-content/osha/04_first_aid/inhalation/site_specific.yaml`. Use
 `sdsforge sections list` to see what exists and `sdsforge sections validate` to
 check your additions.
+
+## Reference
+
+- [document.yaml reference](docs/document-yaml.md) — every field, including
+  Prop 65, SARA and state Right-to-Know, and how to override a section's
+  content.
 
 ## References
 
