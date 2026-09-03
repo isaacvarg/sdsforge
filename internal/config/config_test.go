@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 // configDir points the config lookup at a temporary directory. It sets
@@ -284,5 +285,107 @@ func TestLogoIsZero(t *testing.T) {
 	}
 	if !(Logo{MaxHeight: "16mm"}).IsZero() {
 		t.Error("sizing with no path is still no logo")
+	}
+}
+
+func TestLoadEditAndCD(t *testing.T) {
+	write(t, "config.toml", `
+[edit]
+command      = "nvim"
+args         = ["-c", "set ft=yaml"]
+classify     = true
+min_duration = "500ms"
+
+[cd]
+command = "fish"
+args    = ["--login"]
+`)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.Edit.Command != "nvim" {
+		t.Errorf("edit.command = %q, want nvim", cfg.Edit.Command)
+	}
+	if want := []string{"-c", "set ft=yaml"}; !reflect.DeepEqual(cfg.Edit.Args, want) {
+		t.Errorf("edit.args = %v, want %v", cfg.Edit.Args, want)
+	}
+	if !cfg.Edit.Classify {
+		t.Error("edit.classify = false, want true")
+	}
+	// Not set in the file: the post-edit actions are independent of each other.
+	if cfg.Edit.Generate {
+		t.Error("edit.generate = true, want false")
+	}
+	if cfg.CD.Command != "fish" {
+		t.Errorf("cd.command = %q, want fish", cfg.CD.Command)
+	}
+	if want := []string{"--login"}; !reflect.DeepEqual(cfg.CD.Args, want) {
+		t.Errorf("cd.args = %v, want %v", cfg.CD.Args, want)
+	}
+
+	duration, err := cfg.Edit.MinDurationValue()
+	if err != nil {
+		t.Fatalf("MinDurationValue() error = %v", err)
+	}
+	if duration != 500*time.Millisecond {
+		t.Errorf("min_duration = %v, want 500ms", duration)
+	}
+}
+
+// An [edit] table that omits min_duration must still get the default, or the
+// warning that catches a forking editor would quietly stop happening.
+func TestLoadDefaultsEditMinDuration(t *testing.T) {
+	write(t, "config.toml", "[edit]\ncommand = \"nvim\"\n")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	duration, err := cfg.Edit.MinDurationValue()
+	if err != nil {
+		t.Fatalf("MinDurationValue() error = %v", err)
+	}
+	if duration != time.Second {
+		t.Errorf("min_duration = %v, want 1s", duration)
+	}
+}
+
+// Rejected when the file is read, not at the moment someone edits.
+func TestLoadRejectsBadMinDuration(t *testing.T) {
+	write(t, "config.toml", "[edit]\nmin_duration = \"soon\"\n")
+
+	_, err := Load()
+	if err == nil {
+		t.Fatal("Load() error = nil for an unparseable min_duration")
+	}
+	if !strings.Contains(err.Error(), "edit.min_duration") {
+		t.Errorf("error = %q, want it to name edit.min_duration", err)
+	}
+}
+
+func TestLoadRejectsNegativeMinDuration(t *testing.T) {
+	write(t, "config.toml", "[edit]\nmin_duration = \"-1s\"\n")
+
+	if _, err := Load(); err == nil {
+		t.Error("Load() error = nil for a negative min_duration")
+	}
+}
+
+// "0" is how the warning is turned off, so it has to be accepted.
+func TestMinDurationZeroDisablesTheWarning(t *testing.T) {
+	write(t, "config.toml", "[edit]\nmin_duration = \"0\"\n")
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	duration, err := cfg.Edit.MinDurationValue()
+	if err != nil {
+		t.Fatalf("MinDurationValue() error = %v", err)
+	}
+	if duration != 0 {
+		t.Errorf("min_duration = %v, want 0", duration)
 	}
 }

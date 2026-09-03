@@ -89,3 +89,42 @@ email   = ""
 # browser = ""
 # paper   = "letter"
 # margin  = "0.75in"
+
+# How 'sdsforge document edit' opens a document.
+#
+# "command" is the editor. Left empty, $VISUAL is tried, then $EDITOR, then a
+# built-in default (vi, or notepad on Windows) -- so this is only needed to
+# override your environment or to pin something else. A bare name is looked up
+# on PATH. Run 'sdsforge config show' to see which editor will actually open.
+#
+# "args" are passed before the filename. This is the place for anything that
+# would need quoting, since each entry is one argument: args = ["-c", "set
+# ft=yaml"] rather than command = "nvim -c 'set ft=yaml'".
+#
+# The file is always re-read afterwards and any parse error reported. "classify"
+# and "generate" say what ELSE happens after a successful edit: classify prints
+# what the hazard codes now produce, generate re-renders the PDF. Both are also
+# available as --classify and --generate for a single run.
+#
+# "min_duration" is how quickly the editor returning counts as suspicious. A
+# graphical editor invoked without its wait flag hands the file to an
+# already-running window and exits at once, leaving sdsforge checking a file you
+# have not saved yet; the warning is what makes that diagnosable. Set "0" to
+# turn it off.
+
+# [edit]
+# command      = ""
+# args         = []
+# classify     = false
+# generate     = false
+# min_duration = "1s"
+
+# How 'sdsforge cd' launches a shell.
+#
+# "command" is the shell, and defaults to $SHELL, then /bin/sh (cmd.exe on
+# Windows). Set it to run something other than your login shell in a document's
+# directory. "args" are passed before anything else.
+
+# [cd]
+# command = ""
+# args    = []

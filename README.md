@@ -23,6 +23,10 @@ A Chrome-based browser, to print. sdsforge searches `PATH` for `chromium`,
 `brave-browser`, `microsoft-edge` and `microsoft-edge-stable`. Nothing is
 bundled or downloaded. Everything except printing works without one.
 
+No editor setup either. `document edit` opens `$VISUAL`, then `$EDITOR`, and
+falls back to `vi` (`notepad` on Windows), so it works on a machine where
+neither has ever been set.
+
 Nothing else: the binary carries its own templates and content library, and Go
 is needed only if you build it yourself.
 
@@ -74,10 +78,12 @@ sdsforge config init
 
 That writes a fully commented `~/.config/sdsforge/config.toml`. Fill in
 `[company]` and at least one `[[emergency.contacts]]` block; section 1 is
-written from them afterwards. `[logo]` and `[pdf]` are optional.
+written from them afterwards. `[logo]`, `[pdf]`, `[edit]` and `[cd]` are all
+optional — the last two are described under
+[Editing a document](#editing-a-document) below.
 
-To see what sdsforge actually reads, including which browser it found and how
-big your logo will print:
+To see what sdsforge actually reads, including which browser and editor it
+found and how big your logo will print:
 
 ```sh
 sdsforge config show
@@ -92,8 +98,15 @@ with its available presets and variants, plus version 1.0.0:
 sdsforge document create "Sodium Chloride"
 ```
 
-The command prints the path to the file. Open it and fill in the product's
-details. The important line is the hazard codes:
+The command prints the path to the file. Open it with the id it was given:
+
+```sh
+sdsforge document edit 1
+```
+
+That opens `document.yaml` in your editor and re-reads it once you close it, so
+a broken edit is reported straight away. Fill in the product's details. The
+important line is the hazard codes:
 
 ```yaml
 product_name: Sodium Chloride
@@ -137,6 +150,8 @@ reclassification or a new product identity.
 | --- | --- |
 | `document create <name>` | Create a document. `--minimal` skips the annotated template |
 | `document list` | List documents by id |
+| `document edit <id>` | Open its document.yaml in your editor. `--classify`, `--generate` |
+| `document path [id]` | Print the directory its files live in |
 | `document generate <id>` | Render the sheet. `--html`, `-o <path>` |
 | `document classify <id>` | Show what the hazard codes produce |
 | `document version create <id>` | Issue a revision. `--major`/`--minor`/`--patch`/`--label`, `-m` |
@@ -146,8 +161,92 @@ reclassification or a new product identity.
 | `sections list [section-id]` | Inspect the content library |
 | `sections validate` | Check the whole library for errors |
 | `config path` / `init` / `show` | Locate, create and inspect the config file |
+| `cd [id]` | Launch a shell in a document's directory |
 
 `document` also answers to `doc`, `docs` and `documents`.
+
+## Editing a document
+
+```sh
+sdsforge document edit 1
+```
+
+Opens the live `document.yaml`, waits for the editor to close, then re-reads the
+file and reports any parse error — so a stray indent is caught while you still
+remember making it. The file is left exactly as your editor wrote it either way;
+nothing is repaired behind your back, and nothing already issued is touched.
+
+The editor is the first of these that is set:
+
+1. `command` under `[edit]` in the config file
+2. `$VISUAL`
+3. `$EDITOR`
+4. `vi`, or `notepad` on Windows
+
+`sdsforge config show` reports which one will actually open, which is the quick
+way to answer "why does it keep starting vi".
+
+Two things can follow a successful edit:
+
+```sh
+sdsforge document edit 1 --classify   # show what the hazard codes now produce
+sdsforge document edit 1 --generate   # re-render the PDF
+```
+
+Turn either on for good under `[edit]`:
+
+```toml
+[edit]
+command      = "nvim"
+args         = ["-c", "set ft=yaml"]
+classify     = true
+generate     = false
+min_duration = "1s"
+```
+
+`args` are passed before the filename, one array entry per argument — the place
+for anything that would otherwise need quoting. The two flags override the
+config for a single run in either direction, so `--classify=false` suppresses a
+setting you have turned on.
+
+`min_duration` guards against a graphical editor that hands the file to an
+already-running window and exits immediately. sdsforge would then check a file
+you have not saved yet and pronounce it fine. If your editor returns faster than
+this, you get a warning saying it probably needs a wait flag — `EDITOR="code
+--wait"`. Set `"0"` to stop asking.
+
+## Working in a document's directory
+
+A sheet's PDF, its archived versions and its `document.yaml` all sit in one
+directory. To get a shell there:
+
+```sh
+sdsforge cd 1
+```
+
+That starts a shell with its working directory set, which you leave with `exit`.
+It is a *new* shell, not a change to the one you typed in — no program can move
+the shell that ran it. It runs with `SDSFORGE_SUBSHELL=1` set, plus
+`SDSFORGE_DOCUMENT_ID`, so your prompt can show where it is. With no id you land
+in the directory holding every document.
+
+To move your current shell instead, substitute the path:
+
+```sh
+cd "$(sdsforge document path 1)"
+```
+
+`document path` writes a path to stdout and nothing else, which is what makes it
+usable in a script or in your own shell function. With no id it prints the
+directory holding every document.
+
+The shell is `$SHELL` unless `[cd]` names another:
+
+```toml
+[cd]
+command = "bash"
+args    = ["--login"]
+```
 
 ## Where things live
 

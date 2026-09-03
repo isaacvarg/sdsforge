@@ -39,64 +39,74 @@ To keep an issue of it, record a version instead:
 			return err
 		}
 
-		doc, versions, err := loadForRender(id)
-		if err != nil {
-			return err
-		}
-
 		htmlOnly, err := cmd.Flags().GetBool("html")
 		if err != nil {
 			return err
 		}
-
-		dir, err := document.Dir(id)
+		outPath, err := cmd.Flags().GetString("out")
 		if err != nil {
 			return err
 		}
 
-		warnIfDraft(id, versions, cmd.ErrOrStderr())
-
-		built, err := buildSheet(cmd.Context(), id, doc, versions, cmd.ErrOrStderr(), !htmlOnly)
-
-		outPath, flagErr := cmd.Flags().GetString("out")
-		if flagErr != nil {
-			return flagErr
-		}
-		if outPath == "" {
-			outPath = filepath.Join(dir, built.Slug+extension(htmlOnly))
-		}
-
-		if err != nil {
-			// The HTML lands beside the PDF if the print stage failed, so a
-			// missing browser or a browser that dies mid-print never costs the
-			// resolve that produced it.
-			//
-			// An interrupt is not a failure to recover from: the user said
-			// stop, so stop rather than leaving a file they did not ask for.
-			if built.HTML == nil || errors.Is(err, context.Canceled) {
-				if errors.Is(err, context.Canceled) {
-					return errors.New("interrupted")
-				}
-				return err
-			}
-			rescued := filepath.Join(dir, built.Slug+".html")
-			if writeErr := os.WriteFile(rescued, built.HTML, 0o644); writeErr != nil {
-				return errors.Join(err, fmt.Errorf("writing %s: %w", rescued, writeErr))
-			}
-			return fmt.Errorf("%w\n\nThe HTML was still written to:\n  %s", err, rescued)
-		}
-
-		content := built.PDF
-		if htmlOnly {
-			content = built.HTML
-		}
-		if err := os.WriteFile(outPath, content, 0o644); err != nil {
-			return fmt.Errorf("writing %s: %w", outPath, err)
-		}
-
-		fmt.Fprintln(cmd.OutOrStdout(), outPath)
-		return nil
+		return runGenerate(cmd, id, htmlOnly, outPath)
 	},
+}
+
+// runGenerate renders one document and writes the result.
+//
+// Factored out of generateCmd so 'document edit --generate' prints through the
+// same path, including the rescue of the HTML when the browser stage fails.
+//
+// outPath empty means the document's own directory, named after the product.
+func runGenerate(cmd *cobra.Command, id int, htmlOnly bool, outPath string) error {
+	doc, versions, err := loadForRender(id)
+	if err != nil {
+		return err
+	}
+
+	dir, err := document.Dir(id)
+	if err != nil {
+		return err
+	}
+
+	warnIfDraft(id, versions, cmd.ErrOrStderr())
+
+	built, err := buildSheet(cmd.Context(), id, doc, versions, cmd.ErrOrStderr(), !htmlOnly)
+
+	if outPath == "" {
+		outPath = filepath.Join(dir, built.Slug+extension(htmlOnly))
+	}
+
+	if err != nil {
+		// The HTML lands beside the PDF if the print stage failed, so a
+		// missing browser or a browser that dies mid-print never costs the
+		// resolve that produced it.
+		//
+		// An interrupt is not a failure to recover from: the user said
+		// stop, so stop rather than leaving a file they did not ask for.
+		if built.HTML == nil || errors.Is(err, context.Canceled) {
+			if errors.Is(err, context.Canceled) {
+				return errors.New("interrupted")
+			}
+			return err
+		}
+		rescued := filepath.Join(dir, built.Slug+".html")
+		if writeErr := os.WriteFile(rescued, built.HTML, 0o644); writeErr != nil {
+			return errors.Join(err, fmt.Errorf("writing %s: %w", rescued, writeErr))
+		}
+		return fmt.Errorf("%w\n\nThe HTML was still written to:\n  %s", err, rescued)
+	}
+
+	content := built.PDF
+	if htmlOnly {
+		content = built.HTML
+	}
+	if err := os.WriteFile(outPath, content, 0o644); err != nil {
+		return fmt.Errorf("writing %s: %w", outPath, err)
+	}
+
+	fmt.Fprintln(cmd.OutOrStdout(), outPath)
+	return nil
 }
 
 // extension is the default suffix for the requested output form.
