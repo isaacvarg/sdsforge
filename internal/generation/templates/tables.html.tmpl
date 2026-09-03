@@ -1,0 +1,6 @@
+{{- define "tables" -}}
+{{- range .Tables }}
+<h4>{{ .Title }}</h4>
+{{ template "table" . }}
+{{- end }}
+{{- end -}}

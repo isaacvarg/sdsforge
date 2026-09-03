@@ -9,8 +9,8 @@ import (
 func TestSourceNames(t *testing.T) {
 	want := []string{
 		"classification", "emergency_phone", "identification", "materials",
-		"pictograms", "precautionary", "prop65", "recommended_use", "revisions",
-		"signal_word", "supplier",
+		"pictograms", "precautionary", "prop65", "recommended_use",
+		"revisions", "right_to_know", "sara_311_312", "signal_word", "supplier",
 	}
 	if got := SourceNames(); !slices.Equal(got, want) {
 		t.Errorf("SourceNames() = %v, want %v", got, want)

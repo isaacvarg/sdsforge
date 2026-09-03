@@ -109,6 +109,82 @@ func TestRenderProp65Warning(t *testing.T) {
 	}
 }
 
+// A document with state Right-to-Know entries must reach the page as one
+// heading and table per triggered state, in state-name order.
+func TestRenderRightToKnow(t *testing.T) {
+	lib, err := sections.NewLibrary(sections.LibraryOptions{})
+	if err != nil {
+		t.Fatalf("NewLibrary() error = %v", err)
+	}
+
+	doc := document.Data{
+		ProductName: "Acetone Technical Grade",
+		RightToKnow: []document.RightToKnowEntry{
+			{Chemical: "Toluene", CASNumber: "108-88-3", States: map[string]bool{"nj": true, "pa": true, "ca": false}},
+		},
+	}
+
+	secs, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
+		Sources: doc.SourceData(nil, config.Config{}, fixtureVersions()),
+	})
+	if err != nil {
+		t.Fatalf("ResolveAll() error = %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	njIdx := strings.Index(out, "<h4>New Jersey Right to Know</h4>")
+	paIdx := strings.Index(out, "<h4>Pennsylvania Right to Know</h4>")
+	if njIdx == -1 || paIdx == -1 {
+		t.Fatalf("rendered output missing a state heading; NJ at %d, PA at %d", njIdx, paIdx)
+	}
+	if njIdx > paIdx {
+		t.Error("New Jersey should render before Pennsylvania (alphabetical by state name)")
+	}
+	if !strings.Contains(out, "<td>Toluene</td>") || !strings.Contains(out, "<td>108-88-3</td>") {
+		t.Error("rendered output missing the chemical row")
+	}
+}
+
+// A document with SARA 311/312 hazards must reach the page as rows in the
+// SARA 311/312 table, one row per hazard.
+func TestRenderSaraHazards(t *testing.T) {
+	lib, err := sections.NewLibrary(sections.LibraryOptions{})
+	if err != nil {
+		t.Fatalf("NewLibrary() error = %v", err)
+	}
+
+	doc := document.Data{
+		ProductName: "Acetone Technical Grade",
+		SARAHazards: []document.SARAHazard{
+			{Chemical: "Toluene", CASNumber: "108-88-3", Hazard: "Fire hazard"},
+		},
+	}
+
+	secs, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
+		Sources: doc.SourceData(nil, config.Config{}, fixtureVersions()),
+	})
+	if err != nil {
+		t.Fatalf("ResolveAll() error = %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	for _, want := range []string{"<td>Toluene</td>", "<td>108-88-3</td>", "<td>Fire hazard</td>"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("rendered output missing %q", want)
+		}
+	}
+}
+
 // html/template escapes by default. A product name containing markup must not
 // become live HTML in the finished document.
 func TestRenderEscapesContent(t *testing.T) {

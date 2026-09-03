@@ -58,6 +58,30 @@ type Data struct {
 	//	  - chemical: "Toluene"
 	//	    exposure: reproductive_toxicant
 	Prop65 []Prop65Warning `yaml:"prop65,omitempty"`
+
+	// RightToKnow lists chemicals subject to state Right-to-Know disclosure.
+	// Each entry names a chemical once and flags which states it applies to,
+	// keyed by lowercase two-letter postal code as plain sibling keys:
+	//
+	//	right_to_know:
+	//	  - chemical: "Toluene"
+	//	    cas_number: "108-88-3"
+	//	    nj: true
+	//	    pa: true
+	//	    ca: false
+	//
+	// Drives Section 15's state Right-to-Know subsection: one table per
+	// state with at least one chemical flagged true.
+	RightToKnow []RightToKnowEntry `yaml:"right_to_know,omitempty"`
+
+	// SARAHazards lists SARA 311/312 hazard category disclosures. A chemical
+	// with more than one hazard category gets one entry per hazard.
+	//
+	//	sara_hazards:
+	//	  - chemical: "Toluene"
+	//	    cas_number: "108-88-3"
+	//	    hazard: "Fire hazard"
+	SARAHazards []SARAHazard `yaml:"sara_hazards,omitempty"`
 }
 
 // Prop65Warning is one chemical requiring a California Proposition 65
@@ -69,6 +93,25 @@ type Prop65Warning struct {
 	// unrecognized value is ignored -- the same leniency HazardCodes gives
 	// a typo'd GHS code -- rather than failing the whole document.
 	Exposure string `yaml:"exposure"`
+}
+
+// RightToKnowEntry is one chemical's state Right-to-Know disclosure. States
+// is populated from whatever lowercase two-letter keys sit alongside
+// chemical/cas_number in the YAML (yaml.v3's inline-map unmarshalling), so a
+// document author writes state flags as plain sibling keys rather than a
+// nested map.
+type RightToKnowEntry struct {
+	Chemical  string          `yaml:"chemical"`
+	CASNumber string          `yaml:"cas_number"`
+	States    map[string]bool `yaml:",inline"`
+}
+
+// SARAHazard is one chemical/hazard-category pair for Section 15's SARA
+// 311/312 table.
+type SARAHazard struct {
+	Chemical  string `yaml:"chemical"`
+	CASNumber string `yaml:"cas_number"`
+	Hazard    string `yaml:"hazard"`
 }
 
 // AllHazardCodes returns every distinct hazard code for this document, taking
@@ -178,6 +221,12 @@ func (d Data) SourceData(cls *ghs.Classification, cfg config.Config, versions Ve
 	}
 	if block := prop65Block(d.Prop65); block != nil {
 		out[sections.SourceProp65] = block
+	}
+	if block := rightToKnowBlock(d.RightToKnow); block != nil {
+		out[sections.SourceRightToKnow] = block
+	}
+	if block := saraHazardsBlock(d.SARAHazards); block != nil {
+		out[sections.SourceSARA311312] = block
 	}
 
 	if rows := d.identificationLines(); len(rows) > 0 {

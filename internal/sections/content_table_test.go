@@ -198,7 +198,7 @@ rows:
 // Registering a second kind should also improve the error messages from
 // Phase 1 for free: "known kinds" now lists both.
 func TestRegisteredKindsIncludesAll(t *testing.T) {
-	want := []string{"images", "prose", "table"}
+	want := []string{"images", "prose", "table", "tables"}
 	if got := RegisteredKinds(); !slices.Equal(got, want) {
 		t.Errorf("RegisteredKinds() = %v, want %v", got, want)
 	}

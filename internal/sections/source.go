@@ -24,6 +24,8 @@ const (
 	SourceEmergencyPhone = "emergency_phone"
 	SourceRevisions      = "revisions"
 	SourceProp65         = "prop65"
+	SourceRightToKnow    = "right_to_know"
+	SourceSARA311312     = "sara_311_312"
 
 	// Section 2 is computed from the document's hazard codes rather than
 	// selected from authored variants: an arbitrary code set matches no
@@ -43,6 +45,8 @@ var knownSources = map[string]bool{
 	SourceEmergencyPhone: true,
 	SourceRevisions:      true,
 	SourceProp65:         true,
+	SourceRightToKnow:    true,
+	SourceSARA311312:     true,
 	SourceClassification: true,
 	SourceSignalWord:     true,
 	SourcePictograms:     true,
