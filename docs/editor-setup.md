@@ -43,6 +43,24 @@ Documents live at `~/.local/share/sdsforge/documents/<id>/document.yaml`, which
 is outside any project directory, so the file association has to be a glob on
 the absolute path rather than a workspace-relative one.
 
+**Spell that path out in full.** The obvious shorthand,
+`**/sdsforge/documents/*/document.yaml`, looks right and matches nothing:
+yaml-language-server runs these patterns through
+[picomatch](https://github.com/micromatch/picomatch) without setting
+`dot: true`, so `**` will not descend through the `.local` in the default data
+directory. Naming that dotted segment literally is what makes the association
+fire. The server prepends its own `**/` to whatever you give it, so a leading
+`/` is fine.
+
+Every snippet below writes the directory as `/home/you/.local/share/sdsforge`.
+Substitute your own, which
+
+```sh
+sdsforge document path
+```
+
+prints.
+
 ## Neovim (LazyVim)
 
 Save this as `~/.config/nvim/lua/plugins/sdsforge.lua`:
@@ -61,6 +79,11 @@ for _, dir in ipairs({ "~/forge/sdsforge", "~/src/sdsforge", "~/code/sdsforge", 
   end
 end
 
+-- Where the documents are. Spelled out in full because a leading `**` cannot
+-- cross the dot in `.local`; see "What consumes it" above.
+local data = os.getenv("XDG_DATA_HOME") or vim.fn.expand("~/.local/share")
+local documents = data:gsub("/$", "") .. "/sdsforge/documents"
+
 return {
   -- Brings in yaml-language-server (via mason) and SchemaStore. Equivalent to
   -- ticking `lang.yaml` in :LazyExtras; done here so this one file is enough.
@@ -75,8 +98,8 @@ return {
             yaml = {
               schemas = {
                 [schema] = {
-                  "**/sdsforge/documents/*/document.yaml",
-                  "**/sdsforge/documents/*/versions/*/document.yaml",
+                  documents .. "/*/document.yaml",
+                  documents .. "/*/versions/*/document.yaml",
                 },
               },
             },
@@ -106,8 +129,8 @@ vim.lsp.config("yamlls", {
     yaml = {
       schemas = {
         ["/path/to/sdsforge/docs/document.schema.json"] = {
-          "**/sdsforge/documents/*/document.yaml",
-          "**/sdsforge/documents/*/versions/*/document.yaml",
+          "/home/you/.local/share/sdsforge/documents/*/document.yaml",
+          "/home/you/.local/share/sdsforge/documents/*/versions/*/document.yaml",
         },
       },
     },
@@ -129,8 +152,8 @@ Install the Red Hat **YAML** extension, then in `settings.json`:
 {
   "yaml.schemas": {
     "/path/to/sdsforge/docs/document.schema.json": [
-      "**/sdsforge/documents/*/document.yaml",
-      "**/sdsforge/documents/*/versions/*/document.yaml"
+      "/home/you/.local/share/sdsforge/documents/*/document.yaml",
+      "/home/you/.local/share/sdsforge/documents/*/versions/*/document.yaml"
     ]
   }
 }
@@ -143,7 +166,10 @@ Both run `yaml-language-server` and take its settings verbatim. In Helix's
 
 ```toml
 [language-server.yaml-language-server.config.yaml.schemas]
-"/path/to/sdsforge/docs/document.schema.json" = ["**/sdsforge/documents/*/document.yaml"]
+"/path/to/sdsforge/docs/document.schema.json" = [
+  "/home/you/.local/share/sdsforge/documents/*/document.yaml",
+  "/home/you/.local/share/sdsforge/documents/*/versions/*/document.yaml",
+]
 ```
 
 Zed takes the same block under `lsp.yaml-language-server.settings` in
@@ -186,11 +212,27 @@ CI.
 attached. If it is not, the server is not installed — `:Mason` and install
 `yaml-language-server`.
 
-**Attached, but no completion.** The glob did not match. The patterns above
-require the file to sit under a directory literally named `sdsforge/documents/`;
-if your `XDG_DATA_HOME` puts documents elsewhere, adjust the glob to match the
-real absolute path. `:lua =vim.lsp.get_clients({name="yamlls"})[1].settings` will
-show what the server was actually given.
+**Attached, but no completion.** The glob did not match, and a glob that
+matches nothing is silent — there is no error to go on. Check it against what
+`sdsforge document path` prints; if you set `XDG_DATA_HOME`, the documents are
+not under `~/.local/share` at all.
+
+The usual cause is a pattern that leads with `**`. `**` does not cross a path
+segment starting with a dot, so `**/sdsforge/documents/*/document.yaml` never
+matches a document under `~/.local/share`. Write the directory out in full.
+
+Two commands separate "the setting never arrived" from "the setting arrived and
+matched nothing". With a `document.yaml` open:
+
+```vim
+" What the server was given. SchemaStore makes this long; look for your own entry.
+:lua =vim.lsp.get_clients({ name = "yamlls" })[1].settings.yaml.schemas
+
+" What it bound to this buffer. Prints nothing at all when no glob matched.
+:lua local c = vim.lsp.get_clients({ name = "yamlls" })[1] c:request("yaml/get/all/jsonSchemas", { vim.uri_from_bufnr(0) }, function(_, r) for _, s in ipairs(r or {}) do if s.usedForCurrentFile then print(s.uri) end end end)
+```
+
+If the first shows your entry and the second prints nothing, the glob is wrong.
 
 **Everything is flagged red.** You are probably pointing at a stale schema
 against a newer library, or at the built-in schema while running a custom
