@@ -10,9 +10,9 @@ import (
 // physical properties, and so on:
 //
 //	kind: table
-//	headers: ["Chemical", "CAS No.", "OSHA PEL (TWA)"]
+//	headers: ["Chemical", "CAS No.", "Basis", "Exposure Limit"]
 //	rows:
-//	  - ["Acetone", "67-64-1", "1000 ppm"]
+//	  - ["Acetone", "67-64-1", "OSHA PEL (TWA)", "1000 ppm"]
 //
 // Every cell is a string. Resist the urge to type them further: SDS tables are
 // full of values like "1000 ppm", "N/E", and "not established" that are not

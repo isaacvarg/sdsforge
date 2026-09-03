@@ -5,7 +5,6 @@ content:
   headers:
     - "Chemical name"
     - "CAS No."
-    - "Basis"
-    - "Exposure Limit"
+    - "Hazard category"
   rows:
-    - ["No exposure limits established", "-", "N/E", "N/E"]
+    - ["No SARA 311/312 hazard categories identified", "-", "-"]

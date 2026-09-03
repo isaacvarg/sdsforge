@@ -1,0 +1,6 @@
+variant: "default"
+priority: 0
+content:
+  kind: "prose"
+  text:
+    - "This material does not contain any chemical components with known CAS numbers that exceed the threshold (De Minimis) reporting levels established by SARA Title III, Section 313."

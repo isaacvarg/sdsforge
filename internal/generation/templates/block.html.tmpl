@@ -16,6 +16,8 @@
   {{- template "table" .Body -}}
 {{- else if eq .Kind "images" -}}
   {{- template "images" .Body -}}
+{{- else if eq .Kind "tables" -}}
+  {{- template "tables" .Body -}}
 {{- else -}}
   <p class="empty">No renderer for content kind "{{ .Kind }}".</p>
 {{- end -}}
