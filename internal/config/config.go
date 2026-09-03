@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/BurntSushi/toml"
 )
@@ -26,6 +27,8 @@ type Config struct {
 	Emergency Emergency `toml:"emergency"`
 	Logo      Logo      `toml:"logo"`
 	PDF       PDF       `toml:"pdf"`
+	Edit      Edit      `toml:"edit"`
+	CD        CD        `toml:"cd"`
 }
 
 // Library selects where section content comes from.
@@ -115,6 +118,67 @@ type PDF struct {
 	Margin string `toml:"margin"`
 }
 
+// Edit is how 'sdsforge document edit' opens a document for editing.
+//
+// Which editor to use is a property of the machine, not of the product, so it
+// belongs here beside the browser rather than in each document.
+type Edit struct {
+	// Command is the editor to run. Empty means $VISUAL, then $EDITOR, then an
+	// OS default -- see internal/launch. A bare name is looked up on PATH.
+	Command string `toml:"command"`
+
+	// Args are passed to the editor before the file, whichever source Command
+	// came from. This is the place for anything needing quotes, e.g.
+	// ["-c", "set ft=yaml"].
+	Args []string `toml:"args"`
+
+	// Classify and Generate are what happens after a successful edit. Both
+	// default to off: the file is always checked for parse errors, and anything
+	// beyond that is a choice about how you like to work. Generate needs a
+	// browser and takes seconds, which is why it is not on by default even for
+	// people who would want it most of the time.
+	Classify bool `toml:"classify"`
+	Generate bool `toml:"generate"`
+
+	// MinDuration is how quickly an editor has to return before sdsforge says
+	// something. An editor that forks and exits immediately (a GUI one invoked
+	// without its wait flag) leaves sdsforge checking a file nobody has touched
+	// yet, and the resulting "it says my edit is fine but I had not saved it"
+	// is very hard to work out unaided. A duration string; "0" turns the
+	// warning off.
+	MinDuration string `toml:"min_duration"`
+}
+
+// MinDurationValue parses MinDuration.
+//
+// Kept beside the field rather than in the command, so a bad value is rejected
+// when the config file is read instead of at the moment someone edits -- the
+// same reason PDF.Geometry is checked by validate.
+func (e Edit) MinDurationValue() (time.Duration, error) {
+	value := strings.TrimSpace(e.MinDuration)
+	if value == "" {
+		value = defaultEditMinDuration
+	}
+
+	duration, err := time.ParseDuration(value)
+	if err != nil {
+		return 0, fmt.Errorf("edit.min_duration: %q is not a duration (try \"1s\")", e.MinDuration)
+	}
+	if duration < 0 {
+		return 0, fmt.Errorf("edit.min_duration: %q is negative", e.MinDuration)
+	}
+	return duration, nil
+}
+
+// CD is how 'sdsforge cd' launches a shell.
+type CD struct {
+	// Command is the shell to run. Empty means $SHELL, then an OS default.
+	Command string `toml:"command"`
+
+	// Args are passed to it before anything else.
+	Args []string `toml:"args"`
+}
+
 // paperSizes maps a paper name to its size in millimetres, portrait.
 //
 // A name rather than two lengths: nobody remembers that US Letter is 215.9mm
@@ -189,6 +253,11 @@ const (
 	defaultMargin = "0.75in"
 )
 
+// defaultEditMinDuration is the threshold below which an editor's return is
+// treated as suspicious. One second is long enough that no real editing session
+// trips it and short enough that a forking editor always does.
+const defaultEditMinDuration = "1s"
+
 // Default returns the configuration used when no config file exists.
 func Default() Config {
 	return Config{
@@ -199,6 +268,9 @@ func Default() Config {
 		PDF: PDF{
 			Paper:  defaultPaper,
 			Margin: defaultMargin,
+		},
+		Edit: Edit{
+			MinDuration: defaultEditMinDuration,
 		},
 	}
 }
@@ -289,6 +361,14 @@ func (c *Config) validate() error {
 	// Geometry checks both paper and margin, so a bad value is caught when the
 	// file is read rather than at the moment a user prints.
 	if _, _, _, err := c.PDF.Geometry(); err != nil {
+		return err
+	}
+	if c.Edit.MinDuration == "" {
+		c.Edit.MinDuration = defaultEditMinDuration
+	}
+	// Checked here for the same reason as the page geometry: a typo in a
+	// duration should surface when the file is read, not when someone edits.
+	if _, err := c.Edit.MinDurationValue(); err != nil {
 		return err
 	}
 	for key, value := range map[string]string{

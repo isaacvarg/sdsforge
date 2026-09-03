@@ -34,47 +34,55 @@ Nothing is written; this only reports.`,
 		if err != nil {
 			return err
 		}
-
-		doc, versions, err := loadForRender(id)
-		if err != nil {
-			return err
-		}
-		cfg, err := config.Load()
-		if err != nil {
-			return err
-		}
-		lib, err := openLibraryWith(cfg)
-		if err != nil {
-			return err
-		}
-		tables, err := ghs.LoadTables(lib)
-		if err != nil {
-			return err
-		}
-
-		codes := doc.AllHazardCodes()
-		classification, err := tables.Classify(codes)
-		if err != nil {
-			return fmt.Errorf("document %d: %w", id, err)
-		}
-		if err := classification.ApplyText(doc.PrecautionaryText); err != nil {
-			return fmt.Errorf("document %d: %w", id, err)
-		}
-
-		out := cmd.OutOrStdout()
-		printClassification(out, doc, classification)
-
-		resolved, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
-			Sources:     doc.SourceData(classification, cfg, versions),
-			HazardCodes: doc.HazardCodeSet(),
-		})
-		if err != nil {
-			return err
-		}
-		printDerivation(out, resolved)
-
-		return nil
+		return runClassify(cmd, id)
 	},
+}
+
+// runClassify reports what one document's hazard codes produce.
+//
+// Factored out of classifyCmd so 'document edit --classify' shows exactly what
+// 'document classify' shows, rather than growing a second implementation of the
+// same pipeline that could drift from it.
+func runClassify(cmd *cobra.Command, id int) error {
+	doc, versions, err := loadForRender(id)
+	if err != nil {
+		return err
+	}
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	lib, err := openLibraryWith(cfg)
+	if err != nil {
+		return err
+	}
+	tables, err := ghs.LoadTables(lib)
+	if err != nil {
+		return err
+	}
+
+	codes := doc.AllHazardCodes()
+	classification, err := tables.Classify(codes)
+	if err != nil {
+		return fmt.Errorf("document %d: %w", id, err)
+	}
+	if err := classification.ApplyText(doc.PrecautionaryText); err != nil {
+		return fmt.Errorf("document %d: %w", id, err)
+	}
+
+	out := cmd.OutOrStdout()
+	printClassification(out, doc, classification)
+
+	resolved, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
+		Sources:     doc.SourceData(classification, cfg, versions),
+		HazardCodes: doc.HazardCodeSet(),
+	})
+	if err != nil {
+		return err
+	}
+	printDerivation(out, resolved)
+
+	return nil
 }
 
 func printClassification(out io.Writer, doc document.Data, c *ghs.Classification) {

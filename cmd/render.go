@@ -3,8 +3,11 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
+	"io/fs"
+	"os"
 	"strconv"
 
 	"github.com/isaacvarg/sdsforge/internal/config"
@@ -170,6 +173,52 @@ func documentID(arg string) (int, error) {
 		return 0, fmt.Errorf("document id must be a number, got %q", arg)
 	}
 	return id, nil
+}
+
+// documentDir resolves one document's directory and confirms it is really
+// there.
+//
+// document.Dir composes a path without touching the filesystem, and
+// DocumentsDir creates only the PARENT. So a mistyped id would otherwise reach
+// the user as a puzzling failure further along -- or, for a command that only
+// prints a path or launches a shell, as no failure at all.
+func documentDir(id int) (string, error) {
+	dir, err := document.Dir(id)
+	if err != nil {
+		return "", err
+	}
+
+	info, err := os.Stat(dir)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		return "", fmt.Errorf(
+			"document %d does not exist\n"+
+				"run 'sdsforge document list' to see the ones that do", id)
+	case err != nil:
+		return "", fmt.Errorf("checking %s: %w", dir, err)
+	case !info.IsDir():
+		return "", fmt.Errorf("%s is not a directory", dir)
+	}
+	return dir, nil
+}
+
+// targetDir resolves the directory named by the optional id argument that 'cd'
+// and 'document path' share.
+//
+// The returned id is 0 when no argument was given, meaning the directory
+// holding every document; real ids start at 1.
+func targetDir(args []string) (dir string, id int, err error) {
+	if len(args) == 0 {
+		dir, err = document.DocumentsDir()
+		return dir, 0, err
+	}
+
+	id, err = documentID(args[0])
+	if err != nil {
+		return "", 0, err
+	}
+	dir, err = documentDir(id)
+	return dir, id, err
 }
 
 // formatBytes renders a byte count for a warning message.

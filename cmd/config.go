@@ -8,9 +8,11 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/generation"
+	"github.com/isaacvarg/sdsforge/internal/launch"
 	"github.com/spf13/cobra"
 )
 
@@ -134,6 +136,12 @@ recorded" -- if the company block below is empty, the file is not being read.`,
 		fmt.Fprintln(out, "\n[pdf]")
 		printPDF(out, cfg.PDF)
 
+		fmt.Fprintln(out, "\n[edit]")
+		printEdit(out, cfg.Edit)
+
+		fmt.Fprintln(out, "\n[cd]")
+		printCD(out, cfg.CD)
+
 		return nil
 	},
 }
@@ -168,6 +176,57 @@ func printLogo(out io.Writer, cfg config.Logo, companyName string) {
 	}
 	fmt.Fprintf(out, "  css:   %s\n", logo.Style)
 	fmt.Fprintf(out, "  alt:   %s\n", logo.Alt)
+}
+
+// printEdit reports which editor 'document edit' will open, and what it will do
+// afterwards.
+//
+// The editor is resolved here exactly as that command resolves it, so this is
+// where "why does it keep opening vi" gets answered -- the same service printPDF
+// performs for the browser.
+func printEdit(out io.Writer, cfg config.Edit) {
+	if editor, err := launch.Editor(cfg); err != nil {
+		fmt.Fprintf(out, "  command:      ERROR: %v\n", err)
+	} else {
+		fmt.Fprintf(out, "  command:      %s (%s)\n", editor.Path, editor.Origin)
+		if len(editor.Args) > 0 {
+			fmt.Fprintf(out, "  args:         %s\n", editor.ArgsString())
+		}
+	}
+
+	var after []string
+	if cfg.Classify {
+		after = append(after, "classify")
+	}
+	if cfg.Generate {
+		after = append(after, "generate")
+	}
+	if len(after) == 0 {
+		after = []string{"nothing (the file is always checked for parse errors)"}
+	}
+	fmt.Fprintf(out, "  after edit:   %s\n", strings.Join(after, ", "))
+
+	switch duration, err := cfg.MinDurationValue(); {
+	case err != nil:
+		fmt.Fprintf(out, "  min_duration: ERROR: %v\n", err)
+	case duration == 0:
+		fmt.Fprintln(out, "  min_duration: 0 (no warning when the editor returns immediately)")
+	default:
+		fmt.Fprintf(out, "  min_duration: %s\n", duration)
+	}
+}
+
+// printCD reports which shell 'sdsforge cd' will launch.
+func printCD(out io.Writer, cfg config.CD) {
+	shell, err := launch.Shell(cfg)
+	if err != nil {
+		fmt.Fprintf(out, "  command:      ERROR: %v\n", err)
+		return
+	}
+	fmt.Fprintf(out, "  command:      %s (%s)\n", shell.Path, shell.Origin)
+	if len(shell.Args) > 0 {
+		fmt.Fprintf(out, "  args:         %s\n", shell.ArgsString())
+	}
 }
 
 // printPDF reports what printing will do, and whether it can happen at all.
