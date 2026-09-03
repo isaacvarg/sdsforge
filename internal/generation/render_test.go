@@ -51,9 +51,9 @@ func TestRenderHTML(t *testing.T) {
 		"1. Identification",
 		"4. First-aid measures",
 		"16. Other information",
-		"Do NOT induce vomiting",  // the corrosive variant reached the page
-		"<table>",                 // section 8's exposure limits rendered as a table
-		"<th>OSHA PEL (TWA)</th>", // table headers came through
+		"Do NOT induce vomiting", // the corrosive variant reached the page
+		"<table>",                // section 8's exposure limits rendered as a table
+		"<th>Basis</th>",         // table headers came through
 	}
 	for _, want := range wants {
 		if !strings.Contains(out, want) {

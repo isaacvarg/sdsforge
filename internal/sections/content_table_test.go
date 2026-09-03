@@ -169,10 +169,10 @@ func TestTableAppendErrors(t *testing.T) {
 func TestBlockUnmarshalTable(t *testing.T) {
 	src := `
 kind: table
-headers: ["Chemical", "CAS No.", "OSHA PEL (TWA)"]
+headers: ["Chemical", "CAS No.", "Basis", "Exposure Limit"]
 rows:
-  - ["Acetone", "67-64-1", "1000 ppm"]
-  - ["Toluene", "108-88-3", "200 ppm"]
+  - ["Acetone", "67-64-1", "OSHA PEL (TWA)", "1000 ppm"]
+  - ["Toluene", "108-88-3", "OSHA PEL (TWA)", "200 ppm"]
 `
 
 	var blk Block
@@ -184,14 +184,14 @@ rows:
 	if !ok {
 		t.Fatalf("Body is %T, want *Table", blk.Body)
 	}
-	if !slices.Equal(tbl.Headers, []string{"Chemical", "CAS No.", "OSHA PEL (TWA)"}) {
+	if !slices.Equal(tbl.Headers, []string{"Chemical", "CAS No.", "Basis", "Exposure Limit"}) {
 		t.Errorf("Headers = %q", tbl.Headers)
 	}
 	if len(tbl.Rows) != 2 {
 		t.Fatalf("len(Rows) = %d, want 2", len(tbl.Rows))
 	}
-	if tbl.Rows[1][2] != "200 ppm" {
-		t.Errorf("Rows[1][2] = %q, want %q", tbl.Rows[1][2], "200 ppm")
+	if tbl.Rows[1][3] != "200 ppm" {
+		t.Errorf("Rows[1][3] = %q, want %q", tbl.Rows[1][3], "200 ppm")
 	}
 }
 
