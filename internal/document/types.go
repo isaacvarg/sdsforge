@@ -46,6 +46,29 @@ type Data struct {
 	// A section absent from this map resolves entirely to its defaults, which
 	// is why a minimal document.yaml can omit the key altogether.
 	Sections map[string]sections.SectionSelection `yaml:"sections,omitempty"`
+
+	// Prop65 lists California Proposition 65 exposure warnings, one entry per
+	// chemical requiring disclosure under Cal. Code Regs. tit. 27 §25603.
+	// Drives Section 15's Prop 65 subsection; empty means the sheet states
+	// no components are known to require a warning.
+	//
+	//	prop65:
+	//	  - chemical: "Carbon black"
+	//	    exposure: carcinogen
+	//	  - chemical: "Toluene"
+	//	    exposure: reproductive_toxicant
+	Prop65 []Prop65Warning `yaml:"prop65,omitempty"`
+}
+
+// Prop65Warning is one chemical requiring a California Proposition 65
+// disclosure.
+type Prop65Warning struct {
+	Chemical string `yaml:"chemical"`
+
+	// Exposure is "carcinogen", "reproductive_toxicant", or "both". An
+	// unrecognized value is ignored -- the same leniency HazardCodes gives
+	// a typo'd GHS code -- rather than failing the whole document.
+	Exposure string `yaml:"exposure"`
 }
 
 // AllHazardCodes returns every distinct hazard code for this document, taking
@@ -152,6 +175,9 @@ func (d Data) SourceData(cls *ghs.Classification, cfg config.Config, versions Ve
 		if lines := precautionaryLines(cls); len(lines) > 0 {
 			out[sections.SourcePrecautionary] = &sections.Prose{Text: lines}
 		}
+	}
+	if block := prop65Block(d.Prop65); block != nil {
+		out[sections.SourceProp65] = block
 	}
 
 	if rows := d.identificationLines(); len(rows) > 0 {

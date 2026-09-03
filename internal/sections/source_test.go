@@ -9,7 +9,7 @@ import (
 func TestSourceNames(t *testing.T) {
 	want := []string{
 		"classification", "emergency_phone", "identification", "materials",
-		"pictograms", "precautionary", "recommended_use", "revisions",
+		"pictograms", "precautionary", "prop65", "recommended_use", "revisions",
 		"signal_word", "supplier",
 	}
 	if got := SourceNames(); !slices.Equal(got, want) {

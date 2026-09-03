@@ -67,6 +67,48 @@ func TestRenderHTML(t *testing.T) {
 	}
 }
 
+// A document with Prop 65 warnings must reach the page as an image (the
+// warning symbol) with the computed legal text as its caption -- the same
+// path GHS pictograms take through Section 2.
+func TestRenderProp65Warning(t *testing.T) {
+	lib, err := sections.NewLibrary(sections.LibraryOptions{})
+	if err != nil {
+		t.Fatalf("NewLibrary() error = %v", err)
+	}
+
+	doc := document.Data{
+		ProductName: "Acetone Technical Grade",
+		Prop65: []document.Prop65Warning{
+			{Chemical: "Carbon black", Exposure: "carcinogen"},
+		},
+	}
+
+	secs, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
+		Sources: doc.SourceData(nil, config.Config{}, fixtureVersions()),
+	})
+	if err != nil {
+		t.Fatalf("ResolveAll() error = %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	for _, want := range []string{
+		// html/template HTML-encodes "+" in a template.URL value, so the
+		// literal mime type "svg+xml" comes through as "svg&#43;xml" -- a
+		// browser decodes the entity back before resolving the URL.
+		`<img src="data:image/svg&#43;xml;base64,`,
+		"<figcaption>This product can expose you to Carbon black, which is known to the State of California to cause cancer.",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("rendered output missing %q", want)
+		}
+	}
+}
+
 // html/template escapes by default. A product name containing markup must not
 // become live HTML in the finished document.
 func TestRenderEscapesContent(t *testing.T) {

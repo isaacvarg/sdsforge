@@ -1,0 +1,5 @@
+variant: "default"
+priority: 0
+content:
+  kind: "images"
+  images: []
