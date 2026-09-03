@@ -106,6 +106,25 @@ func prop65Statement(warnings []Prop65Warning) string {
 	}
 }
 
+// ExposureValues lists every spelling normalizeExposure accepts, in the order
+// an author is most likely to want them: the three documented values first,
+// then the tolerated variants. The JSON Schema generator turns this into the
+// enum for `prop65[].exposure`, so an editor offers the canonical spelling
+// first while still accepting what the parser does.
+//
+// TestExposureValuesAllNormalize keeps this honest against the switch below.
+func ExposureValues() []string {
+	return []string{
+		"carcinogen",
+		"reproductive_toxicant",
+		"both",
+		"carcinogens",
+		"reproductive toxicant",
+		"reproductive_toxicants",
+		"reproductive toxicants",
+	}
+}
+
 // normalizeExposure accepts the documented enum plus a couple of spellings a
 // document author might reasonably type, the same leniency ghs.NormalizeCode
 // gives hazard codes. An unrecognized value returns "", which drops the

@@ -163,6 +163,7 @@ reclassification or a new product identity.
 | `document version list <id>` | List issued revisions |
 | `document version show <id> <version>` | Show one revision and its files |
 | `document version restore <id> <version>` | Put an archived document.yaml back as the live one |
+| `schema` | Print the JSON Schema for document.yaml. `-o <path>`, `--custom` |
 | `sections list [section-id]` | Inspect the content library |
 | `sections validate` | Check the whole library for errors |
 | `config path` / `init` / `show` | Locate, create and inspect the config file |
@@ -289,6 +290,9 @@ check your additions.
 - [document.yaml reference](docs/document-yaml.md) — every field, including
   Prop 65, SARA and state Right-to-Know, and how to override a section's
   content.
+- [Editor setup](docs/editor-setup.md) — point Neovim, VS Code or any editor
+  running yaml-language-server at [the JSON Schema](docs/document.schema.json)
+  for completion and validation while you write a document.
 
 ## References
 

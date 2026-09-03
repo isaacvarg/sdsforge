@@ -29,6 +29,24 @@ var usStateNames = map[string]string{
 	"wi": "Wisconsin", "wy": "Wyoming",
 }
 
+// StateCodes returns every recognized Right-to-Know state key, sorted. It is
+// what the JSON Schema generator enumerates so an editor can complete `nj:`
+// alongside `chemical:` -- see internal/schema.
+func StateCodes() []string {
+	codes := make([]string, 0, len(usStateNames))
+	for code := range usStateNames {
+		codes = append(codes, code)
+	}
+	sort.Strings(codes) // map order is random; the schema must be byte-stable
+	return codes
+}
+
+// StateName returns a state's full name for a given code.
+func StateName(code string) (string, bool) {
+	name, ok := usStateNames[code]
+	return name, ok
+}
+
 // rightToKnowBlock builds Section 15's state Right-to-Know subsection: one
 // table per state with at least one chemical flagged true, titled with the
 // state's full name. Returns nil when no state ends up with any
