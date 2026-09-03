@@ -116,3 +116,15 @@ func TestSourceDataIncludesProp65(t *testing.T) {
 		t.Error("SourceData() did not populate SourceProp65")
 	}
 }
+
+// TestExposureValuesAllNormalize guards the list the JSON Schema generator
+// publishes against the switch that actually decides. A spelling advertised in
+// the schema but rejected by the parser would be worse than no schema at all:
+// the editor would bless a value that silently drops the entry.
+func TestExposureValuesAllNormalize(t *testing.T) {
+	for _, v := range ExposureValues() {
+		if got := normalizeExposure(v); got == "" {
+			t.Errorf("ExposureValues lists %q, but normalizeExposure rejects it", v)
+		}
+	}
+}

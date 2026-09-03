@@ -256,6 +256,18 @@ func (t *Tables) Lookup(code string) (HazardStatement, bool) {
 	return h, ok
 }
 
+// PrecautionaryCodes returns every precautionary code in the table, sorted.
+func (t *Tables) PrecautionaryCodes() []string { return sortedKeys(t.precautions) }
+
+// LookupPrecautionary returns one precautionary statement.
+//
+// Unlike Lookup, the code is taken as written: P-codes carry combined forms
+// such as "P301+P312" that NormalizeCode's H-code rules would mangle.
+func (t *Tables) LookupPrecautionary(code string) (PrecautionaryStatement, bool) {
+	p, ok := t.precautions[strings.ToUpper(strings.TrimSpace(code))]
+	return p, ok
+}
+
 // ErrUnknownCode is returned when a document names a hazard code that is not in
 // the reference table.
 var ErrUnknownCode = errors.New("unknown hazard code")

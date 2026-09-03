@@ -1,0 +1,4602 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/isaacvarg/sdsforge/main/docs/document.schema.json",
+  "title": "sdsforge document.yaml",
+  "description": "The source document for one Safety Data Sheet. Generated from the osha content library; see docs/document-yaml.md for the prose reference.",
+  "type": "object",
+  "properties": {
+    "hazard_codes": {
+      "description": "GHS hazard codes for the product as a whole. This is the main control: Section 2 is computed entirely from these, and they auto-select the wording of Sections 4, 6, 8 and 11. Run `sdsforge document classify <id>` to see what a set produces.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/hazard_code"
+      },
+      "examples": [
+        [
+          "H314",
+          "H318"
+        ]
+      ]
+    },
+    "identification": {
+      "$ref": "#/$defs/identification"
+    },
+    "materials": {
+      "description": "The composition table for Section 3. One entry per ingredient.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/material"
+      }
+    },
+    "precautionary_text": {
+      "title": "Precautionary text",
+      "description": "Wording for precautionary statements, keyed by P-code. Any statement the classification selects may be overridden here, but the ones that NEED an entry are those whose regulatory text is manufacturer-specified -- the ones `sdsforge document classify <id>` marks with an asterisk. Only those are offered as completions; the rest are still accepted. An override for a code the classification does not select is an error.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "P220": {
+          "description": "Keep away from clothing and other combustible materials.",
+          "type": "string"
+        },
+        "P221": {
+          "description": "Take any precaution to avoid mixing with combustibles.",
+          "type": "string"
+        },
+        "P230": {
+          "description": "Keep wetted with suitable material specified by the manufacturer.",
+          "type": "string"
+        },
+        "P231": {
+          "description": "Handle under inert gas.",
+          "type": "string"
+        },
+        "P231+P232": {
+          "description": "Handle and store contents under inert gas. Protect from moisture.",
+          "type": "string"
+        },
+        "P241": {
+          "description": "Use explosion-proof electrical, ventilating and lighting equipment.",
+          "type": "string"
+        },
+        "P250": {
+          "description": "Do not subject to grinding, shock or friction.",
+          "type": "string"
+        },
+        "P260": {
+          "description": "Do not breathe dust, fume, gas, mist, vapours or spray.",
+          "type": "string"
+        },
+        "P261": {
+          "description": "Avoid breathing dust, fume, gas, mist, vapours or spray.",
+          "type": "string"
+        },
+        "P264": {
+          "description": "Wash thoroughly after handling.",
+          "type": "string"
+        },
+        "P280": {
+          "description": "Wear protective gloves, protective clothing, eye protection and face protection.",
+          "type": "string"
+        },
+        "P284": {
+          "description": "In case of inadequate ventilation wear respiratory protection.",
+          "type": "string"
+        },
+        "P285": {
+          "description": "In case of inadequate ventilation wear respiratory protection.",
+          "type": "string"
+        },
+        "P302+P352": {
+          "description": "IF ON SKIN: Wash with plenty of water.",
+          "type": "string"
+        },
+        "P320": {
+          "description": "Specific treatment is urgent (see first aid instructions on this label).",
+          "type": "string"
+        },
+        "P321": {
+          "description": "Specific treatment (see first aid instructions on this label).",
+          "type": "string"
+        },
+        "P370+P378": {
+          "description": "In case of fire: Use appropriate media to extinguish.",
+          "type": "string"
+        },
+        "P401": {
+          "description": "Store in accordance with local, regional, national and international regulations.",
+          "type": "string"
+        },
+        "P406": {
+          "description": "Store in corrosive resistant container with a resistant inner liner.",
+          "type": "string"
+        },
+        "P411": {
+          "description": "Store at temperatures not exceeding the manufacturer-specified maximum.",
+          "type": "string"
+        },
+        "P413": {
+          "description": "Store bulk masses greater than the manufacturer-specified quantity at temperatures not exceeding the specified maximum.",
+          "type": "string"
+        },
+        "P422": {
+          "description": "Store contents under inert gas.",
+          "type": "string"
+        },
+        "P501": {
+          "description": "Dispose of contents and container in accordance with local, regional, national and international regulations.",
+          "type": "string"
+        }
+      },
+      "propertyNames": {
+        "pattern": "^P[0-9]{3}(\\+P[0-9]{3})*$"
+      },
+      "additionalProperties": {
+        "type": "string"
+      },
+      "examples": [
+        {
+          "P260": "Do not breathe mist or spray."
+        }
+      ]
+    },
+    "product_name": {
+      "description": "The product's name. Feeds Section 1's product identifier, and titles the rendered sheet.",
+      "type": "string"
+    },
+    "prop65": {
+      "description": "California Proposition 65 warnings, one entry per chemical requiring disclosure under Cal. Code Regs. tit. 27 §25603. Omit it and Section 15 states that no components are known to require a warning.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/prop65_warning"
+      }
+    },
+    "right_to_know": {
+      "description": "State Right-to-Know disclosures. Produces one table per state that ends up with at least one chemical flagged true.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/right_to_know_entry"
+      }
+    },
+    "sara_hazards": {
+      "description": "SARA 311/312 hazard-category disclosures. A chemical with more than one hazard category gets one entry per hazard.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/sara_hazard"
+      }
+    },
+    "sections": {
+      "title": "Section overrides",
+      "description": "Per-section choices, keyed by the section's stable id -- never by number or directory name, so renumbering the library never invalidates a saved document. A section left out resolves entirely to its defaults.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "accidental_release": {
+          "$ref": "#/$defs/section_accidental_release"
+        },
+        "composition": {
+          "$ref": "#/$defs/section_composition"
+        },
+        "disposal": {
+          "$ref": "#/$defs/section_disposal"
+        },
+        "ecological": {
+          "$ref": "#/$defs/section_ecological"
+        },
+        "exposure_controls": {
+          "$ref": "#/$defs/section_exposure_controls"
+        },
+        "firefighting": {
+          "$ref": "#/$defs/section_firefighting"
+        },
+        "first_aid": {
+          "$ref": "#/$defs/section_first_aid"
+        },
+        "handling_storage": {
+          "$ref": "#/$defs/section_handling_storage"
+        },
+        "hazards": {
+          "$ref": "#/$defs/section_hazards"
+        },
+        "identification": {
+          "$ref": "#/$defs/section_identification"
+        },
+        "other": {
+          "$ref": "#/$defs/section_other"
+        },
+        "properties": {
+          "$ref": "#/$defs/section_properties"
+        },
+        "regulatory": {
+          "$ref": "#/$defs/section_regulatory"
+        },
+        "stability": {
+          "$ref": "#/$defs/section_stability"
+        },
+        "toxicological": {
+          "$ref": "#/$defs/section_toxicological"
+        },
+        "transport": {
+          "$ref": "#/$defs/section_transport"
+        }
+      },
+      "additionalProperties": false
+    },
+    "supplier": {
+      "$ref": "#/$defs/supplier"
+    }
+  },
+  "required": [
+    "product_name"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "block_images": {
+      "title": "Images block",
+      "description": "A row of pictures. Artwork referenced by path is embedded as a data: URI when the sheet is generated, so the finished document stands alone.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "alt": {
+                "description": "What a screen reader announces, and what a text-only rendering falls back to. Required: an image without it is treated as invalid.",
+                "type": "string"
+              },
+              "caption": {
+                "description": "Printed under the image.",
+                "type": "string"
+              },
+              "src": {
+                "description": "Path to the artwork, or a data: URI.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "src",
+              "alt"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "kind": {
+          "type": "string",
+          "const": "images"
+        }
+      },
+      "required": [
+        "kind",
+        "images"
+      ],
+      "additionalProperties": false,
+      "defaultSnippets": [
+        {
+          "label": "images",
+          "description": "One image with the alt text it requires.",
+          "body": {
+            "images": [
+              {
+                "alt": "$2",
+                "src": "$1"
+              }
+            ],
+            "kind": "images"
+          }
+        }
+      ]
+    },
+    "block_prose": {
+      "title": "Prose block",
+      "description": "Paragraphs of text, one per list entry.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "prose"
+        },
+        "text": {
+          "description": "One paragraph per entry.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "text"
+      ],
+      "additionalProperties": false
+    },
+    "block_table": {
+      "title": "Table block",
+      "description": "A single table. Every cell is a string.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "headers": {
+          "description": "Column headings.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "kind": {
+          "type": "string",
+          "const": "table"
+        },
+        "rows": {
+          "description": "Rows, each a list of string cells. Nothing is parsed as a number: \"1000 ppm\" and \"N/E\" are ordinary cell values.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "headers",
+        "rows"
+      ],
+      "additionalProperties": false,
+      "defaultSnippets": [
+        {
+          "label": "table",
+          "description": "A table with one header row and one data row to fill in.",
+          "body": {
+            "headers": [
+              "$1"
+            ],
+            "kind": "table",
+            "rows": [
+              [
+                "$2"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "block_tables": {
+      "title": "Named tables block",
+      "description": "Several independently-headed tables, e.g. one per state.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "const": "tables"
+        },
+        "tables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "headers": {
+                "description": "Column headings.",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "rows": {
+                "description": "Rows, each a list of string cells. Nothing is parsed as a number: \"1000 ppm\" and \"N/E\" are ordinary cell values.",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "title": {
+                "description": "Heading printed above this table.",
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "headers",
+              "rows"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "tables"
+      ],
+      "additionalProperties": false,
+      "defaultSnippets": [
+        {
+          "label": "tables",
+          "description": "One named table to fill in.",
+          "body": {
+            "kind": "tables",
+            "tables": [
+              {
+                "headers": [
+                  "$2"
+                ],
+                "rows": [
+                  [
+                    "$3"
+                  ]
+                ],
+                "title": "$1"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "hazard_code": {
+      "description": "A GHS hazard code. Written as H315, h315, or a bare 315 -- YAML parses the last as an integer, and all three are accepted.",
+      "anyOf": [
+        {
+          "description": "Canonical form.",
+          "type": "string",
+          "enum": [
+            "H200",
+            "H201",
+            "H202",
+            "H203",
+            "H204",
+            "H205",
+            "H220",
+            "H221",
+            "H222",
+            "H223",
+            "H224",
+            "H225",
+            "H226",
+            "H227",
+            "H228",
+            "H229",
+            "H230",
+            "H231",
+            "H240",
+            "H241",
+            "H242",
+            "H250",
+            "H251",
+            "H252",
+            "H260",
+            "H261",
+            "H270",
+            "H271",
+            "H272",
+            "H280",
+            "H281",
+            "H290",
+            "H300",
+            "H301",
+            "H302",
+            "H304",
+            "H310",
+            "H311",
+            "H312",
+            "H314",
+            "H315",
+            "H316",
+            "H317",
+            "H318",
+            "H319",
+            "H320",
+            "H330",
+            "H331",
+            "H332",
+            "H334",
+            "H335",
+            "H336",
+            "H340",
+            "H341",
+            "H350",
+            "H351",
+            "H360",
+            "H361",
+            "H362",
+            "H370",
+            "H371",
+            "H372",
+            "H373",
+            "H400",
+            "H401",
+            "H402",
+            "H410",
+            "H411",
+            "H412",
+            "H413",
+            "H420"
+          ],
+          "enumDescriptions": [
+            "Unstable explosive (Explosives, category Unstable explosive)",
+            "Explosive; mass explosion hazard (Explosives, category Div 1.1)",
+            "Explosive; severe projection hazard (Explosives, category Div 1.2)",
+            "Explosive; fire, blast or projection hazard (Explosives, category Div 1.3)",
+            "Fire or projection hazard (Explosives, category Div 1.4)",
+            "May mass explode in fire (Explosives, category Div 1.5)",
+            "Extremely flammable gas (Flammable gases, category 1)",
+            "Flammable gas (Flammable gases, category 2)",
+            "Extremely flammable aerosol (Flammable aerosols, category 1)",
+            "Flammable aerosol (Flammable aerosols, category 2)",
+            "Extremely flammable liquid and vapour (Flammable liquids, category 1)",
+            "Highly flammable liquid and vapour (Flammable liquids, category 2)",
+            "Flammable liquid and vapour (Flammable liquids, category 3)",
+            "Combustible liquid (Flammable liquids, category 4)",
+            "Flammable solid (Flammable solids, category 1)",
+            "Pressurized container: may burst if heated (Aerosols, category 1)",
+            "May react explosively even in the absence of air (Flammable gases, category Chemically unstable A)",
+            "May react explosively even in the absence of air at elevated pressure and/or temperature (Flammable gases, category Chemically unstable B)",
+            "Heating may cause an explosion (Self-reactive substances and mixtures, category Type A)",
+            "Heating may cause a fire or explosion (Self-reactive substances and mixtures, category Type B)",
+            "Heating may cause a fire (Self-reactive substances and mixtures, category Type C)",
+            "Catches fire spontaneously if exposed to air (Pyrophoric liquids, category 1)",
+            "Self-heating; may catch fire (Self-heating substances and mixtures, category 1)",
+            "Self-heating in large quantities; may catch fire (Self-heating substances and mixtures, category 2)",
+            "In contact with water releases flammable gases which may ignite spontaneously (Substances which in contact with water emit flammable gases, category 1)",
+            "In contact with water releases flammable gas (Substances which in contact with water emit flammable gases, category 2)",
+            "May cause or intensify fire; oxidizer (Oxidizing gases, category 1)",
+            "May cause fire or explosion; strong oxidizer (Oxidizing liquids, category 1)",
+            "May intensify fire; oxidizer (Oxidizing liquids, category 2)",
+            "Contains gas under pressure; may explode if heated (Gases under pressure, category Compressed gas)",
+            "Contains refrigerated gas; may cause cryogenic burns or injury (Gases under pressure, category Refrigerated liquefied gas)",
+            "May be corrosive to metals (Corrosive to metals, category 1)",
+            "Fatal if swallowed (Acute toxicity, oral, category 1)",
+            "Toxic if swallowed (Acute toxicity, oral, category 3)",
+            "Harmful if swallowed (Acute toxicity, oral, category 4)",
+            "May be fatal if swallowed and enters airways (Aspiration hazard, category 1)",
+            "Fatal in contact with skin (Acute toxicity, dermal, category 1)",
+            "Toxic in contact with skin (Acute toxicity, dermal, category 3)",
+            "Harmful in contact with skin (Acute toxicity, dermal, category 4)",
+            "Causes severe skin burns and eye damage (Skin corrosion/irritation, category 1)",
+            "Causes skin irritation (Skin corrosion/irritation, category 2)",
+            "Causes mild skin irritation (Skin corrosion/irritation, category 3)",
+            "May cause an allergic skin reaction (Skin sensitization, category 1)",
+            "Causes serious eye damage (Serious eye damage/eye irritation, category 1)",
+            "Causes serious eye irritation (Serious eye damage/eye irritation, category 2A)",
+            "Causes eye irritation (Serious eye damage/eye irritation, category 2B)",
+            "Fatal if inhaled (Acute toxicity, inhalation, category 1)",
+            "Toxic if inhaled (Acute toxicity, inhalation, category 3)",
+            "Harmful if inhaled (Acute toxicity, inhalation, category 4)",
+            "May cause allergy or asthma symptoms or breathing difficulties if inhaled (Respiratory sensitization, category 1)",
+            "May cause respiratory irritation (Specific target organ toxicity, single exposure, category 3)",
+            "May cause drowsiness or dizziness (Specific target organ toxicity, single exposure, category 3)",
+            "May cause genetic defects (Germ cell mutagenicity, category 1A/1B)",
+            "Suspected of causing genetic defects (Germ cell mutagenicity, category 2)",
+            "May cause cancer (Carcinogenicity, category 1A/1B)",
+            "Suspected of causing cancer (Carcinogenicity, category 2)",
+            "May damage fertility or the unborn child (Reproductive toxicity, category 1A/1B)",
+            "Suspected of damaging fertility or the unborn child (Reproductive toxicity, category 2)",
+            "May cause harm to breast-fed children (Reproductive toxicity, category Lactation)",
+            "Causes damage to organs (Specific target organ toxicity, single exposure, category 1)",
+            "May cause damage to organs (Specific target organ toxicity, single exposure, category 2)",
+            "Causes damage to organs through prolonged or repeated exposure (Specific target organ toxicity, repeated exposure, category 1)",
+            "May cause damage to organs through prolonged or repeated exposure (Specific target organ toxicity, repeated exposure, category 2)",
+            "Very toxic to aquatic life (Hazardous to the aquatic environment, acute, category 1)",
+            "Toxic to aquatic life (Hazardous to the aquatic environment, acute, category 2)",
+            "Harmful to aquatic life (Hazardous to the aquatic environment, acute, category 3)",
+            "Very toxic to aquatic life with long lasting effects (Hazardous to the aquatic environment, chronic, category 1)",
+            "Toxic to aquatic life with long lasting effects (Hazardous to the aquatic environment, chronic, category 2)",
+            "Harmful to aquatic life with long lasting effects (Hazardous to the aquatic environment, chronic, category 3)",
+            "May cause long lasting harmful effects to aquatic life (Hazardous to the aquatic environment, chronic, category 4)",
+            "Harms public health and the environment by destroying ozone in the upper atmosphere (Hazardous to the ozone layer, category 1)"
+          ]
+        },
+        {
+          "description": "Lowercase form, e.g. h315.",
+          "type": "string",
+          "pattern": "^h(200|201|202|203|204|205|220|221|222|223|224|225|226|227|228|229|230|231|240|241|242|250|251|252|260|261|270|271|272|280|281|290|300|301|302|304|310|311|312|314|315|316|317|318|319|320|330|331|332|334|335|336|340|341|350|351|360|361|362|370|371|372|373|400|401|402|410|411|412|413|420)$"
+        },
+        {
+          "description": "Bare form, e.g. 315.",
+          "type": "integer",
+          "enum": [
+            200,
+            201,
+            202,
+            203,
+            204,
+            205,
+            220,
+            221,
+            222,
+            223,
+            224,
+            225,
+            226,
+            227,
+            228,
+            229,
+            230,
+            231,
+            240,
+            241,
+            242,
+            250,
+            251,
+            252,
+            260,
+            261,
+            270,
+            271,
+            272,
+            280,
+            281,
+            290,
+            300,
+            301,
+            302,
+            304,
+            310,
+            311,
+            312,
+            314,
+            315,
+            316,
+            317,
+            318,
+            319,
+            320,
+            330,
+            331,
+            332,
+            334,
+            335,
+            336,
+            340,
+            341,
+            350,
+            351,
+            360,
+            361,
+            362,
+            370,
+            371,
+            372,
+            373,
+            400,
+            401,
+            402,
+            410,
+            411,
+            412,
+            413,
+            420
+          ]
+        }
+      ]
+    },
+    "identification": {
+      "title": "Identification",
+      "description": "Feeds Section 1's product identifier and recommended-use subsections. Section 1 expects both recommended_use and restrictions filled in.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "cas_number": {
+          "description": "CAS registry number for the product itself, where it has one.",
+          "type": "string"
+        },
+        "product_codes": {
+          "description": "Product codes or SKUs.",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommended_use": {
+          "description": "What the product is for, e.g. \"Industrial cleaning agent\".",
+          "type": "string"
+        },
+        "restrictions": {
+          "description": "Restrictions on use, e.g. \"Not for consumer use\".",
+          "type": "string"
+        },
+        "synonyms": {
+          "description": "Other names the product goes by.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "material": {
+      "title": "Material",
+      "description": "One row of Section 3's ingredient table.",
+      "type": "object",
+      "properties": {
+        "cas_number": {
+          "description": "CAS registry number. Quote it -- a leading-zero CAS number needs quoting to survive YAML.",
+          "type": "string"
+        },
+        "hazard_codes": {
+          "description": "GHS codes for this material specifically. Unioned into the document's overall hazard set.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hazard_code"
+          }
+        },
+        "hazards_triggered": {
+          "description": "Deprecated and unread. Use hazard_codes instead.",
+          "deprecated": true,
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "doNotSuggest": true
+        },
+        "name": {
+          "description": "Chemical name.",
+          "type": "string"
+        },
+        "percentage": {
+          "description": "Concentration as free text, e.g. \"50\" or \"10-30\".",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "Deprecated and unread. Kept so documents written before hazard_codes existed still load.",
+          "deprecated": true,
+          "type": "integer",
+          "doNotSuggest": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "prop65_warning": {
+      "title": "Proposition 65 warning",
+      "description": "One chemical requiring a California Prop 65 disclosure.",
+      "type": "object",
+      "properties": {
+        "chemical": {
+          "description": "The chemical's name, as it should appear in the warning sentence.",
+          "type": "string"
+        },
+        "exposure": {
+          "description": "Which hazard the chemical is listed for. An unrecognized value is silently dropped rather than failing the document, so a typo here costs you the whole warning.",
+          "type": "string",
+          "enum": [
+            "carcinogen",
+            "reproductive_toxicant",
+            "both",
+            "carcinogens",
+            "reproductive toxicant",
+            "reproductive_toxicants",
+            "reproductive toxicants"
+          ]
+        }
+      },
+      "required": [
+        "chemical",
+        "exposure"
+      ],
+      "additionalProperties": false
+    },
+    "right_to_know_entry": {
+      "title": "Right-to-Know entry",
+      "description": "One chemical's state Right-to-Know disclosure. State flags are plain sibling keys of chemical/cas_number, not a nested map: write a lowercase two-letter postal code set to true or false directly alongside them.",
+      "type": "object",
+      "properties": {
+        "ak": {
+          "description": "Subject to Alaska Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "al": {
+          "description": "Subject to Alabama Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ar": {
+          "description": "Subject to Arkansas Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "az": {
+          "description": "Subject to Arizona Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ca": {
+          "description": "Subject to California Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "cas_number": {
+          "description": "CAS registry number. Quote it.",
+          "type": "string"
+        },
+        "chemical": {
+          "description": "The chemical's name.",
+          "type": "string"
+        },
+        "co": {
+          "description": "Subject to Colorado Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ct": {
+          "description": "Subject to Connecticut Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "dc": {
+          "description": "Subject to District of Columbia Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "de": {
+          "description": "Subject to Delaware Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "fl": {
+          "description": "Subject to Florida Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ga": {
+          "description": "Subject to Georgia Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "hi": {
+          "description": "Subject to Hawaii Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ia": {
+          "description": "Subject to Iowa Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "id": {
+          "description": "Subject to Idaho Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "il": {
+          "description": "Subject to Illinois Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "in": {
+          "description": "Subject to Indiana Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ks": {
+          "description": "Subject to Kansas Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ky": {
+          "description": "Subject to Kentucky Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "la": {
+          "description": "Subject to Louisiana Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ma": {
+          "description": "Subject to Massachusetts Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "md": {
+          "description": "Subject to Maryland Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "me": {
+          "description": "Subject to Maine Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "mi": {
+          "description": "Subject to Michigan Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "mn": {
+          "description": "Subject to Minnesota Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "mo": {
+          "description": "Subject to Missouri Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ms": {
+          "description": "Subject to Mississippi Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "mt": {
+          "description": "Subject to Montana Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "nc": {
+          "description": "Subject to North Carolina Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "nd": {
+          "description": "Subject to North Dakota Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ne": {
+          "description": "Subject to Nebraska Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "nh": {
+          "description": "Subject to New Hampshire Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "nj": {
+          "description": "Subject to New Jersey Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "nm": {
+          "description": "Subject to New Mexico Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "nv": {
+          "description": "Subject to Nevada Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ny": {
+          "description": "Subject to New York Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "oh": {
+          "description": "Subject to Ohio Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ok": {
+          "description": "Subject to Oklahoma Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "or": {
+          "description": "Subject to Oregon Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "pa": {
+          "description": "Subject to Pennsylvania Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ri": {
+          "description": "Subject to Rhode Island Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "sc": {
+          "description": "Subject to South Carolina Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "sd": {
+          "description": "Subject to South Dakota Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "tn": {
+          "description": "Subject to Tennessee Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "tx": {
+          "description": "Subject to Texas Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "ut": {
+          "description": "Subject to Utah Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "va": {
+          "description": "Subject to Virginia Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "vt": {
+          "description": "Subject to Vermont Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "wa": {
+          "description": "Subject to Washington Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "wi": {
+          "description": "Subject to Wisconsin Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "wv": {
+          "description": "Subject to West Virginia Right-to-Know disclosure.",
+          "type": "boolean"
+        },
+        "wy": {
+          "description": "Subject to Wyoming Right-to-Know disclosure.",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "chemical"
+      ],
+      "additionalProperties": false
+    },
+    "sara_hazard": {
+      "title": "SARA 311/312 hazard",
+      "description": "One chemical/hazard-category pair. A chemical with several categories gets several entries, changing only `hazard`.",
+      "type": "object",
+      "properties": {
+        "cas_number": {
+          "description": "CAS registry number. Quote it.",
+          "type": "string"
+        },
+        "chemical": {
+          "description": "The chemical's name.",
+          "type": "string"
+        },
+        "hazard": {
+          "description": "The hazard category, e.g. \"Fire hazard\" or \"Immediate (acute) health hazard\".",
+          "type": "string",
+          "examples": [
+            "Fire hazard",
+            "Immediate (acute) health hazard",
+            "Delayed (chronic) health hazard"
+          ]
+        }
+      },
+      "required": [
+        "chemical",
+        "hazard"
+      ],
+      "additionalProperties": false
+    },
+    "section_accidental_release": {
+      "title": "6. Accidental release measures",
+      "description": "Section 6. Accidental release measures. Presets: corrosive.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "containment": {
+              "$ref": "#/$defs/sub_accidental_release_containment"
+            },
+            "environmental_precautions": {
+              "$ref": "#/$defs/sub_accidental_release_environmental_precautions"
+            },
+            "personal_precautions": {
+              "$ref": "#/$defs/sub_accidental_release_personal_precautions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "variant": {
+          "description": "A preset: a bundle of per-subsection picks for the whole section. Leave it out and every subsection falls back to its own default, or to whatever hazard_codes derives.",
+          "type": "string",
+          "enum": [
+            "corrosive"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_composition": {
+      "title": "3. Composition/information on ingredients",
+      "description": "Section 3. Composition/information on ingredients. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "ingredients": {
+              "$ref": "#/$defs/sub_composition_ingredients"
+            },
+            "trade_secret": {
+              "$ref": "#/$defs/sub_composition_trade_secret"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_disposal": {
+      "title": "13. Disposal considerations",
+      "description": "Section 13. Disposal considerations. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "methods": {
+              "$ref": "#/$defs/sub_disposal_methods"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_ecological": {
+      "title": "12. Ecological information",
+      "description": "Section 12. Ecological information. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "bioaccumulation": {
+              "$ref": "#/$defs/sub_ecological_bioaccumulation"
+            },
+            "ecotoxicity": {
+              "$ref": "#/$defs/sub_ecological_ecotoxicity"
+            },
+            "mobility": {
+              "$ref": "#/$defs/sub_ecological_mobility"
+            },
+            "persistence": {
+              "$ref": "#/$defs/sub_ecological_persistence"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_exposure_controls": {
+      "title": "8. Exposure controls/personal protection",
+      "description": "Section 8. Exposure controls/personal protection. Presets: acute_inhalation, corrosive.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "engineering_controls": {
+              "$ref": "#/$defs/sub_exposure_controls_engineering_controls"
+            },
+            "exposure_limits": {
+              "$ref": "#/$defs/sub_exposure_controls_exposure_limits"
+            },
+            "eye_protection": {
+              "$ref": "#/$defs/sub_exposure_controls_eye_protection"
+            },
+            "respiratory_protection": {
+              "$ref": "#/$defs/sub_exposure_controls_respiratory_protection"
+            },
+            "skin_protection": {
+              "$ref": "#/$defs/sub_exposure_controls_skin_protection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "variant": {
+          "description": "A preset: a bundle of per-subsection picks for the whole section. Leave it out and every subsection falls back to its own default, or to whatever hazard_codes derives.",
+          "type": "string",
+          "enum": [
+            "acute_inhalation",
+            "corrosive"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_firefighting": {
+      "title": "5. Fire-fighting measures",
+      "description": "Section 5. Fire-fighting measures. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "extinguishing_media": {
+              "$ref": "#/$defs/sub_firefighting_extinguishing_media"
+            },
+            "firefighter_precautions": {
+              "$ref": "#/$defs/sub_firefighting_firefighter_precautions"
+            },
+            "special_hazards": {
+              "$ref": "#/$defs/sub_firefighting_special_hazards"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_first_aid": {
+      "title": "4. First-aid measures",
+      "description": "Section 4. First-aid measures. Presets: acute_inhalation, corrosive.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "eye": {
+              "$ref": "#/$defs/sub_first_aid_eye"
+            },
+            "general": {
+              "$ref": "#/$defs/sub_first_aid_general"
+            },
+            "ingestion": {
+              "$ref": "#/$defs/sub_first_aid_ingestion"
+            },
+            "inhalation": {
+              "$ref": "#/$defs/sub_first_aid_inhalation"
+            },
+            "medical_attention": {
+              "$ref": "#/$defs/sub_first_aid_medical_attention"
+            },
+            "skin": {
+              "$ref": "#/$defs/sub_first_aid_skin"
+            },
+            "symptoms": {
+              "$ref": "#/$defs/sub_first_aid_symptoms"
+            }
+          },
+          "additionalProperties": false
+        },
+        "variant": {
+          "description": "A preset: a bundle of per-subsection picks for the whole section. Leave it out and every subsection falls back to its own default, or to whatever hazard_codes derives.",
+          "type": "string",
+          "enum": [
+            "acute_inhalation",
+            "corrosive"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_handling_storage": {
+      "title": "7. Handling and storage",
+      "description": "Section 7. Handling and storage. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "handling": {
+              "$ref": "#/$defs/sub_handling_storage_handling"
+            },
+            "storage": {
+              "$ref": "#/$defs/sub_handling_storage_storage"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_hazards": {
+      "title": "2. Hazard(s) identification",
+      "description": "Section 2. Hazard(s) identification. Presets: acute_inhalation, corrosive.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "classification": {
+              "$ref": "#/$defs/sub_hazards_classification"
+            },
+            "other_hazards": {
+              "$ref": "#/$defs/sub_hazards_other_hazards"
+            },
+            "pictograms": {
+              "$ref": "#/$defs/sub_hazards_pictograms"
+            },
+            "precautionary": {
+              "$ref": "#/$defs/sub_hazards_precautionary"
+            },
+            "signal_word": {
+              "$ref": "#/$defs/sub_hazards_signal_word"
+            }
+          },
+          "additionalProperties": false
+        },
+        "variant": {
+          "description": "A preset: a bundle of per-subsection picks for the whole section. Leave it out and every subsection falls back to its own default, or to whatever hazard_codes derives.",
+          "type": "string",
+          "enum": [
+            "acute_inhalation",
+            "corrosive"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_identification": {
+      "title": "1. Identification",
+      "description": "Section 1. Identification. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "emergency_phone": {
+              "$ref": "#/$defs/sub_identification_emergency_phone"
+            },
+            "product_identifier": {
+              "$ref": "#/$defs/sub_identification_product_identifier"
+            },
+            "recommended_use": {
+              "$ref": "#/$defs/sub_identification_recommended_use"
+            },
+            "supplier": {
+              "$ref": "#/$defs/sub_identification_supplier"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_other": {
+      "title": "16. Other information",
+      "description": "Section 16. Other information. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "disclaimer": {
+              "$ref": "#/$defs/sub_other_disclaimer"
+            },
+            "revision": {
+              "$ref": "#/$defs/sub_other_revision"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_properties": {
+      "title": "9. Physical and chemical properties",
+      "description": "Section 9. Physical and chemical properties. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "properties": {
+              "$ref": "#/$defs/sub_properties_properties"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_regulatory": {
+      "title": "15. Regulatory information",
+      "description": "Section 15. Regulatory information. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "inventories": {
+              "$ref": "#/$defs/sub_regulatory_inventories"
+            },
+            "prop65": {
+              "$ref": "#/$defs/sub_regulatory_prop65"
+            },
+            "sara_311_312": {
+              "$ref": "#/$defs/sub_regulatory_sara_311_312"
+            },
+            "sara_313": {
+              "$ref": "#/$defs/sub_regulatory_sara_313"
+            },
+            "state": {
+              "$ref": "#/$defs/sub_regulatory_state"
+            },
+            "state_right_to_know": {
+              "$ref": "#/$defs/sub_regulatory_state_right_to_know"
+            },
+            "us_federal": {
+              "$ref": "#/$defs/sub_regulatory_us_federal"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_stability": {
+      "title": "10. Stability and reactivity",
+      "description": "Section 10. Stability and reactivity. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "chemical_stability": {
+              "$ref": "#/$defs/sub_stability_chemical_stability"
+            },
+            "conditions_to_avoid": {
+              "$ref": "#/$defs/sub_stability_conditions_to_avoid"
+            },
+            "decomposition_products": {
+              "$ref": "#/$defs/sub_stability_decomposition_products"
+            },
+            "hazardous_reactions": {
+              "$ref": "#/$defs/sub_stability_hazardous_reactions"
+            },
+            "incompatible_materials": {
+              "$ref": "#/$defs/sub_stability_incompatible_materials"
+            },
+            "reactivity": {
+              "$ref": "#/$defs/sub_stability_reactivity"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_toxicological": {
+      "title": "11. Toxicological information",
+      "description": "Section 11. Toxicological information. Presets: corrosive.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "acute_toxicity": {
+              "$ref": "#/$defs/sub_toxicological_acute_toxicity"
+            },
+            "carcinogenicity": {
+              "$ref": "#/$defs/sub_toxicological_carcinogenicity"
+            },
+            "effects": {
+              "$ref": "#/$defs/sub_toxicological_effects"
+            },
+            "routes": {
+              "$ref": "#/$defs/sub_toxicological_routes"
+            }
+          },
+          "additionalProperties": false
+        },
+        "variant": {
+          "description": "A preset: a bundle of per-subsection picks for the whole section. Leave it out and every subsection falls back to its own default, or to whatever hazard_codes derives.",
+          "type": "string",
+          "enum": [
+            "corrosive"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "section_transport": {
+      "title": "14. Transport information",
+      "description": "Section 14. Transport information. This section has no presets, so it takes no `variant` -- override its subsections individually instead.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "subsections": {
+          "description": "Overrides for individual subsections. These beat whatever the preset, or hazard-code derivation, chose.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "dot": {
+              "$ref": "#/$defs/sub_transport_dot"
+            },
+            "special_precautions": {
+              "$ref": "#/$defs/sub_transport_special_precautions"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_accidental_release_containment": {
+      "title": "Methods and materials for containment and cleaning up",
+      "description": "Methods and materials for containment and cleaning up.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_accidental_release_environmental_precautions": {
+      "title": "Environmental precautions",
+      "description": "Environmental precautions.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_accidental_release_personal_precautions": {
+      "title": "Personal precautions and protective equipment",
+      "description": "Personal precautions and protective equipment.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_composition_ingredients": {
+      "title": "Hazardous ingredients",
+      "description": "Hazardous ingredients. Populated from the document's own data (source: materials) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_composition_trade_secret": {
+      "title": "Trade secret claims",
+      "description": "Trade secret claims.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_disposal_methods": {
+      "title": "Waste treatment methods",
+      "description": "Waste treatment methods.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_ecological_bioaccumulation": {
+      "title": "Bioaccumulative potential",
+      "description": "Bioaccumulative potential.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_ecological_ecotoxicity": {
+      "title": "Ecotoxicity",
+      "description": "Ecotoxicity.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_ecological_mobility": {
+      "title": "Mobility in soil",
+      "description": "Mobility in soil.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_ecological_persistence": {
+      "title": "Persistence and degradability",
+      "description": "Persistence and degradability.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_exposure_controls_engineering_controls": {
+      "title": "Appropriate engineering controls",
+      "description": "Appropriate engineering controls.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_exposure_controls_exposure_limits": {
+      "title": "Occupational exposure limits",
+      "description": "Occupational exposure limits.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_exposure_controls_eye_protection": {
+      "title": "Eye/face protection",
+      "description": "Eye/face protection.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_exposure_controls_respiratory_protection": {
+      "title": "Respiratory protection",
+      "description": "Respiratory protection.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "acute_toxicity",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_exposure_controls_skin_protection": {
+      "title": "Skin and body protection",
+      "description": "Skin and body protection.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_firefighting_extinguishing_media": {
+      "title": "Suitable extinguishing media",
+      "description": "Suitable extinguishing media.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_firefighting_firefighter_precautions": {
+      "title": "Advice for firefighters",
+      "description": "Advice for firefighters.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_firefighting_special_hazards": {
+      "title": "Special hazards arising from the substance",
+      "description": "Special hazards arising from the substance.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_first_aid_eye": {
+      "title": "Eye contact",
+      "description": "Eye contact.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_first_aid_general": {
+      "title": "General advice",
+      "description": "General advice.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_first_aid_ingestion": {
+      "title": "Ingestion",
+      "description": "Ingestion.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_first_aid_inhalation": {
+      "title": "Inhalation",
+      "description": "Inhalation.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "acute_toxicity",
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_first_aid_medical_attention": {
+      "title": "Indication of immediate medical attention",
+      "description": "Indication of immediate medical attention.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_first_aid_skin": {
+      "title": "Skin contact",
+      "description": "Skin contact.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_first_aid_symptoms": {
+      "title": "Most important symptoms and effects",
+      "description": "Most important symptoms and effects.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_handling_storage_handling": {
+      "title": "Precautions for safe handling",
+      "description": "Precautions for safe handling.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_handling_storage_storage": {
+      "title": "Conditions for safe storage",
+      "description": "Conditions for safe storage.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_hazards_classification": {
+      "title": "GHS classification",
+      "description": "GHS classification. Populated from the document's own data (source: classification) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "acute_inhalation",
+            "corrosive",
+            "default",
+            "flammable_liquid"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_hazards_other_hazards": {
+      "title": "Other hazards",
+      "description": "Other hazards.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_hazards_pictograms": {
+      "title": "Pictograms",
+      "description": "Pictograms. Populated from the document's own data (source: pictograms) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_images",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be an images block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_images",
+          "description": "Discard the resolved content entirely and use this instead. Must be an images block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "acute_inhalation",
+            "corrosive",
+            "default",
+            "flammable_liquid"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_hazards_precautionary": {
+      "title": "Precautionary statements",
+      "description": "Precautionary statements. Populated from the document's own data (source: precautionary) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_hazards_signal_word": {
+      "title": "Signal word",
+      "description": "Signal word. Populated from the document's own data (source: signal_word) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default",
+            "warning"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_identification_emergency_phone": {
+      "title": "Emergency telephone number",
+      "description": "Emergency telephone number. Populated from the document's own data (source: emergency_phone) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_identification_product_identifier": {
+      "title": "Product identifier",
+      "description": "Product identifier. Populated from the document's own data (source: identification) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_identification_recommended_use": {
+      "title": "Recommended use and restrictions",
+      "description": "Recommended use and restrictions. Populated from the document's own data (source: recommended_use) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_identification_supplier": {
+      "title": "Supplier details",
+      "description": "Supplier details. Populated from the document's own data (source: supplier) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_other_disclaimer": {
+      "title": "Disclaimer",
+      "description": "Disclaimer.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_other_revision": {
+      "title": "Revision history",
+      "description": "Revision history. Populated from the document's own data (source: revisions) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_properties_properties": {
+      "title": "Physical and chemical properties",
+      "description": "Physical and chemical properties.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_regulatory_inventories": {
+      "title": "International inventories",
+      "description": "International inventories.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_regulatory_prop65": {
+      "title": "California Proposition 65",
+      "description": "California Proposition 65. Populated from the document's own data (source: prop65) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_images",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be an images block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_images",
+          "description": "Discard the resolved content entirely and use this instead. Must be an images block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_regulatory_sara_311_312": {
+      "title": "SARA 311/312 hazard categories",
+      "description": "SARA 311/312 hazard categories. Populated from the document's own data (source: sara_311_312) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_regulatory_sara_313": {
+      "title": "SARA 313",
+      "description": "SARA 313.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_regulatory_state": {
+      "title": "State regulations",
+      "description": "State regulations.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_regulatory_state_right_to_know": {
+      "title": "State Right to Know",
+      "description": "State Right to Know. Populated from the document's own data (source: right_to_know) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_tables",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a tables block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_tables",
+          "description": "Discard the resolved content entirely and use this instead. Must be a tables block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_regulatory_us_federal": {
+      "title": "US federal regulations",
+      "description": "US federal regulations.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_stability_chemical_stability": {
+      "title": "Chemical stability",
+      "description": "Chemical stability.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_stability_conditions_to_avoid": {
+      "title": "Conditions to avoid",
+      "description": "Conditions to avoid.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_stability_decomposition_products": {
+      "title": "Hazardous decomposition products",
+      "description": "Hazardous decomposition products.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_stability_hazardous_reactions": {
+      "title": "Possibility of hazardous reactions",
+      "description": "Possibility of hazardous reactions.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_stability_incompatible_materials": {
+      "title": "Incompatible materials",
+      "description": "Incompatible materials.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_stability_reactivity": {
+      "title": "Reactivity",
+      "description": "Reactivity.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_toxicological_acute_toxicity": {
+      "title": "Acute toxicity",
+      "description": "Acute toxicity.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_toxicological_carcinogenicity": {
+      "title": "Carcinogenicity",
+      "description": "Carcinogenicity.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_toxicological_effects": {
+      "title": "Symptoms and delayed effects",
+      "description": "Symptoms and delayed effects.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "corrosive",
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_toxicological_routes": {
+      "title": "Likely routes of exposure",
+      "description": "Likely routes of exposure.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_transport_dot": {
+      "title": "US DOT",
+      "description": "US DOT.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "sub_transport_special_precautions": {
+      "title": "Special precautions for user",
+      "description": "Special precautions for user.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "replace": {
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "oneOf": [
+            {
+              "description": "Shorthand for a single paragraph.",
+              "type": "string"
+            },
+            {
+              "description": "Shorthand for one paragraph per entry.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            {
+              "$ref": "#/$defs/block_prose"
+            }
+          ]
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "supplier": {
+      "title": "Supplier (deprecated)",
+      "description": "Deprecated and ignored. Supplier and emergency-contact details come from the config file instead -- run `sdsforge config init` and fill in [company] and [[emergency.contacts]]. Kept only so older documents still load; `document generate` warns when it finds one populated.",
+      "deprecated": true,
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "address": {
+          "description": "Deprecated. Use [company] address in the config file.",
+          "type": "string"
+        },
+        "email": {
+          "description": "Deprecated. Use [company] email in the config file.",
+          "type": "string"
+        },
+        "emergency_phone": {
+          "description": "Deprecated. Use [[emergency.contacts]] in the config file.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Deprecated. Use [company] name in the config file.",
+          "type": "string"
+        },
+        "phone": {
+          "description": "Deprecated. Use [company] phone in the config file.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "doNotSuggest": true
+    }
+  }
+}
