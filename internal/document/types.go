@@ -82,6 +82,17 @@ type Data struct {
 	//	    cas_number: "108-88-3"
 	//	    hazard: "Fire hazard"
 	SARAHazards []SARAHazard `yaml:"sara_hazards,omitempty"`
+
+	// TSCAInventory lists the basis on which each material is listed on, or
+	// exempt from, the US TSCA inventory. Drives Section 15's optional TSCA
+	// inventory table, shown alongside the standing prose statement. Basis
+	// may be left blank when there is nothing more specific to say.
+	//
+	//	tsca_inventory:
+	//	  - material: "Toluene"
+	//	    cas_number: "108-88-3"
+	//	    basis: "Active"
+	TSCAInventory []TSCAInventoryEntry `yaml:"tsca_inventory,omitempty"`
 }
 
 // Prop65Warning is one chemical requiring a California Proposition 65
@@ -112,6 +123,15 @@ type SARAHazard struct {
 	Chemical  string `yaml:"chemical"`
 	CASNumber string `yaml:"cas_number"`
 	Hazard    string `yaml:"hazard"`
+}
+
+// TSCAInventoryEntry is one material's TSCA inventory listing basis for
+// Section 15's optional TSCA inventory table.
+type TSCAInventoryEntry struct {
+	Material  string `yaml:"material"`
+	CASNumber string `yaml:"cas_number"`
+	// Basis may be blank -- not every material needs a stated basis.
+	Basis string `yaml:"basis,omitempty"`
 }
 
 // AllHazardCodes returns every distinct hazard code for this document, taking
@@ -227,6 +247,9 @@ func (d Data) SourceData(cls *ghs.Classification, cfg config.Config, versions Ve
 	}
 	if block := saraHazardsBlock(d.SARAHazards); block != nil {
 		out[sections.SourceSARA311312] = block
+	}
+	if block := tscaInventoryBlock(d.TSCAInventory); block != nil {
+		out[sections.SourceTSCAInventory] = block
 	}
 
 	if rows := d.identificationLines(); len(rows) > 0 {

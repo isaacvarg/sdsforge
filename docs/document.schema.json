@@ -242,6 +242,16 @@
     },
     "supplier": {
       "$ref": "#/$defs/supplier"
+    },
+    "tsca_inventory": {
+      "description": "TSCA inventory listing basis, one entry per material. Basis may be left blank. Produces Section 15's optional TSCA inventory table, shown alongside the standing TSCA inventory statement.",
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/tsca_inventory_entry"
+      }
     }
   },
   "required": [
@@ -1508,6 +1518,9 @@
             },
             "state_right_to_know": {
               "$ref": "#/$defs/sub_regulatory_state_right_to_know"
+            },
+            "tsca_inventory": {
+              "$ref": "#/$defs/sub_regulatory_tsca_inventory"
             },
             "us_federal": {
               "$ref": "#/$defs/sub_regulatory_us_federal"
@@ -3896,6 +3909,32 @@
       },
       "additionalProperties": false
     },
+    "sub_regulatory_tsca_inventory": {
+      "title": "TSCA inventory basis",
+      "description": "TSCA inventory basis. Populated from the document's own data (source: tsca_inventory) when there is any; an explicit replace or append still wins.",
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "append": {
+          "$ref": "#/$defs/block_table",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+        },
+        "replace": {
+          "$ref": "#/$defs/block_table",
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+        },
+        "variant": {
+          "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
+          "type": "string",
+          "enum": [
+            "default"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "sub_regulatory_us_federal": {
       "title": "US federal regulations",
       "description": "US federal regulations.",
@@ -4597,6 +4636,30 @@
       },
       "additionalProperties": false,
       "doNotSuggest": true
+    },
+    "tsca_inventory_entry": {
+      "title": "TSCA inventory entry",
+      "description": "One material's TSCA inventory listing basis.",
+      "type": "object",
+      "properties": {
+        "basis": {
+          "description": "The listing basis, e.g. \"Active\" or \"Exempt\". May be left blank.",
+          "type": "string"
+        },
+        "cas_number": {
+          "description": "CAS registry number. Quote it.",
+          "type": "string"
+        },
+        "material": {
+          "description": "The material's name.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "material",
+        "cas_number"
+      ],
+      "additionalProperties": false
     }
   }
 }

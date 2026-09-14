@@ -150,17 +150,18 @@ func Generate(lib *sections.Library) ([]byte, error) {
 	}
 
 	defs := map[string]*Node{
-		"hazard_code":         hazardCodeNode(tables),
-		"material":            materialNode(),
-		"identification":      identificationNode(),
-		"supplier":            supplierNode(),
-		"prop65_warning":      prop65Node(),
-		"right_to_know_entry": rightToKnowNode(),
-		"sara_hazard":         saraHazardNode(),
-		"block_prose":         proseBlockNode(),
-		"block_table":         tableBlockNode(),
-		"block_tables":        tablesBlockNode(),
-		"block_images":        imagesBlockNode(),
+		"hazard_code":          hazardCodeNode(tables),
+		"material":             materialNode(),
+		"identification":       identificationNode(),
+		"supplier":             supplierNode(),
+		"prop65_warning":       prop65Node(),
+		"right_to_know_entry":  rightToKnowNode(),
+		"sara_hazard":          saraHazardNode(),
+		"tsca_inventory_entry": tscaInventoryNode(),
+		"block_prose":          proseBlockNode(),
+		"block_table":          tableBlockNode(),
+		"block_tables":         tablesBlockNode(),
+		"block_images":         imagesBlockNode(),
 	}
 
 	sectionsNode, sectionDefs, err := buildSections(lib, layout)
@@ -212,6 +213,11 @@ func Generate(lib *sections.Library) ([]byte, error) {
 				Type:        orNull("array"),
 				Description: "SARA 311/312 hazard-category disclosures. A chemical with more than one hazard category gets one entry per hazard.",
 				Items:       ref("sara_hazard"),
+			},
+			"tsca_inventory": {
+				Type:        orNull("array"),
+				Description: "TSCA inventory listing basis, one entry per material. Basis may be left blank. Produces Section 15's optional TSCA inventory table, shown alongside the standing TSCA inventory statement.",
+				Items:       ref("tsca_inventory_entry"),
 			},
 			"supplier": ref("supplier"),
 		},
@@ -471,6 +477,21 @@ func saraHazardNode() *Node {
 				Description: "The hazard category, e.g. \"Fire hazard\" or \"Immediate (acute) health hazard\".",
 				Examples:    []any{"Fire hazard", "Immediate (acute) health hazard", "Delayed (chronic) health hazard"},
 			},
+		},
+		AdditionalProperties: denyExtra(),
+	}
+}
+
+func tscaInventoryNode() *Node {
+	return &Node{
+		Type:        "object",
+		Title:       "TSCA inventory entry",
+		Description: "One material's TSCA inventory listing basis.",
+		Required:    []string{"material", "cas_number"},
+		Properties: map[string]*Node{
+			"material":   str("The material's name."),
+			"cas_number": str("CAS registry number. Quote it."),
+			"basis":      str("The listing basis, e.g. \"Active\" or \"Exempt\". May be left blank."),
 		},
 		AdditionalProperties: denyExtra(),
 	}

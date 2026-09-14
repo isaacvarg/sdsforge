@@ -11,6 +11,7 @@ func TestSourceNames(t *testing.T) {
 		"classification", "emergency_phone", "identification", "materials",
 		"pictograms", "precautionary", "prop65", "recommended_use",
 		"revisions", "right_to_know", "sara_311_312", "signal_word", "supplier",
+		"tsca_inventory",
 	}
 	if got := SourceNames(); !slices.Equal(got, want) {
 		t.Errorf("SourceNames() = %v, want %v", got, want)

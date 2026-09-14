@@ -1,0 +1,10 @@
+variant: "default"
+priority: 0
+content:
+  kind: "table"
+  headers:
+    - "Material"
+    - "CAS #"
+    - "Basis"
+  rows:
+    - ["No additional TSCA inventory basis information provided", "-", "-"]

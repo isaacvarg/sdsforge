@@ -26,6 +26,7 @@ Proposition 65 warnings and the exposure-limits table — see
 | `prop65` | list | California Proposition 65 warnings. See [California Proposition 65](#california-proposition-65-prop65). |
 | `right_to_know` | list | State Right-to-Know disclosures. See [State Right-to-Know](#state-right-to-know). |
 | `sara_hazards` | list | SARA 311/312 hazard-category disclosures. See [SARA 311/312](#sara-311312). |
+| `tsca_inventory` | list | Optional TSCA inventory listing-basis table. See [TSCA inventory basis](#tsca-inventory-basis-tsca_inventory). |
 | `supplier` | mapping | **Deprecated, ignored.** Supplier and emergency-contact details come from your config file instead — run `sdsforge config init` and fill in `[company]` and `[[emergency.contacts]]`. Kept only so documents written before this change still load; `document generate` warns if it finds one populated. |
 
 A field left out entirely (or an empty list/mapping) falls back to the
@@ -102,7 +103,7 @@ entry here.
 
 ## Section 15 disclosures
 
-Section 15 ("Regulatory information") has seven subsections. Three are
+Section 15 ("Regulatory information") has eight subsections. Four are
 driven directly by document.yaml fields; the rest (`us_federal`, `sara_313`,
 `state`, `inventories`) are static library prose, customizable only through
 the generic [`sections:` override](#the-sections-override-system) — there is
@@ -116,7 +117,8 @@ no dedicated field for SARA 313, for instance.
 | State regulations | library default / `sections:` override only |
 | State Right to Know | `right_to_know` |
 | California Proposition 65 | `prop65` |
-| International inventories | library default / `sections:` override only |
+| International inventories | library default (fixed prose) / `sections:` override only |
+| TSCA inventory basis | `tsca_inventory` — an optional table shown alongside the fixed prose above |
 
 ### California Proposition 65 (`prop65`)
 
@@ -202,6 +204,34 @@ placeholder row.
 SARA 313 is separate, static prose with no document.yaml field of its own —
 override it via `sections.regulatory.subsections.sara_313` if it needs to
 change for a given product.
+
+### TSCA inventory basis (`tsca_inventory`)
+
+```yaml
+tsca_inventory:
+  - material: "Toluene"
+    cas_number: "108-88-3"
+    basis: "Active"
+  - material: "Water"
+    cas_number: "7732-18-5"
+    basis: ""
+```
+
+One entry per material. Fields:
+
+- `material` — the material's name.
+- `cas_number` — CAS registry number.
+- `basis` — the listing basis, e.g. `"Active"` or `"Exempt"`. May be left
+  blank when there's nothing more specific to say for that material.
+
+This produces Section 15's "TSCA inventory basis" table (`Material` / `CAS #`
+/ `Basis`), printed in its own subsection **alongside** — not instead of —
+the standing "International inventories" statement:
+
+> All components are listed on, or exempt from, the US TSCA inventory.
+
+Leave `tsca_inventory` empty or omit it and the table falls back to a "No
+additional TSCA inventory basis information provided" placeholder row.
 
 ## Exposure limits (the "Basis" column)
 

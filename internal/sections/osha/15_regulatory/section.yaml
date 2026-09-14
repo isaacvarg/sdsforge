@@ -28,3 +28,7 @@ subsections:
   - id: "inventories"
     title: "International inventories"
     kind: "prose"
+  - id: "tsca_inventory"
+    title: "TSCA inventory basis"
+    kind: "table"
+    source: "tsca_inventory"

@@ -235,6 +235,7 @@ func TestSchemaCoversEveryDataField(t *testing.T) {
 		{"document.Supplier", document.Supplier{}, defProps("supplier")},
 		{"document.Prop65Warning", document.Prop65Warning{}, defProps("prop65_warning")},
 		{"document.SARAHazard", document.SARAHazard{}, defProps("sara_hazard")},
+		{"document.TSCAInventoryEntry", document.TSCAInventoryEntry{}, defProps("tsca_inventory_entry")},
 		{"document.RightToKnowEntry", document.RightToKnowEntry{}, defProps("right_to_know_entry")},
 		// SectionSelection and SubsectionOverride are checked against a section
 		// that has presets and a subsection that has variants, since the
