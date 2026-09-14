@@ -7,14 +7,15 @@ import (
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:     "list",
+	Aliases: []string{"ls"},
+	Short:   "List every document, by id",
+	Long: `Print every document's id and name, oldest first.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+The id is what every other document command takes as its argument, e.g.
+'sdsforge document edit 1'. Run 'sdsforge document path <id>' or
+'sdsforge document version list <id>' for more about one of them.`,
+	Args: cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		document.ListIndex()
 	},
@@ -22,14 +23,4 @@ to quickly create a Cobra application.`,
 
 func init() {
 	documentCmd.AddCommand(listCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

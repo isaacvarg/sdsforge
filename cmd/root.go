@@ -14,11 +14,19 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "sdsforge",
-	Short: "Forge SDS via the CLI.",
-	Long: `SDS Forge generates Safety Data Sheet pdfs and provides versioning for different products.
-	
-Let's get started!
-	`,
+	Short: "Generate and version GHS Safety Data Sheets",
+	Long: `SDS Forge stores product data as YAML, resolves it against a content library of
+GHS-compliant section text, and renders the result as a PDF Safety Data Sheet.
+
+    sdsforge document create "Acme Degreaser"   start a new document
+    sdsforge document edit 1                    fill it in
+    sdsforge document generate 1                preview the PDF
+    sdsforge document version create 1 --minor  issue it for real
+
+Run 'sdsforge config init' first to record company and emergency contact
+details, so they need not be typed into every document. 'sdsforge sections
+list' shows what the content library can fill in, and 'sdsforge schema'
+gives your editor completion for document.yaml.`,
 	// Usage text belongs on an argument mistake, not on a runtime failure.
 	// Without this, a resolve error is buried under a wall of flag help.
 	SilenceUsage: true,

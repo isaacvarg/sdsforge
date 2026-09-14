@@ -10,14 +10,26 @@ import (
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "create [name]",
+	Short: "Start a new document",
+	Long: `Create a new document and write its document.yaml, either as the name argument
+or --name.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+By default the file is scaffolded from the live content library: every
+section it advertises is annotated with the presets and variants actually
+available, which is the easiest way to see what can be filled in. Pass
+--minimal for a bare file with just the product name, if you would rather
+start from nothing.
+
+Creating a document also issues it as version 1.0.0, archiving the
+document.yaml alone -- rendering a sheet needs a browser, and a scaffold with
+no hazard codes yet would only produce an empty PDF. The HTML and PDF appear
+from the first real 'document version create'.
+
+Prints the path to the new document.yaml. Every other document command
+addresses the document by the id in that path, e.g. 'sdsforge document edit 1'.`,
+	Example: `  sdsforge document create "Acme Degreaser"
+  sdsforge document create --name "Acme Degreaser" --minimal`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var providedName string
 		hasArgs := len(args) != 0
