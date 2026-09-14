@@ -5,8 +5,16 @@ Every document sdsforge manages has one `document.yaml`, living at
 create <name>` writes a starting copy, annotated with every section, preset
 and variant currently in the content library; `sdsforge document edit <id>`
 opens it and re-reads it once you close your editor, reporting any parse
-error straight away. Unknown keys are rejected, so a typo in a field name is
-caught the same way.
+error straight away.
+
+A misspelled key is **not** a parse error: it is silently ignored, and its
+content never reaches the sheet. Run `sdsforge document validate <id>` (or
+`document generate <id> --dry-run`) to catch that and everything else before
+printing. It checks the file against the [JSON Schema](document.schema.json),
+reporting each problem with its line and column, then resolves and renders the
+document without a browser. It exits non-zero on any problem, so it can gate a
+script or CI job. An editor pointed at the schema flags the same mistakes as
+you type; see [editor-setup.md](editor-setup.md).
 
 This page covers every field. For the two most-asked-about pieces —
 Proposition 65 warnings and the exposure-limits table — see

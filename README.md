@@ -157,7 +157,8 @@ reclassification or a new product identity.
 | `document list` | List documents by id |
 | `document edit <id>` | Open its document.yaml in your editor. `--classify`, `--generate` |
 | `document path [id]` | Print the directory its files live in |
-| `document generate <id>` | Render the sheet. `--html`, `-o <path>` |
+| `document validate <id>` | Check it against the schema and dry-run the render, reporting every problem |
+| `document generate <id>` | Render the sheet. `--html`, `-o <path>`, `--dry-run` |
 | `document classify <id>` | Show what the hazard codes produce |
 | `document version create <id>` | Issue a revision. `--major`/`--minor`/`--patch`/`--label`, `-m` |
 | `document version list <id>` | List issued revisions |

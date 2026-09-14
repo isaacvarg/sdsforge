@@ -16,6 +16,7 @@ in a document.yaml, plus the versions issued from it.
     list      list every document, by id
     edit      open a document's document.yaml in your editor
     classify  show what its hazard codes produce
+    validate  check it for errors without rendering
     generate  render it into a PDF
     path      print the directory holding its files
     version   record and inspect issued revisions
