@@ -18,7 +18,10 @@ you get completion and validation while you write a sheet:
 That last one matters more than it looks. `sdsforge` itself ignores unknown
 keys, so a document with `hazard_code:` instead of `hazard_codes:` renders
 happily — as an unclassified sheet. The schema is the only thing that catches
-it.
+it: in your editor, or from the command line with
+`sdsforge document validate <id>`, which checks the file against the same
+schema (built from your configured library, custom layer included) and then
+dry-runs the render.
 
 ## Which schema file to use
 

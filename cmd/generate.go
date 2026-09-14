@@ -26,6 +26,9 @@ change did without printing.
 Each section falls back to its default content unless the document selects a
 preset or overrides individual subsections.
 
+Pass --dry-run to check the document without writing anything: it runs the
+same checks as 'sdsforge document validate'.
+
 The sheet is written into the document's directory and overwritten on every run.
 To keep an issue of it, record a version instead:
 
@@ -37,6 +40,14 @@ To keep an issue of it, record a version instead:
 		id, err := documentID(args[0])
 		if err != nil {
 			return err
+		}
+
+		dryRun, err := cmd.Flags().GetBool("dry-run")
+		if err != nil {
+			return err
+		}
+		if dryRun {
+			return runValidate(cmd, id)
 		}
 
 		htmlOnly, err := cmd.Flags().GetBool("html")
@@ -124,4 +135,8 @@ func init() {
 		"Output path (default: the document's directory)")
 	generateCmd.Flags().Bool("html", false,
 		"Write the intermediate HTML instead of a PDF")
+	generateCmd.Flags().Bool("dry-run", false,
+		"Validate the document and resolve it without writing anything (same as 'document validate')")
+	generateCmd.MarkFlagsMutuallyExclusive("dry-run", "html")
+	generateCmd.MarkFlagsMutuallyExclusive("dry-run", "out")
 }
