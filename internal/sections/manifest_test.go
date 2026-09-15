@@ -105,3 +105,90 @@ func TestLoadLayout(t *testing.T) {
 		t.Errorf("Sections = %v", layout.Sections)
 	}
 }
+
+// A scalar `kind:` must keep working exactly as it did: every shipped manifest
+// but Section 12's is written that way.
+func TestKindSetScalarForm(t *testing.T) {
+	def, err := LoadSection(testFS(t), "04_first_aid")
+	if err != nil {
+		t.Fatalf("LoadSection() error = %v", err)
+	}
+
+	sub, ok := def.Subsection("general")
+	if !ok {
+		t.Fatal("Subsection(general) not found")
+	}
+	if got := sub.Kind.Primary(); got != "prose" {
+		t.Errorf("Primary() = %q, want %q", got, "prose")
+	}
+	if !sub.Kind.Accepts("prose") {
+		t.Error("Accepts(prose) = false, want true")
+	}
+	if sub.Kind.Accepts("table") {
+		t.Error("Accepts(table) = true; a scalar kind must not widen")
+	}
+	if got := sub.Kind.String(); got != "prose" {
+		t.Errorf("String() = %q, want %q", got, "prose")
+	}
+}
+
+func TestKindSetSequenceForm(t *testing.T) {
+	var set KindSet
+	if err := yamlInto(`["prose", "table"]`, &set); err != nil {
+		t.Fatalf("decoding kind sequence: %v", err)
+	}
+
+	if got := set.Primary(); got != "prose" {
+		t.Errorf("Primary() = %q, want %q (the first entry)", got, "prose")
+	}
+	if !set.Accepts("prose") || !set.Accepts("table") {
+		t.Errorf("Accepts() rejected a listed kind: %v", set)
+	}
+	if set.Accepts("images") {
+		t.Error("Accepts(images) = true, want false")
+	}
+	if got, want := set.String(), "prose or table"; got != want {
+		t.Errorf("String() = %q, want %q", got, want)
+	}
+}
+
+// Every entry is checked, not just the first -- a bad alternative would
+// otherwise only surface the day someone tried to use it.
+func TestKindSetRejectsUnknownAlternative(t *testing.T) {
+	def := SectionDef{
+		ID:    "ecological",
+		Title: "Ecological information",
+		Subsections: []SubsectionDef{
+			{ID: "ecotoxicity", Title: "Ecotoxicity", Kind: KindSet{"prose", "tabel"}},
+			{ID: "mobility", Title: "Mobility in soil", Kind: KindSet{"prose", "prose"}},
+		},
+	}
+
+	err := def.validate("section.yaml")
+	if err == nil {
+		t.Fatal("validate() = nil error, want an error")
+	}
+	for _, frag := range []string{`unknown kind "tabel"`, `kind "prose" listed twice`} {
+		if !strings.Contains(err.Error(), frag) {
+			t.Errorf("error message missing %q\nfull message:\n%s", frag, err)
+		}
+	}
+}
+
+// A subsection with no `kind` at all names the problem rather than silently
+// accepting nothing.
+func TestKindSetRejectsEmpty(t *testing.T) {
+	def := SectionDef{
+		ID:          "ecological",
+		Title:       "Ecological information",
+		Subsections: []SubsectionDef{{ID: "ecotoxicity", Title: "Ecotoxicity"}},
+	}
+
+	err := def.validate("section.yaml")
+	if err == nil {
+		t.Fatal("validate() = nil error, want an error")
+	}
+	if !strings.Contains(err.Error(), "missing `kind`") {
+		t.Errorf("error message missing %q: %v", "missing `kind`", err)
+	}
+}

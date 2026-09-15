@@ -98,10 +98,20 @@ func validateSectionContent(lib *Library, def SectionDef) []error {
 				problems = append(problems, err)
 				continue
 			}
-			if got := vf.Content.Body.Kind(); got != sub.Kind {
+			got := vf.Content.Body.Kind()
+			switch {
+			case !sub.Kind.Accepts(got):
 				problems = append(problems, fmt.Errorf(
-					"%s/%s.yaml: content is %s but the manifest declares %s",
+					"%s/%s.yaml: content is %s but the manifest accepts %s",
 					where, name, got, sub.Kind))
+			case name == DefaultVariant && got != sub.Kind.Primary():
+				// The fallback has to be predictable. It is what every document
+				// that says nothing gets, what an `append` shorthand merges
+				// into, and what the scaffold's example is chosen against -- so
+				// it must be the primary kind, not merely an accepted one.
+				problems = append(problems, fmt.Errorf(
+					"%s/%s.yaml: content is %s but the fallback must be %s, the first kind the manifest lists",
+					where, name, got, sub.Kind.Primary()))
 			}
 			// Only predicated variants participate in derivation, so only they
 			// can collide. The default deliberately carries priority 0 and no

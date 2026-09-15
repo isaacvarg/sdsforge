@@ -310,9 +310,7 @@ sections:
   whatever content survived (variant, document data, etc.), instead of
   replacing it.
 
-`replace` and `append` both take a *content block*. There are four kinds; a
-subsection only accepts the one kind its manifest declares (a `prose`
-subsection can't be replaced with a `table`, for example):
+`replace` and `append` both take a *content block*. There are four kinds:
 
 ```yaml
 # prose — one paragraph per list entry
@@ -321,7 +319,7 @@ text:
   - "First paragraph."
   - "Second paragraph."
 
-# table — every cell is a string
+# table — every cell is a string; headers are optional
 kind: table
 headers: ["Chemical", "CAS No.", "Basis", "Exposure Limit"]
 rows:
@@ -343,11 +341,52 @@ tables:
       - ["Toluene", "108-88-3"]
 ```
 
+Leave `headers` out of a `table` block and it renders with no header row; an
+override that supplies only `rows` inherits the headers of the table it is
+appending to.
+
 For `prose` subsections only, `append` (and `replace`) accept a shorthand: a
 bare list of strings, or a single bare string, is treated as `text:` — this
 is what `append: ["Do not induce vomiting."]` above is doing. Table, image
 and named-table blocks must always use the full `kind:`-tagged form, since
 there's no shorthand to infer a table's headers from.
+
+### Subsections that accept more than one kind
+
+Most subsections accept exactly one kind, so a `prose` subsection can't be
+replaced with a `table`. A few accept a choice, because the same information
+is genuinely prose for one product and tabular for another. Section 12's four
+subsections are the case in point — each takes `prose` **or** `table`:
+
+```yaml
+sections:
+  ecological:
+    subsections:
+      ecotoxicity:
+        replace:
+          kind: table
+          headers: ["Species", "Endpoint", "Exposure", "Value"]
+          rows:
+            - ["Fish (O. mykiss)",   "LC50",  "96 h", "5.5 mg/L"]
+            - ["Daphnia magna",      "EC50",  "48 h", "8.8 mg/L"]
+            - ["Algae (P. subcap.)", "ErC50", "72 h", "12 mg/L"]
+      persistence:
+        replace: "Readily biodegradable; 82% degradation in 28 days (OECD 301F)."
+      bioaccumulation:
+        replace:
+          kind: table
+          rows:
+            - ["log Kow", "2.73"]
+            - ["BCF",     "90 (low bioaccumulation potential)"]
+```
+
+`sdsforge sections list <section-id>` prints each subsection's accepted kinds
+in its KIND column, so `prose or table` is what you'll see for section 12.
+
+The first kind listed is the one the library's own default is written in, and
+it's what you get when a document says nothing. `append` merges into whatever
+actually resolved, so it can't cross kinds: appending a table to a subsection
+still holding its prose default is an error telling you to use `replace`.
 
 Resolution order for one subsection, lowest to highest precedence:
 

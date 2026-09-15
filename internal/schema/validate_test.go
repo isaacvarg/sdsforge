@@ -183,3 +183,75 @@ func format(problems []schema.Problem) string {
 	}
 	return b.String()
 }
+
+// ecologicalDoc wraps one ecological subsection override in a minimal document.
+func ecologicalDoc(body string) string {
+	return "product_name: X\nsections:\n  ecological:\n    subsections:\n      ecotoxicity:\n" + body
+}
+
+// Section 12 accepts prose OR a table, and both forms plus the prose shorthand
+// must pass clean.
+func TestValidateAcceptsMultiKindSubsection(t *testing.T) {
+	for name, body := range map[string]string{
+		"table with headers":     "        replace:\n          kind: table\n          headers: [\"Species\", \"Value\"]\n          rows:\n            - [\"Fish\", \"5.5 mg/L\"]\n",
+		"table without headers":  "        replace:\n          kind: table\n          rows:\n            - [\"log Kow\", \"2.73\"]\n",
+		"explicit prose":         "        replace:\n          kind: prose\n          text: [\"Readily biodegradable.\"]\n",
+		"prose string shorthand": "        replace: \"Readily biodegradable.\"\n",
+		"prose list shorthand":   "        append:\n          - \"Readily biodegradable.\"\n",
+	} {
+		if problems := validate(t, ecologicalDoc(body)); len(problems) != 0 {
+			t.Errorf("%s flagged:\n%s", name, format(problems))
+		}
+	}
+}
+
+// A bare `replace:` has to stay valid: half-written keys are what an author
+// leaves behind mid-edit, and every block definition is nullable for that
+// reason. With oneOf instead of anyOf both object branches match null and the
+// document is rejected with "subschemas 2, 3 matched".
+func TestValidateAcceptsNullReplaceOnMultiKind(t *testing.T) {
+	for _, field := range []string{"replace", "append"} {
+		if problems := validate(t, ecologicalDoc("        "+field+":\n")); len(problems) != 0 {
+			t.Errorf("bare %q flagged:\n%s", field, format(problems))
+		}
+	}
+}
+
+// A malformed block in a multi-kind subsection must report the real mistake,
+// not "not one of the accepted forms". The `kind` const tells us which branch
+// the author meant; the other branches' complaints are noise.
+func TestValidateReportsRealCauseInMultiKindSubsection(t *testing.T) {
+	tests := map[string]struct{ body, wantMsg string }{
+		"table missing rows": {
+			body:    "        replace:\n          kind: table\n          headers: [\"Species\"]\n",
+			wantMsg: "missing property 'rows'",
+		},
+		"prose missing text": {
+			body:    "        replace:\n          kind: prose\n",
+			wantMsg: "missing property 'text'",
+		},
+		"table with an unknown key": {
+			body:    "        replace:\n          kind: table\n          rows: [[\"a\"]]\n          caption: \"nope\"\n",
+			wantMsg: `unknown key "caption"`,
+		},
+	}
+	for name, tc := range tests {
+		problems := validate(t, ecologicalDoc(tc.body))
+		if len(problems) != 1 {
+			t.Errorf("%s: got %d problems, want 1:\n%s", name, len(problems), format(problems))
+			continue
+		}
+		if !strings.Contains(problems[0].Message, tc.wantMsg) {
+			t.Errorf("%s: message = %q, want it to contain %q", name, problems[0].Message, tc.wantMsg)
+		}
+	}
+}
+
+// Widening to prose-or-table must not widen to every kind.
+func TestValidateRejectsUnacceptedKind(t *testing.T) {
+	problems := validate(t, ecologicalDoc(
+		"        replace:\n          kind: images\n          images:\n            - { src: \"x.png\", alt: \"x\" }\n"))
+	if len(problems) != 1 {
+		t.Fatalf("got %d problems, want 1:\n%s", len(problems), format(problems))
+	}
+}

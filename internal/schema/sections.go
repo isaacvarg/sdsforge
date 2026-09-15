@@ -113,11 +113,12 @@ func subsectionNode(def sections.SectionDef, sub sections.SubsectionDef, variant
 		desc += fmt.Sprintf(" Populated from the document's own data (source: %s) when there is any; an explicit replace or append still wins.", sub.Source)
 	}
 
+	kinds := kindArticle(sub.Kind) + " block"
 	props := map[string]*Node{
 		"replace": withDescription(block,
-			"Discard the resolved content entirely and use this instead. Must be "+kindArticle(sub.Kind)+" block, matching the subsection's declared kind."),
+			"Discard the resolved content entirely and use this instead. Must be "+kinds+", matching a kind the subsection declares."),
 		"append": withDescription(block,
-			"Add to whatever content survived -- the variant, or the document's own data. Must be "+kindArticle(sub.Kind)+" block, matching the subsection's declared kind."),
+			"Add to whatever content survived -- the variant, or the document's own data. Must be "+kinds+", and must match the kind that actually resolved here; to switch kinds, use replace."),
 	}
 	if len(variants) > 0 {
 		props["variant"] = &Node{
@@ -136,37 +137,70 @@ func subsectionNode(def sections.SectionDef, sub sections.SubsectionDef, variant
 	}
 }
 
-// blockNode is the schema for a content block of one kind.
+// blockNode is the schema for a content block, constrained to the kinds a
+// subsection accepts.
 //
-// Only prose gets a oneOf. Block.UnmarshalYAML accepts a bare string or a bare
-// list of strings as shorthand, but both decode to PROSE -- there is no `kind`
-// to dispatch on -- so the shorthand is simply not valid anywhere else. Keeping
-// the three branches type-disjoint (string, array, object) also keeps
-// yaml-language-server's completion working; a oneOf of several object shapes is
-// what degrades it.
-func blockNode(kind string) *Node {
+// A single-kind subsection produces exactly what it always has, so the other
+// fifteen sections' definitions do not move. Prose is the one kind that is
+// itself a oneOf: Block.UnmarshalYAML accepts a bare string or a bare list of
+// strings as shorthand, but both decode to PROSE -- there is no `kind` to
+// dispatch on -- so the shorthand is simply not valid anywhere else.
+//
+// A multi-kind subsection flattens its kinds' branches into one anyOf, rather
+// than nesting a oneOf inside a oneOf, which yaml-language-server handles
+// poorly.
+//
+// anyOf, not oneOf, and that is CORRECTNESS rather than taste. Every block
+// definition is `["object", "null"]`, because a bare `replace:` with nothing
+// under it has to stay valid -- see the note on Node.Type. Two nullable object
+// branches therefore both match null, and oneOf rejects that as ambiguous:
+// `'oneOf' failed, subschemas 2, 3 matched`. The prose branches below keep
+// oneOf because they are genuinely type-disjoint (string, array, object).
+//
+// The older warning here -- that a oneOf of several object shapes degrades
+// completion -- is about UNDISCRIMINATED shapes. Every object branch pins
+// `kind` with a const, so the editor can commit to a branch the moment `kind:`
+// is typed. The shorthand branches stay first so the common prose case still
+// completes cleanly.
+func blockNode(kinds sections.KindSet) *Node {
+	var branches []*Node
+	for _, kind := range kinds {
+		branches = append(branches, kindBranches(kind)...)
+	}
+	if len(branches) == 1 {
+		return branches[0]
+	}
+	if len(kinds) == 1 {
+		// Prose alone: three type-disjoint branches, so oneOf is the stronger
+		// and still-correct statement, and keeping it leaves every existing
+		// single-kind definition byte-identical.
+		return &Node{OneOf: branches}
+	}
+	return &Node{AnyOf: branches}
+}
+
+// kindBranches returns the schema alternatives that one content kind admits.
+func kindBranches(kind string) []*Node {
 	switch kind {
 	case "prose":
-		return &Node{
-			OneOf: []*Node{
-				{Type: "string", Description: "Shorthand for a single paragraph."},
-				{Type: "array", Description: "Shorthand for one paragraph per entry.", Items: &Node{Type: "string"}},
-				ref("block_prose"),
-			},
+		return []*Node{
+			{Type: "string", Description: "Shorthand for a single paragraph."},
+			{Type: "array", Description: "Shorthand for one paragraph per entry.", Items: &Node{Type: "string"}},
+			ref("block_prose"),
 		}
 	case "table":
-		return ref("block_table")
+		return []*Node{ref("block_table")}
 	case "tables":
-		return ref("block_tables")
+		return []*Node{ref("block_tables")}
 	case "images":
-		return ref("block_images")
+		return []*Node{ref("block_images")}
 	default:
 		// Unreachable through the shipped library: SectionDef.validate rejects
 		// a manifest whose kind is not in the registry. A custom layer that
 		// registers a new kind would land here, and an unconstrained node is the
 		// right answer -- better to permit what we cannot describe than to
 		// declare a user's own content invalid.
-		return &Node{Description: "Content of kind " + kind + "."}
+		return []*Node{{Description: "Content of kind " + kind + "."}}
 	}
 }
 
@@ -179,11 +213,13 @@ func withDescription(n *Node, desc string) *Node {
 	return &copied
 }
 
-func kindArticle(kind string) string {
-	if kind == "images" {
-		return "an " + kind
+// kindArticle renders a kind set for prose: "a prose", "an images", or for a
+// multi-kind subsection "a prose or table".
+func kindArticle(kinds sections.KindSet) string {
+	if kinds.Primary() == "images" {
+		return "an " + kinds.String()
 	}
-	return "a " + kind
+	return "a " + kinds.String()
 }
 
 func anyStrings(in []string) []any {

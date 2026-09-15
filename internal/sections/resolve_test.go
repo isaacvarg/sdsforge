@@ -309,3 +309,140 @@ func TestResolveAllRejectsUnknownSection(t *testing.T) {
 		t.Fatalf("error = %v, want it to name the unknown section", err)
 	}
 }
+
+// resolveEcological is the shared setup for the multi-kind tests below:
+// Section 12's subsections accept prose OR a table, so each of these drives one
+// override through the real library.
+func resolveEcological(t *testing.T, subID string, override SubsectionOverride) (ResolvedSection, error) {
+	t.Helper()
+	lib := realLibrary(t)
+	def := loadDef(t, lib, "12_ecological")
+	return Resolve(lib, def, SectionSelection{
+		Subsections: map[string]SubsectionOverride{subID: override},
+	}, ResolveContext{})
+}
+
+func tableReplace(t *testing.T, yamlSrc string) SubsectionOverride {
+	t.Helper()
+	var block Block
+	if err := yamlInto(yamlSrc, &block); err != nil {
+		t.Fatalf("decoding block: %v", err)
+	}
+	return SubsectionOverride{Replace: &block}
+}
+
+// The point of the whole change: a prose-defaulted ecological subsection
+// accepts a table from the document.
+func TestResolveMultiKindAcceptsTable(t *testing.T) {
+	sec, err := resolveEcological(t, "ecotoxicity", tableReplace(t, `
+kind: table
+headers: ["Species", "Endpoint", "Value"]
+rows:
+  - ["Fish (O. mykiss)", "96h LC50", "5.5 mg/L"]
+`))
+	if err != nil {
+		t.Fatalf("Resolve() error = %v", err)
+	}
+
+	sub := find(t, sec, "ecotoxicity")
+	tbl, ok := sub.Body.(*Table)
+	if !ok {
+		t.Fatalf("body is %T, want *Table", sub.Body)
+	}
+	if len(tbl.Rows) != 1 || tbl.Rows[0][2] != "5.5 mg/L" {
+		t.Errorf("Rows = %v", tbl.Rows)
+	}
+	// Kind must follow the BODY, or block.html.tmpl renders the table through
+	// the prose partial and it silently vanishes from the sheet.
+	if sub.Kind != "table" {
+		t.Errorf("Kind = %q, want %q", sub.Kind, "table")
+	}
+	if sub.Empty {
+		t.Error("Empty = true for a table with a row")
+	}
+}
+
+// Headers are optional: the renderer omits <thead> and the width check falls
+// back to the first row.
+func TestResolveMultiKindTableWithoutHeaders(t *testing.T) {
+	sec, err := resolveEcological(t, "bioaccumulation", tableReplace(t, `
+kind: table
+rows:
+  - ["log Kow", "2.73"]
+  - ["BCF", "90"]
+`))
+	if err != nil {
+		t.Fatalf("Resolve() error = %v", err)
+	}
+
+	tbl, ok := find(t, sec, "bioaccumulation").Body.(*Table)
+	if !ok {
+		t.Fatalf("body is %T, want *Table", find(t, sec, "bioaccumulation").Body)
+	}
+	if len(tbl.Headers) != 0 {
+		t.Errorf("Headers = %v, want none", tbl.Headers)
+	}
+	if len(tbl.Rows) != 2 {
+		t.Errorf("Rows = %v, want 2", tbl.Rows)
+	}
+}
+
+// The prose side must keep working, shorthand included.
+func TestResolveMultiKindStillAcceptsProse(t *testing.T) {
+	var block Block
+	if err := yamlInto(`"Readily biodegradable."`, &block); err != nil {
+		t.Fatalf("decoding shorthand: %v", err)
+	}
+
+	sec, err := resolveEcological(t, "persistence", SubsectionOverride{Replace: &block})
+	if err != nil {
+		t.Fatalf("Resolve() error = %v", err)
+	}
+
+	sub := find(t, sec, "persistence")
+	if got := firstParagraph(t, sub); got != "Readily biodegradable." {
+		t.Errorf("first paragraph = %q", got)
+	}
+	if sub.Kind != "prose" {
+		t.Errorf("Kind = %q, want %q", sub.Kind, "prose")
+	}
+}
+
+// Widening to prose-or-table must not widen to everything.
+func TestResolveMultiKindRejectsUnlistedKind(t *testing.T) {
+	_, err := resolveEcological(t, "mobility", tableReplace(t, `
+kind: images
+images:
+  - { src: "x.png", alt: "x" }
+`))
+	if err == nil {
+		t.Fatal("Resolve() = nil error, want a rejection")
+	}
+	for _, frag := range []string{"replace block is images content", "accepts prose or table"} {
+		if !strings.Contains(err.Error(), frag) {
+			t.Errorf("error missing %q\nfull message:\n%v", frag, err)
+		}
+	}
+}
+
+// Appending across kinds cannot work, so the error has to point at replace
+// rather than leave the author staring at a bare kind mismatch.
+func TestResolveMultiKindAppendAcrossKinds(t *testing.T) {
+	var block Block
+	if err := yamlInto("kind: table\nrows:\n  - [\"a\", \"b\"]\n", &block); err != nil {
+		t.Fatalf("decoding block: %v", err)
+	}
+
+	_, err := resolveEcological(t, "ecotoxicity", SubsectionOverride{Append: &block})
+	if err == nil {
+		t.Fatal("Resolve() = nil error, want a rejection")
+	}
+	for _, frag := range []string{
+		"cannot append table content to the prose content that resolved here",
+		"use `replace` to supply table instead",
+	} {
+		if !strings.Contains(err.Error(), frag) {
+			t.Errorf("error missing %q\nfull message:\n%v", frag, err)
+		}
+	}
+}

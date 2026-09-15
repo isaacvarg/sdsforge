@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/fs"
 	"path"
+	"slices"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -29,12 +30,83 @@ type SectionDef struct {
 	Dir string `yaml:"-"`
 }
 
+// KindSet is the content kinds a subsection accepts.
+//
+// Most subsections take exactly one shape and say so with a scalar. A few take
+// more than one -- Section 12's ecological data is prose for a product with
+// nothing to report and a table for one with real study results -- and say so
+// with a sequence:
+//
+//	kind: "prose"
+//	kind: ["prose", "table"]
+//
+// The FIRST entry is primary: it is the kind the library's own default.yaml
+// must be, and the one the scaffold and `sections list` show. Everything after
+// it is an alternative a document may supply through replace or append.
+type KindSet []string
+
+// UnmarshalYAML accepts either form under the one `kind:` key.
+//
+// A second key (`kinds:`) would mean two spellings of one idea and a rule
+// about setting both; widening the existing key keeps all 47 single-kind
+// manifests valid verbatim.
+func (k *KindSet) UnmarshalYAML(node *yaml.Node) error {
+	switch node.Kind {
+	case yaml.ScalarNode:
+		var one string
+		if err := node.Decode(&one); err != nil {
+			return fmt.Errorf("line %d: `kind` must be a string or a list of strings: %w",
+				node.Line, err)
+		}
+		*k = KindSet{one}
+		return nil
+	case yaml.SequenceNode:
+		var many []string
+		if err := node.Decode(&many); err != nil {
+			return fmt.Errorf("line %d: `kind` list must hold strings: %w", node.Line, err)
+		}
+		*k = KindSet(many)
+		return nil
+	default:
+		return fmt.Errorf("line %d: `kind` must be a string or a list of strings", node.Line)
+	}
+}
+
+// Primary is the kind the default variant must be. Empty for an empty set,
+// which SectionDef.validate rejects.
+func (k KindSet) Primary() string {
+	if len(k) == 0 {
+		return ""
+	}
+	return k[0]
+}
+
+// Accepts reports whether a content block of this kind may be used here.
+func (k KindSet) Accepts(kind string) bool {
+	return slices.Contains(k, kind)
+}
+
+// String renders the set for an error message or a listing: "prose", or
+// "prose or table".
+func (k KindSet) String() string {
+	switch len(k) {
+	case 0:
+		return "(none)"
+	case 1:
+		return k[0]
+	case 2:
+		return k[0] + " or " + k[1]
+	default:
+		return strings.Join(k[:len(k)-1], ", ") + " or " + k[len(k)-1]
+	}
+}
+
 // SubsectionDef declares one subsection within a section.
 type SubsectionDef struct {
-	ID        string `yaml:"id"`
-	Title     string `yaml:"title"`
-	Kind      string `yaml:"kind"`
-	EmptyText string `yaml:"empty_text"`
+	ID        string  `yaml:"id"`
+	Title     string  `yaml:"title"`
+	Kind      KindSet `yaml:"kind"`
+	EmptyText string  `yaml:"empty_text"`
 
 	// Source names the document data that populates this subsection, if any.
 	// Empty means the content is entirely authored in the library. See
@@ -138,10 +210,27 @@ func (s SectionDef) validate(where string) error {
 		// The registry pays off here: a typo like `kind: proze` fails at load
 		// with the valid options listed, instead of silently producing an
 		// empty subsection in a rendered safety document.
-		if _, ok := registry[sub.Kind]; !ok {
+		//
+		// Every entry is checked, not just the first: a bad alternative is just
+		// as silently broken as a bad primary, and it would only surface the
+		// day someone tried to use it.
+		switch {
+		case len(sub.Kind) == 0:
 			problems = append(problems, fmt.Errorf(
-				"subsection %q: unknown kind %q; known kinds: %s",
-				sub.ID, sub.Kind, strings.Join(RegisteredKinds(), ", ")))
+				"subsection %q: missing `kind`; known kinds: %s",
+				sub.ID, strings.Join(RegisteredKinds(), ", ")))
+		default:
+			for _, kind := range sub.Kind {
+				if _, ok := registry[kind]; !ok {
+					problems = append(problems, fmt.Errorf(
+						"subsection %q: unknown kind %q; known kinds: %s",
+						sub.ID, kind, strings.Join(RegisteredKinds(), ", ")))
+				}
+			}
+			if dup := firstDuplicate(sub.Kind); dup != "" {
+				problems = append(problems, fmt.Errorf(
+					"subsection %q: kind %q listed twice", sub.ID, dup))
+			}
 		}
 
 		// A misspelled source would silently mean "no data binding", so the
@@ -169,4 +258,19 @@ func (s SectionDef) Subsection(id string) (SubsectionDef, bool) {
 		}
 	}
 	return SubsectionDef{}, false
+}
+
+// firstDuplicate returns the first kind listed more than once, or "".
+//
+// A repeat is harmless at resolve time but always a mistake in the manifest,
+// and it would quietly widen a `oneOf` in the generated schema.
+func firstDuplicate(kinds KindSet) string {
+	seen := make(map[string]bool, len(kinds))
+	for _, kind := range kinds {
+		if seen[kind] {
+			return kind
+		}
+		seen[kind] = true
+	}
+	return ""
 }

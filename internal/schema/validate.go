@@ -206,11 +206,15 @@ func collect(e *jsonschema.ValidationError, doc *yaml.Node, out *[]Problem) {
 		// Every branch that failed reports its own reasons, most of them
 		// irrelevant: a hazard code written as a string does not care that the
 		// integer branch wanted an integer. Branches rejected purely on type are
-		// the wrong shape and are dropped; if exactly one remains, its reasons
-		// are the useful ones.
+		// the wrong shape and are dropped; so are branches rejected because
+		// their `kind` const disagreed, which is a subsection accepting several
+		// content kinds saying "you did not mean this one". If exactly one
+		// remains, its reasons are the useful ones -- without the second filter
+		// a table missing its `rows` in such a subsection reports only "not one
+		// of the accepted forms" instead of naming the missing key.
 		var plausible []*jsonschema.ValidationError
 		for _, c := range e.Causes {
-			if !onlyTypeMismatch(c) {
+			if !onlyTypeMismatch(c) && !wrongDiscriminator(c) {
 				plausible = append(plausible, c)
 			}
 		}
@@ -336,4 +340,22 @@ func dedupe(in []Problem) []Problem {
 		}
 	}
 	return out
+}
+
+// wrongDiscriminator reports whether e was rejected because a `kind` key did
+// not match a branch's const -- that is, this is not the branch the author was
+// writing. Only content blocks carry such a const, so this is inert for every
+// other union in the schema.
+func wrongDiscriminator(e *jsonschema.ValidationError) bool {
+	if _, ok := e.ErrorKind.(*kind.Const); ok &&
+		len(e.InstanceLocation) > 0 &&
+		e.InstanceLocation[len(e.InstanceLocation)-1] == "kind" {
+		return true
+	}
+	for _, c := range e.Causes {
+		if wrongDiscriminator(c) {
+			return true
+		}
+	}
+	return false
 }

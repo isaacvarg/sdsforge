@@ -4,13 +4,13 @@ title: "Ecological information"
 subsections:
   - id: "ecotoxicity"
     title: "Ecotoxicity"
-    kind: "prose"
+    kind: ["prose", "table"]
   - id: "persistence"
     title: "Persistence and degradability"
-    kind: "prose"
+    kind: ["prose", "table"]
   - id: "bioaccumulation"
     title: "Bioaccumulative potential"
-    kind: "prose"
+    kind: ["prose", "table"]
   - id: "mobility"
     title: "Mobility in soil"
-    kind: "prose"
+    kind: ["prose", "table"]

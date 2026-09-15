@@ -143,7 +143,7 @@ func scaffoldSection(lib *sections.Library, def sections.SectionDef) (string, er
 		firstProse string // first prose subsection, for an append example
 	)
 	for _, sub := range def.Subsections {
-		if sub.Kind == "prose" && firstProse == "" {
+		if sub.Kind.Primary() == "prose" && firstProse == "" {
 			firstProse = sub.ID
 		}
 		variants, err := lib.ListVariants(def.Dir, sub.ID)

@@ -349,7 +349,7 @@
     },
     "block_table": {
       "title": "Table block",
-      "description": "A single table. Every cell is a string.",
+      "description": "A single table. Every cell is a string. `headers` is optional -- a table without them renders with no header row, and an override supplying only rows inherits the headers of the table it replaces or appends to.",
       "type": [
         "object",
         "null"
@@ -385,7 +385,6 @@
       },
       "required": [
         "kind",
-        "headers",
         "rows"
       ],
       "additionalProperties": false,
@@ -454,7 +453,6 @@
             },
             "required": [
               "title",
-              "headers",
               "rows"
             ],
             "additionalProperties": false
@@ -1646,7 +1644,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1665,7 +1663,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1702,7 +1700,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1721,7 +1719,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1758,7 +1756,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1777,7 +1775,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1816,11 +1814,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -1841,7 +1839,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1860,7 +1858,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1897,7 +1895,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1916,7 +1914,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -1953,8 +1951,8 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose or table block, and must match the kind that actually resolved here; to switch kinds, use replace.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -1968,12 +1966,15 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose or table block, matching a kind the subsection declares.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -1987,6 +1988,9 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
@@ -2009,8 +2013,8 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose or table block, and must match the kind that actually resolved here; to switch kinds, use replace.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -2024,12 +2028,15 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose or table block, matching a kind the subsection declares.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -2043,6 +2050,9 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
@@ -2065,8 +2075,8 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose or table block, and must match the kind that actually resolved here; to switch kinds, use replace.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -2080,12 +2090,15 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose or table block, matching a kind the subsection declares.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -2099,6 +2112,9 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
@@ -2121,8 +2137,8 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose or table block, and must match the kind that actually resolved here; to switch kinds, use replace.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -2136,12 +2152,15 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
-          "oneOf": [
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose or table block, matching a kind the subsection declares.",
+          "anyOf": [
             {
               "description": "Shorthand for a single paragraph.",
               "type": "string"
@@ -2155,6 +2174,9 @@
             },
             {
               "$ref": "#/$defs/block_prose"
+            },
+            {
+              "$ref": "#/$defs/block_table"
             }
           ]
         },
@@ -2177,7 +2199,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2196,7 +2218,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2235,11 +2257,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -2260,7 +2282,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2279,7 +2301,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2317,7 +2339,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2336,7 +2358,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2374,7 +2396,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2393,7 +2415,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2431,7 +2453,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2450,7 +2472,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2487,7 +2509,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2506,7 +2528,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2543,7 +2565,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2562,7 +2584,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2599,7 +2621,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2618,7 +2640,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2656,7 +2678,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2675,7 +2697,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2713,7 +2735,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2732,7 +2754,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2770,7 +2792,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2789,7 +2811,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2828,7 +2850,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2847,7 +2869,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2885,7 +2907,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2904,7 +2926,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2942,7 +2964,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2961,7 +2983,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -2999,7 +3021,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3018,7 +3040,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3055,7 +3077,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3074,7 +3096,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3112,11 +3134,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3140,7 +3162,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3159,7 +3181,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3197,11 +3219,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_images",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be an images block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be an images block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_images",
-          "description": "Discard the resolved content entirely and use this instead. Must be an images block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be an images block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3225,7 +3247,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3244,7 +3266,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3282,7 +3304,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3301,7 +3323,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3340,7 +3362,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3359,7 +3381,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3396,7 +3418,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3415,7 +3437,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3452,7 +3474,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3471,7 +3493,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3508,7 +3530,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3527,7 +3549,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3564,7 +3586,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3583,7 +3605,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3621,11 +3643,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3647,11 +3669,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3672,7 +3694,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3691,7 +3713,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3729,11 +3751,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_images",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be an images block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be an images block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_images",
-          "description": "Discard the resolved content entirely and use this instead. Must be an images block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be an images block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3755,11 +3777,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3780,7 +3802,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3799,7 +3821,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3836,7 +3858,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3855,7 +3877,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3893,11 +3915,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_tables",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a tables block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a tables block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_tables",
-          "description": "Discard the resolved content entirely and use this instead. Must be a tables block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a tables block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3919,11 +3941,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -3944,7 +3966,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -3963,7 +3985,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4000,7 +4022,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4019,7 +4041,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4056,7 +4078,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4075,7 +4097,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4112,7 +4134,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4131,7 +4153,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4168,7 +4190,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4187,7 +4209,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4224,7 +4246,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4243,7 +4265,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4280,7 +4302,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4299,7 +4321,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4337,11 +4359,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -4362,7 +4384,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4381,7 +4403,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4418,7 +4440,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4437,7 +4459,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4475,7 +4497,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4494,7 +4516,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4532,11 +4554,11 @@
       "properties": {
         "append": {
           "$ref": "#/$defs/block_table",
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, matching the subsection's declared kind."
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a table block, and must match the kind that actually resolved here; to switch kinds, use replace."
         },
         "replace": {
           "$ref": "#/$defs/block_table",
-          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching the subsection's declared kind."
+          "description": "Discard the resolved content entirely and use this instead. Must be a table block, matching a kind the subsection declares."
         },
         "variant": {
           "description": "Pick a different variant for this subsection than the preset or hazard-code derivation chose.",
@@ -4557,7 +4579,7 @@
       ],
       "properties": {
         "append": {
-          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Add to whatever content survived -- the variant, or the document's own data. Must be a prose block, and must match the kind that actually resolved here; to switch kinds, use replace.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",
@@ -4576,7 +4598,7 @@
           ]
         },
         "replace": {
-          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching the subsection's declared kind.",
+          "description": "Discard the resolved content entirely and use this instead. Must be a prose block, matching a kind the subsection declares.",
           "oneOf": [
             {
               "description": "Shorthand for a single paragraph.",

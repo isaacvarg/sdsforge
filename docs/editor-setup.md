@@ -10,8 +10,8 @@ you get completion and validation while you write a sheet:
 - for each subsection, **only** the variants that exist for that subsection —
   `first_aid.skin` offers `corrosive` and `default`, not every variant name in
   the library;
-- `replace`/`append` constrained to the content kind that subsection declares,
-  so a table cannot be dropped into a prose subsection;
+- `replace`/`append` constrained to the content kind(s) that subsection accepts,
+  so a table cannot be dropped into a prose-only subsection;
 - the 51 state Right-to-Know codes as boolean keys, named on hover;
 - a diagnostic on any key the format does not have.
 

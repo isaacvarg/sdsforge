@@ -323,3 +323,76 @@ func TestRenderWithoutLogo(t *testing.T) {
 		t.Error("header carries a logo element with no logo configured")
 	}
 }
+
+// Section 12's subsections accept prose or a table. A table supplied by the
+// document has to reach the page as a real <table>, which only works if the
+// resolver reports the BODY's kind to block.html.tmpl rather than the
+// manifest's.
+func TestRenderEcologicalTable(t *testing.T) {
+	lib, err := sections.NewLibrary(sections.LibraryOptions{})
+	if err != nil {
+		t.Fatalf("NewLibrary() error = %v", err)
+	}
+
+	doc := document.Data{
+		ProductName: "Acetone Technical Grade",
+		Sections: map[string]sections.SectionSelection{
+			"ecological": {
+				Subsections: map[string]sections.SubsectionOverride{
+					"ecotoxicity": {Replace: &sections.Block{Body: &sections.Table{
+						Headers: []string{"Species", "Endpoint", "Value"},
+						Rows: [][]string{
+							{"Fish (O. mykiss)", "96h LC50", "5.5 mg/L"},
+						},
+					}}},
+					// No headers at all: the partial must skip <thead>.
+					"bioaccumulation": {Replace: &sections.Block{Body: &sections.Table{
+						Rows: [][]string{{"log Kow", "2.73"}},
+					}}},
+					"persistence": {Replace: &sections.Block{Body: &sections.Prose{
+						Text: []string{"Readily biodegradable."},
+					}}},
+				},
+			},
+		},
+	}
+
+	secs, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{})
+	if err != nil {
+		t.Fatalf("ResolveAll() error = %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := RenderHTML(&buf, NewView(doc, secs, config.Config{}, nil, fixtureVersions())); err != nil {
+		t.Fatalf("RenderHTML() error = %v", err)
+	}
+	out := buf.String()
+
+	start := strings.Index(out, "12. Ecological information")
+	if start == -1 {
+		t.Fatal("rendered output has no section 12 heading")
+	}
+	end := strings.Index(out, "13. Disposal considerations")
+	if end == -1 {
+		t.Fatal("rendered output has no section 13 heading")
+	}
+	section12 := out[start:end]
+
+	for _, want := range []string{
+		"<table>",
+		"<th>Species</th>",
+		"<td>5.5 mg/L</td>",
+		"<td>log Kow</td>",
+		"<p>Readily biodegradable.</p>", // the prose side still renders as prose
+	} {
+		if !strings.Contains(section12, want) {
+			t.Errorf("section 12 missing %q\n%s", want, section12)
+		}
+	}
+
+	// The headerless table must not invent a header row. Section 12 has exactly
+	// one <thead>, the ecotoxicity one.
+	if got := strings.Count(section12, "<thead>"); got != 1 {
+		t.Errorf("section 12 has %d <thead> elements, want 1", got)
+	}
+}

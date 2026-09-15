@@ -294,3 +294,76 @@ func yamlFields(v any) (named []string, inline bool) {
 	}
 	return named, inline
 }
+
+// A multi-kind subsection must offer every accepted kind in one FLAT anyOf --
+// prose's two shorthand branches plus each kind's object -- and must not offer
+// a kind it does not accept.
+//
+// anyOf, never oneOf: every block definition is ["object", "null"], so two
+// object branches both match a bare `replace:` and oneOf rejects that as
+// ambiguous. TestValidateAcceptsNullReplaceOnMultiKind is the behavioural half
+// of this; this half pins the shape so the reason stays visible.
+func TestMultiKindSubsectionOffersEveryAcceptedKind(t *testing.T) {
+	var doc struct {
+		Defs map[string]struct {
+			Required   []string `json:"required"`
+			Properties map[string]struct {
+				AnyOf []struct {
+					Type string `json:"type"`
+					Ref  string `json:"$ref"`
+				} `json:"anyOf"`
+				OneOf []struct {
+					Type string `json:"type"`
+					Ref  string `json:"$ref"`
+				} `json:"oneOf"`
+				Ref string `json:"$ref"`
+			} `json:"properties"`
+		} `json:"$defs"`
+	}
+	if err := json.Unmarshal(generate(t), &doc); err != nil {
+		t.Fatalf("generated schema is not valid JSON: %v", err)
+	}
+
+	// Section 12 is the multi-kind case: kind: ["prose", "table"].
+	for _, name := range []string{
+		"sub_ecological_ecotoxicity",
+		"sub_ecological_persistence",
+		"sub_ecological_bioaccumulation",
+		"sub_ecological_mobility",
+	} {
+		def, ok := doc.Defs[name]
+		if !ok {
+			t.Errorf("no definition %q", name)
+			continue
+		}
+		for _, field := range []string{"replace", "append"} {
+			if got := def.Properties[field].OneOf; len(got) != 0 {
+				t.Errorf("%s.%s uses oneOf; two nullable object branches make that ambiguous", name, field)
+			}
+			branches := def.Properties[field].AnyOf
+			if len(branches) != 4 {
+				t.Errorf("%s.%s has %d anyOf branches, want 4", name, field, len(branches))
+				continue
+			}
+			// Shorthand first, so the common prose case still completes cleanly.
+			if branches[0].Type != "string" || branches[1].Type != "array" {
+				t.Errorf("%s.%s does not lead with the prose shorthand: %+v", name, field, branches)
+			}
+			if branches[2].Ref != "#/$defs/block_prose" || branches[3].Ref != "#/$defs/block_table" {
+				t.Errorf("%s.%s refs = %q, %q; want block_prose then block_table",
+					name, field, branches[2].Ref, branches[3].Ref)
+			}
+		}
+	}
+
+	// A single-kind table subsection must be unchanged: a bare $ref, no oneOf.
+	if got := doc.Defs["sub_regulatory_tsca_inventory"].Properties["replace"].Ref; got != "#/$defs/block_table" {
+		t.Errorf("single-kind subsection replace = %q, want a bare $ref to block_table", got)
+	}
+
+	// headers are optional end to end: the renderer omits <thead> without them
+	// and an override supplying only rows inherits the base table's headers.
+	if got := doc.Defs["block_table"].Required; slices.Contains(got, "headers") {
+		t.Errorf("block_table.required = %v, should not require headers", got)
+	}
+}

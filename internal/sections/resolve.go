@@ -206,9 +206,9 @@ func resolveSubsection(
 	}
 
 	body := vf.Content.Body
-	if body.Kind() != sub.Kind {
+	if !sub.Kind.Accepts(body.Kind()) {
 		return ResolvedSubsection{}, fmt.Errorf(
-			"subsection %q: variant %q declares %s content but the manifest declares %s",
+			"subsection %q: variant %q declares %s content but the manifest accepts %s",
 			sub.ID, variant, body.Kind(), sub.Kind)
 	}
 
@@ -218,9 +218,9 @@ func resolveSubsection(
 	// still render the library's row rather than a blank table.
 	source := ""
 	if body2, ok := ctx.Sources.Block(sub.Source); ok {
-		if got := body2.Kind(); got != sub.Kind {
+		if got := body2.Kind(); !sub.Kind.Accepts(got) {
 			return ResolvedSubsection{}, fmt.Errorf(
-				"subsection %q: source %q supplied %s content but the subsection is %s",
+				"subsection %q: source %q supplied %s content but the subsection accepts %s",
 				sub.ID, sub.Source, got, sub.Kind)
 		}
 		body = body2
@@ -229,9 +229,9 @@ func resolveSubsection(
 
 	// STEP 4a: replace wins outright over both the variant and the source.
 	if override.Replace != nil {
-		if got := override.Replace.Body.Kind(); got != sub.Kind {
+		if got := override.Replace.Body.Kind(); !sub.Kind.Accepts(got) {
 			return ResolvedSubsection{}, fmt.Errorf(
-				"subsection %q: replace block is %s content but the subsection is %s",
+				"subsection %q: replace block is %s content but the subsection accepts %s",
 				sub.ID, got, sub.Kind)
 		}
 		body = override.Replace.Body
@@ -239,10 +239,22 @@ func resolveSubsection(
 
 	// STEP 4b: append adds to whatever survived.
 	if override.Append != nil {
-		if got := override.Append.Body.Kind(); got != sub.Kind {
+		got := override.Append.Body.Kind()
+		if !sub.Kind.Accepts(got) {
 			return ResolvedSubsection{}, fmt.Errorf(
-				"subsection %q: append block is %s content but the subsection is %s",
+				"subsection %q: append block is %s content but the subsection accepts %s",
 				sub.ID, got, sub.Kind)
+		}
+		// A multi-kind subsection makes a second mismatch possible: the block is
+		// an acceptable kind for the subsection, but not the kind that actually
+		// resolved here. Content.Append reports that as a bare kind mismatch,
+		// which is true but leaves the author guessing; appending across kinds
+		// is not a thing that can be made to work, so say what to do instead.
+		if resolved := body.Kind(); got != resolved {
+			return ResolvedSubsection{}, fmt.Errorf(
+				"subsection %q: cannot append %s content to the %s content that resolved here; "+
+					"use `replace` to supply %s instead",
+				sub.ID, got, resolved, got)
 		}
 		merged, err := body.Append(override.Append.Body)
 		if err != nil {
@@ -269,9 +281,12 @@ func resolveSubsection(
 	}
 
 	return ResolvedSubsection{
-		ID:                sub.ID,
-		Title:             sub.Title,
-		Kind:              sub.Kind,
+		ID:    sub.ID,
+		Title: sub.Title,
+		// The BODY's kind, not the manifest's. For a single-kind subsection the
+		// two are forced equal anyway; for a multi-kind one this is what lets
+		// the renderer dispatch to the partial the content actually needs.
+		Kind:              body.Kind(),
 		Variant:           variant,
 		DerivedFrom:       derivedFrom,
 		SupersededDerived: superseded,

@@ -515,8 +515,8 @@ func tableBlockNode() *Node {
 	return &Node{
 		Type:        orNull("object"),
 		Title:       "Table block",
-		Description: "A single table. Every cell is a string.",
-		Required:    []string{"kind", "headers", "rows"},
+		Description: "A single table. Every cell is a string. `headers` is optional -- a table without them renders with no header row, and an override supplying only rows inherits the headers of the table it replaces or appends to.",
+		Required:    []string{"kind", "rows"},
 		Properties: map[string]*Node{
 			"kind":    {Type: "string", Const: "table"},
 			"headers": strs("Column headings."),
@@ -547,7 +547,7 @@ func tablesBlockNode() *Node {
 				Type: "array",
 				Items: &Node{
 					Type:     "object",
-					Required: []string{"title", "headers", "rows"},
+					Required: []string{"title", "rows"},
 					Properties: map[string]*Node{
 						"title":   str("Heading printed above this table."),
 						"headers": strs("Column headings."),
