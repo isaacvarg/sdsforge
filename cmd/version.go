@@ -51,7 +51,7 @@ var versionListCmd = &cobra.Command{
 
 		out := cmd.OutOrStdout()
 		if len(index.Versions) == 0 {
-			fmt.Fprintf(out, "document %d has no versions yet\n", id)
+			fmt.Fprintf(out, "document %s has no versions yet\n", id)
 			return nil
 		}
 
@@ -131,7 +131,7 @@ Printing needs a Chrome-based browser; nothing is recorded if it fails.`,
 		}
 		source, err := os.ReadFile(filepath.Join(dir, document.DocumentFile))
 		if err != nil {
-			return fmt.Errorf("reading document %d: %w", id, err)
+			return fmt.Errorf("reading document %s: %w", id, err)
 		}
 
 		files := map[string][]byte{
@@ -147,7 +147,7 @@ Printing needs a Chrome-based browser; nothing is recorded if it fails.`,
 		if err != nil {
 			return err
 		}
-		fmt.Fprintf(cmd.OutOrStdout(), "recorded version %s of document %d\n%s\n",
+		fmt.Fprintf(cmd.OutOrStdout(), "recorded version %s of document %s\n%s\n",
 			pending.Label, id, verDir)
 		return nil
 	},
@@ -172,7 +172,7 @@ The version may be given as its number ("1.1.0") or its id ("2").`,
 		}
 		ver, err := index.Find(args[1])
 		if err != nil {
-			return fmt.Errorf("document %d: %w", id, err)
+			return fmt.Errorf("document %s: %w", id, err)
 		}
 		verDir, err := document.VersionDir(id, ver)
 		if err != nil {
@@ -225,7 +225,7 @@ pass --force to discard them.`,
 		}
 		ver, err := index.Find(args[1])
 		if err != nil {
-			return fmt.Errorf("document %d: %w", id, err)
+			return fmt.Errorf("document %s: %w", id, err)
 		}
 
 		verDir, err := document.VersionDir(id, ver)
@@ -234,7 +234,7 @@ pass --force to discard them.`,
 		}
 		archived, err := os.ReadFile(filepath.Join(verDir, document.DocumentFile))
 		if err != nil {
-			return fmt.Errorf("reading version %s of document %d: %w", ver.Label, id, err)
+			return fmt.Errorf("reading version %s of document %s: %w", ver.Label, id, err)
 		}
 
 		dir, err := document.Dir(id)
@@ -254,7 +254,7 @@ pass --force to discard them.`,
 		}
 
 		fmt.Fprintf(cmd.OutOrStdout(),
-			"restored version %s of document %d to:\n%s\n\nIssue it with:  sdsforge document version create %d --patch -m \"...\"\n",
+			"restored version %s of document %s to:\n%s\n\nIssue it with:  sdsforge document version create %s --patch -m \"...\"\n",
 			ver.Label, id, livePath, id)
 		return nil
 	},
@@ -338,7 +338,7 @@ func bumpPart(cmd *cobra.Command) (document.BumpPart, error) {
 // rendered from an edited document claims to be an issue it is not. That is not
 // an error -- previewing an edit is exactly what 'generate' is for -- but it
 // must not go out silently.
-func warnIfDraft(id int, index document.VersionIndex, warn io.Writer) {
+func warnIfDraft(id document.ID, index document.VersionIndex, warn io.Writer) {
 	latest, ok := index.Latest()
 	if !ok {
 		return
@@ -365,15 +365,15 @@ func warnIfDraft(id int, index document.VersionIndex, warn io.Writer) {
 
 	if !bytes.Equal(live, archived) {
 		fmt.Fprintf(warn,
-			"warning: document %d has edits that version %s does not, so this sheet is a draft\n"+
-				"         issue it with:  sdsforge document version create %d --patch -m \"...\"\n",
+			"warning: document %s has edits that version %s does not, so this sheet is a draft\n"+
+				"         issue it with:  sdsforge document version create %s --patch -m \"...\"\n",
 			id, latest.Label, id)
 	}
 }
 
 // checkRecorded reports an error when the live document.yaml differs from every
 // archived one, which means it holds edits that no version can give back.
-func checkRecorded(id int, livePath string, index document.VersionIndex) error {
+func checkRecorded(id document.ID, livePath string, index document.VersionIndex) error {
 	live, err := os.ReadFile(livePath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -392,7 +392,7 @@ func checkRecorded(id int, livePath string, index document.VersionIndex) error {
 			if os.IsNotExist(err) {
 				continue
 			}
-			return fmt.Errorf("reading version %s of document %d: %w", ver.Label, id, err)
+			return fmt.Errorf("reading version %s of document %s: %w", ver.Label, id, err)
 		}
 		if bytes.Equal(live, archived) {
 			return nil
@@ -401,7 +401,7 @@ func checkRecorded(id int, livePath string, index document.VersionIndex) error {
 
 	return fmt.Errorf(
 		"%s has edits that no version holds; they would be lost.\n"+
-			"Record them first:  sdsforge document version create %d --patch -m \"...\"\n"+
+			"Record them first:  sdsforge document version create %s --patch -m \"...\"\n"+
 			"Or discard them:    add --force",
 		livePath, id)
 }

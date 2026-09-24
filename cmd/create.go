@@ -84,14 +84,19 @@ addresses the document by the id in that path, e.g. 'sdsforge document edit 1'.`
 			}
 		}
 
-		result, err := document.Create(providedName, content)
+		id, path, err := document.Create(content)
 		if err != nil {
 			fmt.Println("error saving document yaml")
 			fmt.Println(err)
 			return
 		}
 
-		fmt.Println(result)
+		// The id is printed because it can no longer be guessed: it is minted
+		// here rather than counted up, so this is the user's only sight of it
+		// before 'document list'. Every command takes a unique prefix, so the
+		// short form is what they will actually type.
+		fmt.Println(path)
+		fmt.Printf("document %s (%s)\n", id, id.Short())
 	},
 }
 

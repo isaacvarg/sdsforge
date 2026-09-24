@@ -43,7 +43,7 @@ Nothing is written; this only reports.`,
 // Factored out of classifyCmd so 'document edit --classify' shows exactly what
 // 'document classify' shows, rather than growing a second implementation of the
 // same pipeline that could drift from it.
-func runClassify(cmd *cobra.Command, id int) error {
+func runClassify(cmd *cobra.Command, id document.ID) error {
 	doc, versions, err := loadForRender(id)
 	if err != nil {
 		return err
@@ -64,10 +64,10 @@ func runClassify(cmd *cobra.Command, id int) error {
 	codes := doc.AllHazardCodes()
 	classification, err := tables.Classify(codes)
 	if err != nil {
-		return fmt.Errorf("document %d: %w", id, err)
+		return fmt.Errorf("document %s: %w", id, err)
 	}
 	if err := classification.ApplyText(doc.PrecautionaryText); err != nil {
-		return fmt.Errorf("document %d: %w", id, err)
+		return fmt.Errorf("document %s: %w", id, err)
 	}
 
 	out := cmd.OutOrStdout()

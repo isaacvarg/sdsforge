@@ -69,7 +69,7 @@ To keep an issue of it, record a version instead:
 // same path, including the rescue of the HTML when the browser stage fails.
 //
 // outPath empty means the document's own directory, named after the product.
-func runGenerate(cmd *cobra.Command, id int, htmlOnly bool, outPath string) error {
+func runGenerate(cmd *cobra.Command, id document.ID, htmlOnly bool, outPath string) error {
 	doc, versions, err := loadForRender(id)
 	if err != nil {
 		return err

@@ -98,11 +98,24 @@ with its available presets and variants, plus version 1.0.0:
 sdsforge document create "Sodium Chloride"
 ```
 
-The command prints the path to the file. Open it with the id it was given:
+The command prints the path to the file and the id it was given. Open it:
 
 ```sh
-sdsforge document edit 1
+sdsforge document edit 01K6H3PZ8Q7XN4V2R9BKTC5M0E
 ```
+
+Nobody types 26 characters. Anywhere an id is taken, a leading piece of one
+works, and so does the product name -- as long as it picks out only one
+document. These all reach the same sheet:
+
+```sh
+sdsforge document edit 01K6H3
+sdsforge document edit sodium-chloride
+sdsforge document edit "sodium chlor"
+```
+
+`sdsforge document list` shows the ids you have. The rest of this guide writes
+them as `<id>`.
 
 That opens `document.yaml` in your editor and re-reads it once you close it, so
 a broken edit is reported straight away. Fill in the product's details. The
@@ -116,7 +129,7 @@ hazard_codes: [H315, H319]
 Check what those codes produce before rendering anything. This writes nothing:
 
 ```sh
-sdsforge document classify 1
+sdsforge document classify <id>
 ```
 
 You get the hazard statements, signal word, pictograms and precautionary
@@ -131,7 +144,7 @@ Section 8's exposure limits — see the
 Print the sheet:
 
 ```sh
-sdsforge document generate 1
+sdsforge document generate <id>
 ```
 
 The PDF lands in the document's directory and is overwritten on every run. Pass
@@ -140,7 +153,7 @@ The PDF lands in the document's directory and is overwritten on every run. Pass
 When the sheet is ready to go out, record it as a revision:
 
 ```sh
-sdsforge document version create 1 --minor -m "Added skin irritation hazard"
+sdsforge document version create <id> --minor -m "Added skin irritation hazard"
 ```
 
 That archives the YAML, the HTML and the PDF into a snapshot directory and adds
@@ -167,6 +180,7 @@ reclassification or a new product identity.
 | `schema` | Print the JSON Schema for document.yaml. `-o <path>`, `--custom` |
 | `sections list [section-id]` | Inspect the content library |
 | `sections validate` | Check the whole library for errors |
+| `store migrate` | Convert a store off the old numeric document ids. `--dry-run` |
 | `config path` / `init` / `show` | Locate, create and inspect the config file |
 | `cd [id]` | Launch a shell in a document's directory |
 
@@ -175,7 +189,7 @@ reclassification or a new product identity.
 ## Editing a document
 
 ```sh
-sdsforge document edit 1
+sdsforge document edit <id>
 ```
 
 Opens the live `document.yaml`, waits for the editor to close, then re-reads the
@@ -196,8 +210,8 @@ way to answer "why does it keep starting vi".
 Two things can follow a successful edit:
 
 ```sh
-sdsforge document edit 1 --classify   # show what the hazard codes now produce
-sdsforge document edit 1 --generate   # re-render the PDF
+sdsforge document edit <id> --classify   # show what the hazard codes now produce
+sdsforge document edit <id> --generate   # re-render the PDF
 ```
 
 Turn either on for good under `[edit]`:
@@ -240,7 +254,7 @@ in the directory holding every document.
 To move your current shell instead, substitute the path:
 
 ```sh
-cd "$(sdsforge document path 1)"
+cd "$(sdsforge document path <id>)"
 ```
 
 `document path` writes a path to stdout and nothing else, which is what makes it
@@ -262,13 +276,36 @@ Both locations honour the XDG environment variables.
 ```
 ~/.config/sdsforge/config.toml            the config file
 ~/.local/share/sdsforge/documents/
-  index.yaml                              id to name
-  1/
+  01K6H3PZ8Q7XN4V2R9BKTC5M0E/             one document, named by its id
     document.yaml                         the live document
     sodium-chloride.pdf                   the last generate
     versions.yaml                         revision history
     versions/<snapshot>/                  archived yaml, html and pdf
 ```
+
+There is no index file. `document list` reads the directory itself, so it
+cannot disagree with what is in there.
+
+## Sharing a store
+
+The documents directory is often a git repository shared between colleagues.
+Nothing in it is written by more than one person's `document create`: a
+document id is a [ULID](https://github.com/ulid/spec), generated locally from
+the clock and 80 bits of randomness, so two people creating a document between
+pulls get two unrelated directories and git merges them without asking.
+
+A store still on the numeric ids sdsforge used to hand out needs converting
+once:
+
+```sh
+sdsforge store migrate
+```
+
+That renames every document directory and deletes the `index.yaml` that used to
+hand out the numbers. It renames everything at once, so run it when nobody has
+uncommitted work: have everyone commit and push, run it, commit the renames and
+push, then have everyone else pull. Old numeric ids stop working; `document
+list` shows the new ones. `--dry-run` prints what it would do.
 
 ## Custom content
 

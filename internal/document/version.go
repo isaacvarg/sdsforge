@@ -171,7 +171,7 @@ func sanitizeLabel(label string) string {
 }
 
 // VersionsDir returns the directory holding one document's snapshots.
-func VersionsDir(docID int) (string, error) {
+func VersionsDir(docID ID) (string, error) {
 	dir, err := Dir(docID)
 	if err != nil {
 		return "", err
@@ -180,7 +180,7 @@ func VersionsDir(docID int) (string, error) {
 }
 
 // VersionDir returns one snapshot's directory.
-func VersionDir(docID int, ver Version) (string, error) {
+func VersionDir(docID ID, ver Version) (string, error) {
 	dir, err := VersionsDir(docID)
 	if err != nil {
 		return "", err
@@ -191,11 +191,19 @@ func VersionDir(docID int, ver Version) (string, error) {
 // LoadVersions reads a document's version history. A document with no versions
 // yet loads as an empty index rather than an error, the same way the document
 // index does.
-func LoadVersions(docID int) (VersionIndex, error) {
-	path, err := versionsPath(docID)
+func LoadVersions(docID ID) (VersionIndex, error) {
+	dir, err := Dir(docID)
 	if err != nil {
 		return VersionIndex{}, err
 	}
+	return loadVersionsAt(dir)
+}
+
+// loadVersionsAt is LoadVersions by directory rather than by id, for the
+// migration -- which reads the history of documents whose directories do not
+// yet have ids.
+func loadVersionsAt(dir string) (VersionIndex, error) {
+	path := filepath.Join(dir, versionsFile)
 
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -220,7 +228,7 @@ func LoadVersions(docID int) (VersionIndex, error) {
 // The files land first and the index is saved last, matching Create: a failed
 // write must not burn an id or leave the index pointing at a snapshot that is
 // not there.
-func CommitVersion(docID int, ver Version, index VersionIndex, files map[string][]byte) error {
+func CommitVersion(docID ID, ver Version, index VersionIndex, files map[string][]byte) error {
 	dir, err := VersionDir(docID, ver)
 	if err != nil {
 		return err
@@ -247,7 +255,7 @@ func CommitVersion(docID int, ver Version, index VersionIndex, files map[string]
 	return saveVersions(docID, index.WithPending(ver))
 }
 
-func versionsPath(docID int) (string, error) {
+func versionsPath(docID ID) (string, error) {
 	dir, err := Dir(docID)
 	if err != nil {
 		return "", err
@@ -256,7 +264,7 @@ func versionsPath(docID int) (string, error) {
 }
 
 // saveVersions writes the index atomically, the way saveIndex does.
-func saveVersions(docID int, index VersionIndex) error {
+func saveVersions(docID ID, index VersionIndex) error {
 	path, err := versionsPath(docID)
 	if err != nil {
 		return err

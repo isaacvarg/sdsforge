@@ -13,9 +13,12 @@ func TestCreateRecordsInitialVersion(t *testing.T) {
 	isolate(t)
 
 	content := []byte("product_name: Acetone\n# an authored comment\n")
-	path, err := Create("Acetone", content)
+	id, path, err := Create(content)
 	if err != nil {
 		t.Fatalf("Create() error = %v", err)
+	}
+	if _, err := ParseID(string(id)); err != nil {
+		t.Fatalf("Create() returned id %q: %v", id, err)
 	}
 
 	live, err := os.ReadFile(path)
@@ -26,7 +29,7 @@ func TestCreateRecordsInitialVersion(t *testing.T) {
 		t.Errorf("live document = %q, want the content as given", live)
 	}
 
-	index, err := LoadVersions(1)
+	index, err := LoadVersions(id)
 	if err != nil {
 		t.Fatalf("LoadVersions() error = %v", err)
 	}
@@ -47,7 +50,7 @@ func TestCreateRecordsInitialVersion(t *testing.T) {
 		t.Errorf("artifacts = %q, want just %q", ver.Artifacts, DocumentFile)
 	}
 
-	dir, err := VersionDir(1, ver)
+	dir, err := VersionDir(id, ver)
 	if err != nil {
 		t.Fatalf("VersionDir() error = %v", err)
 	}
@@ -75,20 +78,25 @@ func TestCreateRecordsInitialVersion(t *testing.T) {
 func TestCreateVersionsArePerDocument(t *testing.T) {
 	isolate(t)
 
-	if _, err := Create("Acetone", []byte("product_name: Acetone\n")); err != nil {
+	first, _, err := Create([]byte("product_name: Acetone\n"))
+	if err != nil {
 		t.Fatalf("Create() error = %v", err)
 	}
-	if _, err := Create("Lye", []byte("product_name: Lye\n")); err != nil {
+	second, _, err := Create([]byte("product_name: Lye\n"))
+	if err != nil {
 		t.Fatalf("Create() error = %v", err)
+	}
+	if first == second {
+		t.Fatalf("two documents share the id %s", first)
 	}
 
-	for _, id := range []int{1, 2} {
+	for _, id := range []ID{first, second} {
 		index, err := LoadVersions(id)
 		if err != nil {
-			t.Fatalf("LoadVersions(%d) error = %v", id, err)
+			t.Fatalf("LoadVersions(%s) error = %v", id, err)
 		}
 		if len(index.Versions) != 1 || index.Versions[0].ID != 1 {
-			t.Errorf("document %d versions = %+v, want one version at id 1", id, index.Versions)
+			t.Errorf("document %s versions = %+v, want one version at id 1", id, index.Versions)
 		}
 	}
 }
@@ -96,11 +104,12 @@ func TestCreateVersionsArePerDocument(t *testing.T) {
 func TestLoadRoundTrip(t *testing.T) {
 	isolate(t)
 
-	if _, err := Create("Acetone", []byte("product_name: Acetone\nhazard_codes: [H225]\n")); err != nil {
+	id, _, err := Create([]byte("product_name: Acetone\nhazard_codes: [H225]\n"))
+	if err != nil {
 		t.Fatalf("Create() error = %v", err)
 	}
 
-	doc, err := Load(1)
+	doc, err := Load(id)
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}

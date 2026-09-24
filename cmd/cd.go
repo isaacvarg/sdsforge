@@ -52,8 +52,8 @@ given, so a prompt can show that it is not your top-level shell.`,
 		}
 
 		env := []string{"SDSFORGE_SUBSHELL=1"}
-		if id != 0 {
-			env = append(env, fmt.Sprintf("SDSFORGE_DOCUMENT_ID=%d", id))
+		if id != "" {
+			env = append(env, fmt.Sprintf("SDSFORGE_DOCUMENT_ID=%s", id))
 		}
 
 		if err := shell.Run(dir, env...); err != nil {

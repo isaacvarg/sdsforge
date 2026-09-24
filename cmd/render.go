@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"strconv"
 
 	"github.com/isaacvarg/sdsforge/internal/config"
 	"github.com/isaacvarg/sdsforge/internal/document"
@@ -43,7 +42,7 @@ type sheet struct {
 // supplier block being ignored, an oversized logo.
 func buildSheet(
 	ctx context.Context,
-	id int,
+	id document.ID,
 	doc document.Data,
 	versions document.VersionIndex,
 	warn io.Writer,
@@ -68,7 +67,7 @@ func buildSheet(
 			return sheet{}, err
 		}
 		fmt.Fprintf(warn,
-			"document %d: the 'supplier:' block is no longer read; company and emergency details come from %s\n",
+			"document %s: the 'supplier:' block is no longer read; company and emergency details come from %s\n",
 			id, path)
 	}
 
@@ -80,10 +79,10 @@ func buildSheet(
 	}
 	classification, err := tables.Classify(doc.AllHazardCodes())
 	if err != nil {
-		return sheet{}, fmt.Errorf("document %d: %w", id, err)
+		return sheet{}, fmt.Errorf("document %s: %w", id, err)
 	}
 	if err := classification.ApplyText(doc.PrecautionaryText); err != nil {
-		return sheet{}, fmt.Errorf("document %d: %w", id, err)
+		return sheet{}, fmt.Errorf("document %s: %w", id, err)
 	}
 
 	resolved, err := sections.ResolveAll(lib, doc.Sections, sections.ResolveContext{
@@ -91,7 +90,7 @@ func buildSheet(
 		HazardCodes: doc.HazardCodeSet(),
 	})
 	if err != nil {
-		return sheet{}, fmt.Errorf("resolving document %d:\n%w", id, err)
+		return sheet{}, fmt.Errorf("resolving document %s:\n%w", id, err)
 	}
 
 	// Prepared before anything is rendered, so a bad logo path fails without
@@ -154,7 +153,7 @@ func buildSheet(
 
 // loadForRender reads the document and its version history together, which is
 // what every rendering command needs before it can call buildSheet.
-func loadForRender(id int) (document.Data, document.VersionIndex, error) {
+func loadForRender(id document.ID) (document.Data, document.VersionIndex, error) {
 	doc, err := document.Load(id)
 	if err != nil {
 		return document.Data{}, document.VersionIndex{}, err
@@ -166,13 +165,13 @@ func loadForRender(id int) (document.Data, document.VersionIndex, error) {
 	return doc, versions, nil
 }
 
-// documentID parses the id argument shared by every per-document command.
-func documentID(arg string) (int, error) {
-	id, err := strconv.Atoi(arg)
-	if err != nil {
-		return 0, fmt.Errorf("document id must be a number, got %q", arg)
-	}
-	return id, nil
+// documentID resolves the id argument shared by every per-document command.
+//
+// Ids are ULIDs, so the argument is almost never the id itself. document.Resolve
+// accepts a leading piece of one, or the product name, and refuses anything that
+// picks out more than one document -- see its comment.
+func documentID(arg string) (document.ID, error) {
+	return document.Resolve(arg)
 }
 
 // documentDir resolves one document's directory and confirms it is really
@@ -182,7 +181,7 @@ func documentID(arg string) (int, error) {
 // DocumentsDir creates only the PARENT. So a mistyped id would otherwise reach
 // the user as a puzzling failure further along -- or, for a command that only
 // prints a path or launches a shell, as no failure at all.
-func documentDir(id int) (string, error) {
+func documentDir(id document.ID) (string, error) {
 	dir, err := document.Dir(id)
 	if err != nil {
 		return "", err
@@ -192,7 +191,7 @@ func documentDir(id int) (string, error) {
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
 		return "", fmt.Errorf(
-			"document %d does not exist\n"+
+			"document %s does not exist\n"+
 				"run 'sdsforge document list' to see the ones that do", id)
 	case err != nil:
 		return "", fmt.Errorf("checking %s: %w", dir, err)
@@ -205,17 +204,17 @@ func documentDir(id int) (string, error) {
 // targetDir resolves the directory named by the optional id argument that 'cd'
 // and 'document path' share.
 //
-// The returned id is 0 when no argument was given, meaning the directory
-// holding every document; real ids start at 1.
-func targetDir(args []string) (dir string, id int, err error) {
+// The returned id is empty when no argument was given, meaning the directory
+// holding every document.
+func targetDir(args []string) (dir string, id document.ID, err error) {
 	if len(args) == 0 {
 		dir, err = document.DocumentsDir()
-		return dir, 0, err
+		return dir, "", err
 	}
 
 	id, err = documentID(args[0])
 	if err != nil {
-		return "", 0, err
+		return "", "", err
 	}
 	dir, err = documentDir(id)
 	return dir, id, err

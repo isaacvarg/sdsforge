@@ -327,17 +327,6 @@ func (d Data) HasLegacySupplier() bool {
 	return d.Supplier != Supplier{}
 }
 
-type Index struct {
-	NextID         int          `yaml:"next_id"`
-	LastModifiedID int          `yaml:"last_modified_id"`
-	Documents      []IndexEntry `yaml:"documents"`
-}
-
-type IndexEntry struct {
-	ID   int    `yaml:"id"`
-	Name string `yaml:"name"`
-}
-
 // classificationTable renders section 2's GHS classification table.
 func classificationTable(cls *ghs.Classification) *sections.Table {
 	rows := make([][]string, 0, len(cls.Hazards))

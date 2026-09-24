@@ -16,12 +16,20 @@ func isolate(t *testing.T) {
 	t.Setenv("XDG_DATA_HOME", t.TempDir())
 }
 
+// testID1, testID3 and testID7 stand in for real ids. Any well-formed ULID
+// does: nothing in the version code reads an id for anything but a path.
+const (
+	testID1 = ID("01K6H3PZ8Q7XN4V2R9BKTC5M01")
+	testID3 = ID("01K6H3PZ8Q7XN4V2R9BKTC5M03")
+	testID7 = ID("01K6H3PZ8Q7XN4V2R9BKTC5M07")
+)
+
 func TestLoadVersionsMissingFile(t *testing.T) {
 	isolate(t)
 
 	// A document with no versions yet is not an error, the same way a missing
 	// document index is not.
-	got, err := LoadVersions(7)
+	got, err := LoadVersions(testID7)
 	if err != nil {
 		t.Fatalf("LoadVersions() error = %v", err)
 	}
@@ -33,7 +41,7 @@ func TestLoadVersionsMissingFile(t *testing.T) {
 func TestCommitVersionRoundTrip(t *testing.T) {
 	isolate(t)
 
-	index, err := LoadVersions(1)
+	index, err := LoadVersions(testID1)
 	if err != nil {
 		t.Fatalf("LoadVersions() error = %v", err)
 	}
@@ -41,13 +49,13 @@ func TestCommitVersionRoundTrip(t *testing.T) {
 	at := time.Date(2026, 9, 2, 14, 30, 15, 0, time.UTC)
 	ver := index.Draft("1.0.0", "Authored document", at)
 
-	if err := CommitVersion(1, ver, index, map[string][]byte{
+	if err := CommitVersion(testID1, ver, index, map[string][]byte{
 		DocumentFile: []byte("product_name: Acetone\n"),
 	}); err != nil {
 		t.Fatalf("CommitVersion() error = %v", err)
 	}
 
-	got, err := LoadVersions(1)
+	got, err := LoadVersions(testID1)
 	if err != nil {
 		t.Fatalf("LoadVersions() error = %v", err)
 	}
@@ -74,7 +82,7 @@ func TestCommitVersionRoundTrip(t *testing.T) {
 		t.Errorf("dir = %q, want %q", stored.Dir, want)
 	}
 
-	dir, err := VersionDir(1, stored)
+	dir, err := VersionDir(testID1, stored)
 	if err != nil {
 		t.Fatalf("VersionDir() error = %v", err)
 	}
@@ -90,10 +98,10 @@ func TestCommitVersionRoundTrip(t *testing.T) {
 func TestCommitVersionRecordsEveryArtifact(t *testing.T) {
 	isolate(t)
 
-	index, _ := LoadVersions(3)
+	index, _ := LoadVersions(testID3)
 	ver := index.Draft("1.1.0", "Added H314", time.Now())
 
-	if err := CommitVersion(3, ver, index, map[string][]byte{
+	if err := CommitVersion(testID3, ver, index, map[string][]byte{
 		DocumentFile: []byte("product_name: Lye\n"),
 		"lye.html":   []byte("<html></html>"),
 		"lye.pdf":    []byte("%PDF-1.4"),
@@ -101,14 +109,14 @@ func TestCommitVersionRecordsEveryArtifact(t *testing.T) {
 		t.Fatalf("CommitVersion() error = %v", err)
 	}
 
-	got, _ := LoadVersions(3)
+	got, _ := LoadVersions(testID3)
 	// Sorted, so the recorded list is stable rather than map-ordered.
 	want := []string{DocumentFile, "lye.html", "lye.pdf"}
 	if !reflect.DeepEqual(got.Versions[0].Artifacts, want) {
 		t.Errorf("artifacts = %q, want %q", got.Versions[0].Artifacts, want)
 	}
 
-	dir, _ := VersionDir(3, got.Versions[0])
+	dir, _ := VersionDir(testID3, got.Versions[0])
 	for _, name := range want {
 		if _, err := os.Stat(filepath.Join(dir, name)); err != nil {
 			t.Errorf("%s not written: %v", name, err)

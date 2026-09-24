@@ -21,7 +21,13 @@ in a document.yaml, plus the versions issued from it.
     path      print the directory holding its files
     version   record and inspect issued revisions
 
-Most subcommands take a document id, which 'list' and 'create' report.`,
+Most subcommands take a document id, which 'list' and 'create' report. An id is
+26 characters, and nowhere near all of it need be typed: a leading piece of one
+works, and so does the product name, as long as it picks out a single document.
+
+    sdsforge document edit 01K6H3PZ8Q7XN4V2R9BKTC5M0E
+    sdsforge document edit 01K6H3
+    sdsforge document edit suspension-shower-gel`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
 	},

@@ -45,7 +45,7 @@ does the same.`,
 
 // runValidate checks one document against the schema and then dry-runs its
 // render. Shared by 'document validate' and 'document generate --dry-run'.
-func runValidate(cmd *cobra.Command, id int) error {
+func runValidate(cmd *cobra.Command, id document.ID) error {
 	dir, err := documentDir(id)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func runValidate(cmd *cobra.Command, id int) error {
 
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("reading document %d: %w", id, err)
+		return fmt.Errorf("reading document %s: %w", id, err)
 	}
 
 	cfg, err := config.Load()
@@ -89,16 +89,16 @@ func runValidate(cmd *cobra.Command, id int) error {
 	}
 
 	if len(failures) > 0 {
-		return fmt.Errorf("document %d has problems:\n\n%s", id, strings.Join(failures, "\n\n"))
+		return fmt.Errorf("document %s has problems:\n\n%s", id, strings.Join(failures, "\n\n"))
 	}
 
-	fmt.Fprintf(cmd.OutOrStdout(), "document %d OK (layers: %s)\n", id, strings.Join(lib.Layers(), ", "))
+	fmt.Fprintf(cmd.OutOrStdout(), "document %s OK (layers: %s)\n", id, strings.Join(lib.Layers(), ", "))
 	return nil
 }
 
 // dryRunGenerate runs the render pipeline up to, but not including, printing,
 // and throws the result away.
-func dryRunGenerate(cmd *cobra.Command, id int, warn io.Writer) error {
+func dryRunGenerate(cmd *cobra.Command, id document.ID, warn io.Writer) error {
 	doc, versions, err := loadForRender(id)
 	if err != nil {
 		return err

@@ -64,8 +64,8 @@ so --classify=false suppresses a setting you have turned on.`,
 		if _, err := os.Stat(path); err != nil {
 			if errors.Is(err, fs.ErrNotExist) {
 				return fmt.Errorf(
-					"document %d has no live document.yaml at %s\n"+
-						"restore one:  sdsforge document version restore %d <version>", id, path, id)
+					"document %s has no live document.yaml at %s\n"+
+						"restore one:  sdsforge document version restore %s <version>", id, path, id)
 			}
 			return fmt.Errorf("checking %s: %w", path, err)
 		}
@@ -113,7 +113,7 @@ so --classify=false suppresses a setting you have turned on.`,
 			// is that the work was thrown away. It was not; the file on disk is
 			// whatever the editor wrote.
 			return fmt.Errorf(
-				"%w\n\nYour edit was saved. Fix it and run:  sdsforge document edit %d", err, id)
+				"%w\n\nYour edit was saved. Fix it and run:  sdsforge document edit %s", err, id)
 		}
 
 		// Both are skipped on a parse failure above: there is nothing to
